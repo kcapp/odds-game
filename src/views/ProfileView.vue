@@ -7,7 +7,7 @@
     </header>
     <p>
       <strong>change</strong>
-      {{ currentUser.requiresChange }}
+      {{ currentUser.requires_change }}
     </p>
     <p>
       <strong>Id:</strong>
@@ -21,7 +21,7 @@ export default {
   name: "UserProfile",
   data() {
     return {
-      requiresChange: true,
+      requires_change: true,
     };
   },
   computed: {
@@ -36,7 +36,7 @@ export default {
     if (!this.currentUser) {
       this.$router.push("/login");
     } else {
-      this.requiresChange = this.currentUser.requiresChange;
+      this.requires_change = this.currentUser.requires_change;
     }
   },
 };

@@ -1,37 +1,31 @@
-<template>
-  <div v-for="(group, index) in this.games">
-    <div style="border: 1px solid white">{{ this.groups[index].name }}</div>
-    <div v-for="(game, gameIndex) in group">
-      {{ gameIndex }}
-      {{ game.players[0] }} vs {{ game.players[1] }}
-      {{ game.match_mode.name }} is finished: {{ game.is_finished }}
-    </div>
-  </div>
-</template>
-
 <script>
 import axios from "axios";
+import TheBets from "@/components/TheBets.vue";
 
 export default {
+  components: { TheBets },
   data() {
     return {
+      tournamentId: 33,
       games: [],
-      groups: [],
+      players: [],
+      bets: [],
     };
   },
   mounted() {
     axios
       .all([
-        axios.get("https://darts.sportradar.ag/api/tournament/34/matches"),
-        axios.get("https://darts.sportradar.ag/api/tournament/groups"),
-        ,
+        axios.get(
+          "http://localhost:8002/tournament/" +
+            this.tournamentId +
+            "/probabilities"
+        ),
+        axios.get("http://localhost:8002/player"),
       ])
       .then(
-        axios.spread((games, groups) => {
-          console.log(groups.data);
-          console.log(games.data);
+        axios.spread((games, players) => {
           this.games = games.data;
-          this.groups = groups.data;
+          this.players = players.data;
         })
       )
       .catch((error) => {
@@ -40,3 +34,11 @@ export default {
   },
 };
 </script>
+
+<template>
+  <TheBets
+    :games="this.games"
+    :players="this.players"
+    :tournamentId="this.tournamentId"
+  />
+</template>

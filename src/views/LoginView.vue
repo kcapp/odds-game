@@ -52,11 +52,6 @@ export default {
   methods: {
     handleLogin() {
       this.loading = true;
-      //this.$validator.validateAll().then((isValid) => {
-      // if (false) {
-      //   this.loading = false;
-      //   return;
-      // }
       if (this.user.login && this.user.password) {
         this.$store.dispatch("auth/login", this.user).then(
           () => {
