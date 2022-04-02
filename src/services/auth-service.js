@@ -1,10 +1,10 @@
 import axios from "axios";
-const API_URL = "http://localhost:9001/user/";
+import appConfig from "../config/config.js";
 class AuthService {
   login(user) {
     return axios
       .post(
-        API_URL + "login",
+        appConfig.kcappOddsApiUrl + "/user/login",
         {
           login: user.login,
           password: user.password,

@@ -64,7 +64,7 @@ export default {
             <i class="fa-solid fa-flag"></i>
           </div>
           <div class="icon" v-else>
-            <i class="fa-solid fa-hourglass-start"></i>
+            <i class="fa-solid fa-spinner"></i>
           </div>
         </td>
         <td style="padding-left: 30px; min-width: 250px">
@@ -156,11 +156,6 @@ export default {
 <style scoped="scoped">
 h3 {
   display: inline;
-}
-
-.smGreenHeader {
-  font-size: 13px;
-  color: #3aaa35;
 }
 
 input:disabled {

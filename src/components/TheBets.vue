@@ -4,27 +4,38 @@ import axios from "axios";
 export default {
   data() {
     return {
+      tournamentId: 0,
       gameBets: [],
       finishedOnly: false,
       unfinishedOnly: false,
     };
   },
   components: { BetItem },
-  props: ["games", "players", "tournamentId"],
+  props: ["games", "players"],
   mounted() {
     axios
-      .get(
-        "http://localhost:9001/user/" +
-          this.$store.state.auth.user.user_id +
-          "/tournament/" +
-          this.tournamentId +
-          "/bets"
-      )
-      .then((bets) => {
-        for (const [index, value] of bets.data.entries()) {
-          this.gameBets[value.match_id] = value;
-          this.allBets[value.match_id] = value;
-        }
+      .get(this.kcappApiUrl + "/tournament/current/" + this.officeId)
+      .then((tournament) => {
+        this.tournamentId = tournament.data.id;
+
+        // Get the rest of the data after we fetch current tournament id
+        axios
+          .get(
+            this.kcappOddsApiUrl +
+              "/user/" +
+              this.$store.state.auth.user.user_id +
+              "/tournament/" +
+              this.tournamentId +
+              "/bets"
+          )
+          .then((bets) => {
+            for (const [index, value] of bets.data.entries()) {
+              this.gameBets[value.match_id] = value;
+            }
+          })
+          .catch((error) => {
+            console.log("Error when getting bets " + error);
+          });
       })
       .catch((error) => {
         console.log("Error when getting bets " + error);
@@ -60,16 +71,6 @@ export default {
 </script>
 
 <template>
-  <span class="fa-stack fa-2x" style="font-size: 12px">
-    <i
-      class="fa-solid fa-circle fa-stack-2x"
-      style="color: rgb(58, 170, 53)"
-    ></i>
-    <i
-      class="fa-solid fa-k fa-stack-1x fa-inverse fa-rotate-by"
-      style="--fa-rotate-angle: -25deg"
-    ></i>
-  </span>
   <div class="filterHeader">
     Filter:
     <a
