@@ -39,7 +39,14 @@ nav {
 }
 
 .item {
-    padding-top: 15px;
+    padding: 10px 5px;
+    width: 170px;
+    margin: 0 auto;
+}
+
+nav item.router-link-active {
+    background-color: white;
+    border-radius: 5px;
 }
 
 .textInput {
@@ -106,6 +113,13 @@ a {
     color: hsla(160, 100%, 37%, 1);
 }
 
+.juicyGreen {
+    color: #3aaa35;
+}
+
 .winnerColor {
     color: #fff;
 }
+
+.w40 {width: 40px;}
+.w60 {width: 60px;}

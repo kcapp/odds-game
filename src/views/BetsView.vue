@@ -6,7 +6,7 @@ export default {
   components: { TheBets },
   data() {
     return {
-      tournamentId: 33,
+      tournamentId: 34,
       games: [],
       players: [],
       bets: [],

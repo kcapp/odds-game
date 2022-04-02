@@ -1,6 +1,33 @@
 <script>
 export default {
+  data() {
+    return {
+      player1Bet: this.gameBets ? this.gameBets.bet_1 : (0).toFixed(2),
+      player2Bet: this.gameBets ? this.gameBets.bet_2 : (0).toFixed(2),
+      floatingDigits: 2,
+    };
+  },
   props: ["game", "players", "gameBets"],
+  computed: {
+    player1BetResult() {
+      if (this.gameBets) {
+        return (
+          this.player1Bet * this.game.player_odds[[this.game.players[0]]]
+        ).toFixed(this.floatingDigits);
+      } else {
+        return (0).toFixed(2);
+      }
+    },
+    player2BetResult() {
+      if (this.gameBets) {
+        return (
+          this.player2Bet * this.game.player_odds[[this.game.players[1]]]
+        ).toFixed(this.floatingDigits);
+      } else {
+        return (0).toFixed(2);
+      }
+    },
+  },
 };
 </script>
 
@@ -14,13 +41,19 @@ export default {
   >
     <table style="text-align: left">
       <tr>
-        <td colspan="2">&nbsp;</td>
-        <td style="font-size: 13px; color: #3aaa35">win prob.</td>
-        <td style="font-size: 13px; color: #3aaa35">odds</td>
+        <td colspan="2" class="smGreenHeader" v-if="game.is_finished">
+          finished
+        </td>
+        <td colspan="2" class="smGreenHeader" v-else>
+          scheduled: {{ game.created_at }}
+        </td>
+        <td class="smGreenHeader">win prob.</td>
+        <td class="smGreenHeader">odds</td>
         <td style="font-size: 13px">&nbsp;</td>
         <td style="font-size: 13px; color: #3aaa35; padding-left: 10px">
           your bet
         </td>
+        <td>&nbsp;</td>
       </tr>
       <tr>
         <td rowspan="2">
@@ -29,6 +62,9 @@ export default {
           </div>
           <div class="icon" v-else-if="game.is_walkover">
             <i class="fa-solid fa-flag"></i>
+          </div>
+          <div class="icon" v-else>
+            <i class="fa-solid fa-hourglass-start"></i>
           </div>
         </td>
         <td style="padding-left: 30px; min-width: 250px">
@@ -50,19 +86,24 @@ export default {
         </td>
         <td style="padding-left: 10px">
           <input
-            v-if="gameBets"
+            v-if="game.is_finished"
+            disabled="disabled"
             type="text"
-            class="textInput txtC"
-            style="width: 40px"
-            v-model="gameBets.bet_1"
+            class="textInput txtC w40"
+            v-model="this.player1Bet"
           />
           <input
             v-else
             type="text"
-            class="textInput txtC"
-            style="width: 40px"
-            value="0"
+            class="textInput txtC w40"
+            v-model="this.player1Bet"
           />
+        </td>
+        <td style="padding-left: 10px">
+          <i class="fa-solid fa-equals"></i>
+        </td>
+        <td class="w60 txtR">
+          {{ this.player1BetResult }}
         </td>
       </tr>
       <tr>
@@ -85,23 +126,28 @@ export default {
         </td>
         <td style="padding-left: 10px">
           <input
-            v-if="gameBets"
+            v-if="game.is_finished"
+            disabled="disabled"
             type="text"
-            class="textInput txtC"
-            style="width: 40px"
-            v-model="gameBets.bet_2"
+            class="textInput txtC w40"
+            v-model="this.player2Bet"
           />
           <input
             v-else
             type="text"
-            class="textInput txtC"
-            style="width: 40px"
-            value="0"
+            class="textInput txtC w40"
+            v-model="this.player2Bet"
           />
+        </td>
+        <td style="padding-left: 10px">
+          <i class="fa-solid fa-equals"></i>
+        </td>
+        <td class="w60 txtR">
+          {{ this.player2BetResult }}
         </td>
       </tr>
       <tr>
-        <td colspan="5">&nbsp;</td>
+        <td colspan="7">&nbsp;</td>
       </tr>
     </table>
   </div>
@@ -110,5 +156,14 @@ export default {
 <style scoped="scoped">
 h3 {
   display: inline;
+}
+
+.smGreenHeader {
+  font-size: 13px;
+  color: #3aaa35;
+}
+
+input:disabled {
+  background-color: #383838;
 }
 </style>
