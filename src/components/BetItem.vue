@@ -34,7 +34,7 @@ export default {
 <template>
   <div
     style="
-      margin: 30px 50px 30px 20px;
+      margin: 30px 50px 30px 50px;
       min-height: 100px;
       border-bottom: 1px solid #363636;
     "
@@ -156,6 +156,7 @@ export default {
 <style scoped="scoped">
 h3 {
   display: inline;
+  font-weight: 400;
 }
 
 input:disabled {

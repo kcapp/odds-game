@@ -24,22 +24,43 @@
           ></i>
         </span>
       </div>
-      <div class="item"><RouterLink to="/">Home</RouterLink></div>
-      <div class="item"><RouterLink to="/profile">Profile</RouterLink></div>
       <div class="item">
-        <RouterLink to="/tournaments">Tournaments</RouterLink>
+        <RouterLink to="/"> <i class="fa-solid fa-house"></i> Home</RouterLink>
       </div>
-      <div class="item"><RouterLink to="/bets">Bets</RouterLink></div>
       <div class="item">
-        <RouterLink @click.prevent="logOut" to="/">Log out</RouterLink>
+        <RouterLink to="/profile"
+          ><i class="fa-solid fa-user"></i> Profile</RouterLink
+        >
+      </div>
+      <div class="item">
+        <RouterLink to="/tournaments"
+          ><i class="fa-solid fa-trophy"></i> Tournaments</RouterLink
+        >
+      </div>
+      <div class="item">
+        <RouterLink to="/bets">
+          <i class="fa-solid fa-coins"></i>
+          Bets</RouterLink
+        >
+      </div>
+      <div class="item">
+        <RouterLink @click.prevent="logOut" to="/"
+          ><i class="fa-solid fa-right-from-bracket"></i> Log out</RouterLink
+        >
       </div>
     </nav>
     <nav v-else>
       <div style="margin-bottom: 50px">
         <img src="@/assets/logo128VC.png" width="60" />
       </div>
-      <div class="item"><RouterLink to="/">Home</RouterLink></div>
-      <div class="item"><RouterLink to="/login">Log in</RouterLink></div>
+      <div class="item">
+        <RouterLink to="/"><i class="fa-solid fa-house"></i> Home</RouterLink>
+      </div>
+      <div class="item">
+        <RouterLink to="/login"
+          ><i class="fa-solid fa-right-to-bracket"></i> Log in</RouterLink
+        >
+      </div>
     </nav>
   </div>
   <div class="content">
