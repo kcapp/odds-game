@@ -110,6 +110,7 @@ export default {
   </div>
   <div v-for="(game, index) in this.games" v-bind:key="index">
     <BetItem
+      :tournamentId="tournamentId"
       :coins="coins"
       :game="game"
       :players="game.players"

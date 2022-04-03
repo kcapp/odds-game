@@ -8,7 +8,7 @@ export default {
       floatingDigits: 2,
     };
   },
-  props: ["game", "players", "gameBets", "coins"],
+  props: ["game", "players", "gameBets", "coins", "tournamentId"],
   computed: {
     player1BetResult() {
       if (this.gameBets) {
@@ -31,15 +31,19 @@ export default {
   },
   methods: {
     postBet() {
+      const json = JSON.stringify({
+        id: this.gameBets ? this.gameBets.id : 0,
+        user_id: this.$store.state.auth.user.user_id,
+        tournament_id: parseInt(this.tournamentId),
+        match_id: parseInt(this.game.id),
+        bet_1: parseInt(this.player1Bet),
+        bet_x: 0,
+        bet_2: parseInt(this.player2Bet),
+      });
       axios
-        .post(this.kcappOddsApiUrl + "/bets/" + this.game.id, {
-          // headers: {
-          //   "Content-type": "application/x-www-form-urlencoded",
-          // },
-          userId: this.$store.state.auth.user.user_id,
-          tournamentId: this.tournamentId,
-        })
+        .post(this.kcappOddsApiUrl + "/bets/" + this.game.id, json)
         .then((res) => {
+          console.log(res);
           this.errors = [];
           this.errors.push("Player added");
         })
