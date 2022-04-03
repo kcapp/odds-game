@@ -90,8 +90,21 @@ export default {
               <div class="icon" v-else-if="game.is_walkover">
                 <i class="fa-solid fa-flag"></i>
               </div>
-              <div class="icon" v-else>
-                <i class="fa-solid fa-spinner"></i>
+              <div
+                class="icon"
+                v-else
+                style="overflow: hidden; filter: grayscale(100%)"
+              >
+                <img
+                  src="@/assets/logo128VC.png"
+                  width="60"
+                  style="
+                    margin-top: 44px;
+                    margin-left: -32px;
+                    transform: rotate(45deg);
+                    opacity: 0.3;
+                  "
+                />
               </div>
             </td>
             <td style="padding-left: 30px; min-width: 250px">
