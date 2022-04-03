@@ -8,6 +8,7 @@ export default {
       gameBets: [],
       finishedOnly: false,
       unfinishedOnly: false,
+      coins: 0,
     };
   },
   components: { BetItem },
@@ -20,21 +21,34 @@ export default {
 
         // Get the rest of the data after we fetch current tournament id
         axios
-          .get(
-            this.kcappOddsApiUrl +
-              "/user/" +
-              this.$store.state.auth.user.user_id +
-              "/tournament/" +
-              this.tournamentId +
-              "/bets"
+          .all([
+            axios.get(
+              this.kcappOddsApiUrl +
+                "/user/" +
+                this.$store.state.auth.user.user_id +
+                "/tournament/" +
+                this.tournamentId +
+                "/bets"
+            ),
+            axios.get(
+              this.kcappOddsApiUrl +
+                "/user/" +
+                this.$store.state.auth.user.user_id +
+                "/tournament/" +
+                this.tournamentId +
+                "/balance"
+            ),
+          ])
+          .then(
+            axios.spread((bets, balance) => {
+              for (const [index, value] of bets.data.entries()) {
+                this.gameBets[value.match_id] = value;
+              }
+              this.coins = balance.data.coins;
+            })
           )
-          .then((bets) => {
-            for (const [index, value] of bets.data.entries()) {
-              this.gameBets[value.match_id] = value;
-            }
-          })
           .catch((error) => {
-            console.log("Error when getting bets " + error);
+            console.log("Error when getting data for tournaments " + error);
           });
       })
       .catch((error) => {
@@ -96,6 +110,7 @@ export default {
   </div>
   <div v-for="(game, index) in this.games" v-bind:key="index">
     <BetItem
+      :coins="coins"
       :game="game"
       :players="game.players"
       :gameBets="gameBets[game.id]"

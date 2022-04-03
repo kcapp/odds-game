@@ -104,6 +104,15 @@ nav item.router-link-active {
     padding: 4px 7px;
 }
 
+.smSaveLabel {
+    font-size: 13px;
+    background-color: #3aaa35;
+    color: white;
+    border-radius: 5px;
+    padding: 4px 10px;
+    text-align: center;
+}
+
 div.content {
     width: calc(100% - 300px);
     margin-left: 300px;
@@ -143,3 +152,9 @@ a {
 
 .w40 {width: 40px;}
 .w60 {width: 60px;}
+
+.pt20 { padding-top: 20px;}
+.pl20 { padding-left: 20px;}
+
+.noMargin { margin: 0px;}
+.ibDisplay { display: inline-block;}

@@ -1,32 +1,80 @@
 <template>
   <div style="margin: 30px">
-    <div>
-      <h2>
-        Welcome, <span class="juicyGreen">{{ currentUser.login }}</span>
-      </h2>
-    </div>
     <div class="passwordWarning" v-if="currentUser.requires_change">
       You are using starter password. Please change it here.
     </div>
-    <div
-      style="
-        background-color: #22232c;
-        min-height: 100px;
-        padding: 20px;
-        border-radius: 10px;
-        margin-top: 20px;
-      "
-    >
-      Profile data
-    </div>
+    <table class="profileTable">
+      <tr>
+        <td>
+          <div class="profileBlockFill">
+            <div>
+              <div class="profilePictureCircleWrapper">
+                <div class="profilePictureContent">
+                  <i class="fa-solid fa-robot"></i>
+                </div>
+              </div>
+              <div class="profileName pt20 pl20">
+                <h3 class="cWhite noMargin">
+                  {{ this.userData.first_name }}
+                </h3>
+                <h2 class="cWhite noMargin">
+                  {{ this.userData.last_name }}
+                </h2>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td style="padding-left: 20px; width: 100%">
+          <div class="profileBlockFill">
+            <div style="color: white; font-weight: 500">
+              Match kcappCoins balance
+            </div>
+            <div style="color: #575656">
+              Coins earned by betting on match results.
+            </div>
+            <div style="padding: 10px 0px">
+              <span class="ibDisplay"
+                ><h1 class="noMargin">{{ this.coins.toFixed(2) }}</h1></span
+              >
+              <TheCoin></TheCoin>
+            </div>
+            <div style="color: white; font-weight: 500">
+              Tournament kcappCoins balance
+            </div>
+            <div style="color: #575656">
+              Coins earned by betting on tournament outcomes and special bets.
+            </div>
+            <div style="padding: 10px 0px">
+              <span class="ibDisplay"
+                ><h1 class="noMargin">
+                  {{ this.tournamentCoins.toFixed(2) }}
+                </h1></span
+              >
+              <TheCoin></TheCoin>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
   </div>
 </template>
 <script>
+import axios from "axios";
+import TheCoin from "@/components/TheCoin.vue";
+
 export default {
   name: "UserProfile",
+  components: { TheCoin },
   data() {
     return {
+      userData: {
+        first_name: "",
+        last_name: "",
+      },
       requires_change: true,
+      coins: 0,
+      tournamentCoins: 0,
+      currentTournamentId: 0,
     };
   },
   computed: {
@@ -42,7 +90,42 @@ export default {
       this.$router.push("/login");
     } else {
       this.requires_change = this.currentUser.requires_change;
+      axios
+        .get(this.kcappApiUrl + "/tournament/current/" + this.officeId)
+        .then((tournament) => {
+          this.currentTournamentId = tournament.data.id;
+
+          // Get the rest of the data after we fetch current tournament id
+          this.getUserData(this.currentUser.user_id);
+        })
+        .catch((error) => {
+          console.log("Error when getting current tournament " + error);
+        });
     }
+  },
+  methods: {
+    getUserData(userId) {
+      axios
+        .all([
+          axios.get(
+            this.kcappOddsApiUrl +
+              "/user/" +
+              userId +
+              "/tournament/" +
+              this.currentTournamentId +
+              "/balance"
+          ),
+        ])
+        .then(
+          axios.spread((userData) => {
+            this.coins = userData.data.coins;
+            this.tournamentCoins = userData.data.tournament_coins;
+          })
+        )
+        .catch((error) => {
+          console.log("Error when getting data for user " + error);
+        });
+    },
   },
 };
 </script>
@@ -54,5 +137,41 @@ export default {
   border-radius: 8px;
   color: white;
   font-weight: 600;
+}
+
+.profileTable {
+  width: 100%;
+}
+
+.profileTable td {
+  vertical-align: top;
+}
+
+.profileBlockFill {
+  background-color: #22232c;
+  min-height: 330px;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  height: 100%;
+}
+
+.profilePictureCircleWrapper {
+  overflow: hidden;
+  border-radius: 100%;
+  width: 200px;
+  height: 200px;
+  background-color: #1e1f26;
+}
+
+.profilePictureContent {
+  font-size: 50px;
+  color: #595959;
+  margin-top: 60px;
+  margin-left: 70px;
+}
+
+.cWhite {
+  color: white;
 }
 </style>

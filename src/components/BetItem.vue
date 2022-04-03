@@ -1,4 +1,5 @@
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -7,7 +8,7 @@ export default {
       floatingDigits: 2,
     };
   },
-  props: ["game", "players", "gameBets"],
+  props: ["game", "players", "gameBets", "coins"],
   computed: {
     player1BetResult() {
       if (this.gameBets) {
@@ -28,128 +29,166 @@ export default {
       }
     },
   },
+  methods: {
+    postBet() {
+      axios
+        .post(this.kcappOddsApiUrl + "/bets/" + this.game.id, {
+          // headers: {
+          //   "Content-type": "application/x-www-form-urlencoded",
+          // },
+          userId: this.$store.state.auth.user.user_id,
+          tournamentId: this.tournamentId,
+        })
+        .then((res) => {
+          this.errors = [];
+          this.errors.push("Player added");
+        })
+        .catch((error) => {
+          this.errors.push(error.response.data.errorText);
+        });
+    },
+  },
 };
 </script>
 
 <template>
-  <div
-    style="
-      margin: 30px 50px 30px 50px;
-      min-height: 100px;
-      border-bottom: 1px solid #363636;
-    "
-  >
-    <table style="text-align: left">
-      <tr>
-        <td colspan="2" class="smGreenHeader" v-if="game.is_finished">
-          finished
-        </td>
-        <td colspan="2" class="smGreenHeader" v-else>
-          scheduled: {{ game.created_at }}
-        </td>
-        <td class="smGreenHeader">win prob.</td>
-        <td class="smGreenHeader">odds</td>
-        <td style="font-size: 13px">&nbsp;</td>
-        <td style="font-size: 13px; color: #3aaa35; padding-left: 10px">
-          your bet
-        </td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td rowspan="2">
-          <div class="icon" v-if="game.is_finished">
-            <i class="fa-solid fa-flag-checkered"></i>
-          </div>
-          <div class="icon" v-else-if="game.is_walkover">
-            <i class="fa-solid fa-flag"></i>
-          </div>
-          <div class="icon" v-else>
-            <i class="fa-solid fa-spinner"></i>
-          </div>
-        </td>
-        <td style="padding-left: 30px; min-width: 250px">
-          <h3 v-if="game.winner_id === players[0]" class="winnerColor">
-            <slot name="playerOneName" />
-          </h3>
-          <h3 v-else>
-            <slot name="playerOneName" />
-          </h3>
-        </td>
-        <td style="width: 80px">
-          <slot name="probsPlayerOne" />
-        </td>
-        <td style="width: 50px">
-          <slot name="oddsPlayerOne" />
-        </td>
-        <td class="txtC">
-          <i class="fa-solid fa-xmark"></i>
-        </td>
-        <td style="padding-left: 10px">
-          <input
-            v-if="game.is_finished"
-            disabled="disabled"
-            type="text"
-            class="textInput txtC w40"
-            v-model="this.player1Bet"
-          />
-          <input
-            v-else
-            type="text"
-            class="textInput txtC w40"
-            v-model="this.player1Bet"
-          />
-        </td>
-        <td style="padding-left: 10px">
-          <i class="fa-solid fa-equals"></i>
-        </td>
-        <td class="w60 txtR">
-          {{ this.player1BetResult }}
-        </td>
-      </tr>
-      <tr>
-        <td style="padding-left: 30px">
-          <h3 v-if="game.winner_id === players[1]" class="winnerColor">
-            <slot name="playerTwoName" />
-          </h3>
-          <h3 v-else>
-            <slot name="playerTwoName" />
-          </h3>
-        </td>
-        <td>
-          <slot name="probsPlayerTwo" />
-        </td>
-        <td>
-          <slot name="oddsPlayerTwo" />
-        </td>
-        <td class="txtC">
-          <i class="fa-solid fa-xmark"></i>
-        </td>
-        <td style="padding-left: 10px">
-          <input
-            v-if="game.is_finished"
-            disabled="disabled"
-            type="text"
-            class="textInput txtC w40"
-            v-model="this.player2Bet"
-          />
-          <input
-            v-else
-            type="text"
-            class="textInput txtC w40"
-            v-model="this.player2Bet"
-          />
-        </td>
-        <td style="padding-left: 10px">
-          <i class="fa-solid fa-equals"></i>
-        </td>
-        <td class="w60 txtR">
-          {{ this.player2BetResult }}
-        </td>
-      </tr>
-      <tr>
-        <td colspan="7">&nbsp;</td>
-      </tr>
-    </table>
+  <div style="margin: 20px 50px 20px 20px">
+    <div
+      style="
+        background-color: #22232c;
+        padding: 20px;
+        border-radius: 10px;
+        min-height: 100px;
+      "
+    >
+      <form @submit.prevent="postBet()">
+        <table style="text-align: left">
+          <tr>
+            <td colspan="2" class="smGreenHeader" v-if="game.is_finished">
+              finished
+            </td>
+            <td colspan="2" class="smGreenHeader" v-else>
+              scheduled: {{ game.created_at }}
+            </td>
+            <td class="smGreenHeader">win prob.</td>
+            <td class="smGreenHeader">odds</td>
+            <td style="font-size: 13px">&nbsp;</td>
+            <td style="font-size: 13px; color: #3aaa35; padding-left: 10px">
+              your bet
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <td rowspan="2">
+              <div class="icon" v-if="game.is_finished">
+                <i class="fa-solid fa-flag-checkered"></i>
+              </div>
+              <div class="icon" v-else-if="game.is_walkover">
+                <i class="fa-solid fa-flag"></i>
+              </div>
+              <div class="icon" v-else>
+                <i class="fa-solid fa-spinner"></i>
+              </div>
+            </td>
+            <td style="padding-left: 30px; min-width: 250px">
+              <h3 v-if="game.winner_id === players[0]" class="winnerColor">
+                <slot name="playerOneName" />
+              </h3>
+              <h3 v-else>
+                <slot name="playerOneName" />
+              </h3>
+            </td>
+            <td style="width: 80px">
+              <slot name="probsPlayerOne" />
+            </td>
+            <td style="width: 50px">
+              <slot name="oddsPlayerOne" />
+            </td>
+            <td class="txtC">
+              <i class="fa-solid fa-xmark"></i>
+            </td>
+            <td style="padding-left: 10px">
+              <input
+                v-if="game.is_finished"
+                disabled="disabled"
+                type="text"
+                class="textInput txtC w40"
+                v-model="this.player1Bet"
+              />
+              <input
+                v-else
+                type="text"
+                class="textInput txtC w40"
+                v-model="this.player1Bet"
+              />
+            </td>
+            <td style="padding-left: 10px">
+              <i class="fa-solid fa-equals"></i>
+            </td>
+            <td class="w60 txtR">
+              {{ this.player1BetResult }}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-left: 30px">
+              <h3 v-if="game.winner_id === players[1]" class="winnerColor">
+                <slot name="playerTwoName" />
+              </h3>
+              <h3 v-else>
+                <slot name="playerTwoName" />
+              </h3>
+            </td>
+            <td>
+              <slot name="probsPlayerTwo" />
+            </td>
+            <td>
+              <slot name="oddsPlayerTwo" />
+            </td>
+            <td class="txtC">
+              <i class="fa-solid fa-xmark"></i>
+            </td>
+            <td style="padding-left: 10px">
+              <input
+                v-if="game.is_finished"
+                disabled="disabled"
+                type="text"
+                class="textInput txtC w40"
+                v-model="this.player2Bet"
+              />
+              <input
+                v-else
+                type="text"
+                class="textInput txtC w40"
+                v-model="this.player2Bet"
+              />
+            </td>
+            <td style="padding-left: 10px">
+              <i class="fa-solid fa-equals"></i>
+            </td>
+            <td class="w60 txtR">
+              {{ this.player2BetResult }}
+            </td>
+          </tr>
+          <tr>
+            <td colspan="8">
+              <hr />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <button
+                type="submit"
+                class="smSaveLabel"
+                v-if="!this.game.is_finished"
+              >
+                save
+              </button>
+            </td>
+            <td colspan="7">&nbsp;</td>
+          </tr>
+        </table>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -161,5 +200,16 @@ h3 {
 
 input:disabled {
   background-color: #383838;
+}
+
+hr {
+  height: 1px;
+  border: none;
+  color: #1e5b44;
+  background-color: #1e5b44;
+}
+
+button {
+  border: none;
 }
 </style>
