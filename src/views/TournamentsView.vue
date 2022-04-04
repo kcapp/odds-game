@@ -11,7 +11,9 @@ export default {
   },
   mounted() {
     axios
-      .all([axios.get(this.kcappApiUrl + "/tournament/" + this.officeId)])
+      .all([
+        axios.get(this.kcappApiUrl + "/tournament/office/" + this.officeId),
+      ])
       .then(
         axios.spread((tournaments) => {
           this.tournaments = tournaments.data;

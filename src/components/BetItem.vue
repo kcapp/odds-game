@@ -3,30 +3,22 @@ import axios from "axios";
 export default {
   data() {
     return {
-      player1Bet: this.gameBets ? this.gameBets.bet_1 : (0).toFixed(2),
-      player2Bet: this.gameBets ? this.gameBets.bet_2 : (0).toFixed(2),
+      player1Bet: this.gameBets ? this.gameBets.bet_1 : 0,
+      player2Bet: this.gameBets ? this.gameBets.bet_2 : 0,
       floatingDigits: 2,
     };
   },
   props: ["game", "players", "gameBets", "coins", "tournamentId"],
   computed: {
     player1BetResult() {
-      if (this.gameBets) {
-        return (
-          this.player1Bet * this.game.player_odds[[this.game.players[0]]]
-        ).toFixed(this.floatingDigits);
-      } else {
-        return (0).toFixed(2);
-      }
+      return (
+        this.player1Bet * this.game.player_odds[[this.game.players[0]]]
+      ).toFixed(this.floatingDigits);
     },
     player2BetResult() {
-      if (this.gameBets) {
-        return (
-          this.player2Bet * this.game.player_odds[[this.game.players[1]]]
-        ).toFixed(this.floatingDigits);
-      } else {
-        return (0).toFixed(2);
-      }
+      return (
+        this.player2Bet * this.game.player_odds[[this.game.players[1]]]
+      ).toFixed(this.floatingDigits);
     },
   },
   methods: {
