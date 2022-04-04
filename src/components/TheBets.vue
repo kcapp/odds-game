@@ -124,10 +124,18 @@ export default {
         {{ this.players[game.players[1]].name }}
       </template>
       <template #probsPlayerOne>
-        {{ game.player_winning_probabilities[[game.players[0]]] }}
+        {{
+          (game.player_winning_probabilities[[game.players[0]]] * 100).toFixed(
+            2
+          )
+        }}%
       </template>
       <template #probsPlayerTwo>
-        {{ game.player_winning_probabilities[[game.players[1]]] }}
+        {{
+          (game.player_winning_probabilities[[game.players[1]]] * 100).toFixed(
+            2
+          )
+        }}%
       </template>
       <template #oddsPlayerOne>
         {{ game.player_odds[[game.players[0]]] }}

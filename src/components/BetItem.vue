@@ -31,6 +31,9 @@ export default {
         bet_1: parseInt(this.player1Bet),
         bet_x: 0,
         bet_2: parseInt(this.player2Bet),
+        odds_1: parseFloat(this.game.player_odds[[this.game.players[0]]]),
+        odds_x: parseFloat(0),
+        odds_2: parseFloat(this.game.player_odds[[this.game.players[1]]]),
       });
       axios
         .post(this.kcappOddsApiUrl + "/bets/" + this.game.id, json)
@@ -193,7 +196,10 @@ export default {
                 save
               </button>
             </td>
-            <td colspan="7">&nbsp;</td>
+            <td>
+              <span v-if="gameBets" class="smWhite">bets placed</span>
+            </td>
+            <td colspan="6">&nbsp;</td>
           </tr>
         </table>
       </form>
@@ -220,5 +226,11 @@ hr {
 
 button {
   border: none;
+}
+
+.smWhite {
+  padding-left: 30px;
+  color: white;
+  font-size: 13px;
 }
 </style>
