@@ -8,6 +8,7 @@ export default {
       gameBets: [],
       finishedOnly: false,
       unfinishedOnly: false,
+      immutableCoins: 0,
       coins: 0,
     };
   },
@@ -45,6 +46,7 @@ export default {
                 this.gameBets[value.match_id] = value;
               }
               this.coins = balance.data.coins;
+              this.immutableCoins = balance.data.coins;
             })
           )
           .catch((error) => {
@@ -56,6 +58,32 @@ export default {
       });
   },
   methods: {
+    recalculateCoins(matchId, oldBet1, oldBet2) {
+      let sumNewBets = 0;
+      let sumOldBets = 0;
+
+      if (this.gameBets !== undefined) {
+        this.gameBets.forEach((bet) => {
+          sumOldBets += parseInt(bet.bet_1) + parseInt(bet.bet_2);
+        });
+      }
+
+      this.$refs.betItem.forEach((item) => {
+        sumNewBets += parseInt(item.player1Bet) + parseInt(item.player2Bet);
+      });
+
+      this.coins = this.immutableCoins + sumOldBets - sumNewBets;
+      if (this.coins < 0) {
+        this.$refs.betItem.forEach((item) => {
+          if (item.game.id === matchId) {
+            item.player1Bet = parseInt(oldBet1);
+            item.player2Bet = parseInt(oldBet2);
+            this.coins = this.immutableCoins;
+          }
+          //sumNewBets += parseInt(item.player1Bet) + parseInt(item.player2Bet);
+        });
+      }
+    },
     toggleFinished() {
       this.finishedOnly = true;
       this.unfinishedOnly = false;
@@ -85,6 +113,7 @@ export default {
 </script>
 
 <template>
+  <div>{{ this.coins }}</div>
   <div class="filterHeader">
     Filter:
     <a
@@ -110,12 +139,13 @@ export default {
   </div>
   <div v-for="(game, index) in this.games" v-bind:key="index">
     <BetItem
+      ref="betItem"
       :tournamentId="tournamentId"
-      :coins="coins"
       :game="game"
       :players="game.players"
       :gameBets="gameBets[game.id]"
       :class="{ hideItem: isShown(game) }"
+      @recalculateCoins="recalculateCoins"
     >
       <template #playerOneName>
         {{ this.players[game.players[0]].name }}

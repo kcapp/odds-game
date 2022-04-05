@@ -6,9 +6,13 @@ export default {
       player1Bet: this.gameBets ? this.gameBets.bet_1 : 0,
       player2Bet: this.gameBets ? this.gameBets.bet_2 : 0,
       floatingDigits: 2,
+      betId: 0,
+      matchBetsSum: this.gameBets
+        ? this.gameBets.bet_1 + this.gameBets.bet_2
+        : 0,
     };
   },
-  props: ["game", "players", "gameBets", "coins", "tournamentId"],
+  props: ["game", "players", "gameBets", "tournamentId"],
   computed: {
     player1BetResult() {
       return (
@@ -21,10 +25,13 @@ export default {
       ).toFixed(this.floatingDigits);
     },
   },
+  mounted() {
+    this.betId = this.gameBets ? this.gameBets.id : 0;
+  },
   methods: {
     postBet() {
       const json = JSON.stringify({
-        id: this.gameBets ? this.gameBets.id : 0,
+        id: this.betId,
         user_id: this.$store.state.auth.user.user_id,
         tournament_id: parseInt(this.tournamentId),
         match_id: parseInt(this.game.id),
@@ -38,12 +45,14 @@ export default {
       axios
         .post(this.kcappOddsApiUrl + "/bets/" + this.game.id, json)
         .then((res) => {
+          this.betId = res.data;
           console.log(res);
           this.errors = [];
           this.errors.push("Player added");
         })
         .catch((error) => {
-          this.errors.push(error.response.data.errorText);
+          console.log(error);
+          this.errors.push(error.response);
         });
     },
   },
@@ -132,6 +141,14 @@ export default {
                 type="text"
                 class="textInput txtC w40"
                 v-model="this.player1Bet"
+                @change="
+                  $emit(
+                    'recalculateCoins',
+                    this.game.id ? this.game.id : 0,
+                    this.gameBets ? this.gameBets.bet_1 : 0,
+                    this.gameBets ? this.gameBets.bet_2 : 0
+                  )
+                "
               />
             </td>
             <td style="padding-left: 10px">
@@ -172,6 +189,14 @@ export default {
                 type="text"
                 class="textInput txtC w40"
                 v-model="this.player2Bet"
+                @change="
+                  $emit(
+                    'recalculateCoins',
+                    this.game.id ? this.game.id : 0,
+                    this.gameBets ? this.gameBets.bet_1 : 0,
+                    this.gameBets ? this.gameBets.bet_2 : 0
+                  )
+                "
               />
             </td>
             <td style="padding-left: 10px">
