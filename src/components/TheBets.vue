@@ -80,7 +80,6 @@ export default {
             item.player2Bet = parseInt(oldBet2);
             this.coins = this.immutableCoins;
           }
-          //sumNewBets += parseInt(item.player1Bet) + parseInt(item.player2Bet);
         });
       }
     },
@@ -113,7 +112,6 @@ export default {
 </script>
 
 <template>
-  <div>{{ this.coins }}</div>
   <div class="filterHeader">
     Filter:
     <a
@@ -140,6 +138,7 @@ export default {
   <div v-for="(game, index) in this.games" v-bind:key="index">
     <BetItem
       ref="betItem"
+      :coinsAvailable="this.coins"
       :tournamentId="tournamentId"
       :game="game"
       :players="game.players"

@@ -7,12 +7,13 @@ export default {
       player2Bet: this.gameBets ? this.gameBets.bet_2 : 0,
       floatingDigits: 2,
       betId: 0,
+      messages: [],
       matchBetsSum: this.gameBets
         ? this.gameBets.bet_1 + this.gameBets.bet_2
         : 0,
     };
   },
-  props: ["game", "players", "gameBets", "tournamentId"],
+  props: ["game", "players", "gameBets", "tournamentId", "coinsAvailable"],
   computed: {
     player1BetResult() {
       return (
@@ -46,13 +47,12 @@ export default {
         .post(this.kcappOddsApiUrl + "/bets/" + this.game.id, json)
         .then((res) => {
           this.betId = res.data;
+          setTimeout((this.messages[this.betId] = "saved"), 1000);
+          setTimeout((this.messages[this.betId] = ""), 1000);
           console.log(res);
-          this.errors = [];
-          this.errors.push("Player added");
         })
         .catch((error) => {
           console.log(error);
-          this.errors.push(error.response);
         });
     },
   },
@@ -222,9 +222,15 @@ export default {
               </button>
             </td>
             <td>
+              <span>{{ this.messages[this.betId] }}</span>
               <span v-if="gameBets" class="smWhite">bets placed</span>
+              <span v-else>&nbsp;</span>
             </td>
-            <td colspan="6">&nbsp;</td>
+            <td colspan="4" class="txtR">
+              <span class="smallText">coins available: </span>
+              <span class="colWhite smallText">{{ this.coinsAvailable }}</span>
+            </td>
+            <td colspan="1">&nbsp;</td>
           </tr>
         </table>
       </form>
@@ -253,9 +259,35 @@ button {
   border: none;
 }
 
+.smallText {
+  font-size: 13px;
+}
+
+.colWhite {
+  color: white;
+}
+
 .smWhite {
   padding-left: 30px;
   color: white;
   font-size: 13px;
+}
+
+.savedMessage {
+  animation: fadeOut 2s forwards;
+  animation-delay: 1s;
+  color: white;
+  text-align: center;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
 }
 </style>
