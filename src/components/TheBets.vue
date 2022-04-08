@@ -1,6 +1,8 @@
 <script>
 import BetItem from "@/components/BetItem.vue";
 import axios from "axios";
+import io from "socket.io";
+
 export default {
   data() {
     return {
@@ -10,11 +12,23 @@ export default {
       unfinishedOnly: false,
       immutableCoins: 0,
       coins: 0,
+      socket: null,
     };
   },
   components: { BetItem },
   props: ["games", "players"],
   mounted() {
+    this.socket = io.Socket(`${window.location.origin}/active`);
+
+    socket.on("connect", (data) => {
+      socket.emit("join", "Client Connecting");
+    });
+    const activeSocket = io.connect();
+    activeSocket.on("warmup_started", (data) => {
+      if (data.match.tournament_id !== null) {
+        location.href = `/matches/${data.match.id}/obs`;
+      }
+    });
     axios
       .get(this.kcappApiUrl + "/tournament/current/" + this.officeId)
       .then((tournament) => {

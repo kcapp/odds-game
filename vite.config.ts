@@ -11,4 +11,17 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  server: {
+    proxy: {
+      // string shorthand
+      "/api": {
+        target: "http://localhost:9999",
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+      "/kcapp-api": {
+        target: "http://localhost:8001",
+        rewrite: (path) => path.replace(/^\/kcapp-api/, ""),
+      },
+    },
+  },
 });
