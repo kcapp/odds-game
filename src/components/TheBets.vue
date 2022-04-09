@@ -1,6 +1,8 @@
 <script>
 import BetItem from "@/components/BetItem.vue";
 import axios from "axios";
+import ioClient from "socket.io-client";
+
 export default {
   data() {
     return {
@@ -10,6 +12,8 @@ export default {
       unfinishedOnly: false,
       immutableCoins: 0,
       coins: 0,
+      socket: null,
+      activeGames: [],
     };
   },
   components: { BetItem },
@@ -39,14 +43,16 @@ export default {
                 this.tournamentId +
                 "/balance"
             ),
+            axios.get(this.kcappApiUrl + "/match/active"),
           ])
           .then(
-            axios.spread((bets, balance) => {
+            axios.spread((bets, balance, activeGames) => {
               for (const [index, value] of bets.data.entries()) {
                 this.gameBets[value.match_id] = value;
               }
               this.coins = balance.data.coins;
               this.immutableCoins = balance.data.coins;
+              this.activeGames = activeGames.data;
             })
           )
           .catch((error) => {
@@ -56,6 +62,15 @@ export default {
       .catch((error) => {
         console.log("Error when getting bets " + error);
       });
+    //ioClient("http://192.168.0.49:3000/active").on("warmup_started", (data) => {
+    ioClient("/sio/active").on("warmup_started", (data) => {
+      // get live match data from server socket
+      this.$refs.betItem.forEach((item) => {
+        if (item.game.id === data.match.id) {
+          item.live = true;
+        }
+      });
+    });
   },
   methods: {
     recalculateCoins(matchId, oldBet1, oldBet2) {
@@ -138,6 +153,7 @@ export default {
   <div v-for="(game, index) in this.games" v-bind:key="index">
     <BetItem
       ref="betItem"
+      :activeGames="this.activeGames"
       :coinsAvailable="this.coins"
       :tournamentId="tournamentId"
       :game="game"

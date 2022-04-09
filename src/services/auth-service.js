@@ -1,10 +1,10 @@
 import axios from "axios";
-import appConfig from "../config/config.js";
+import config from "../config/config.js";
 class AuthService {
   login(user) {
     return axios
       .post(
-        appConfig.kcappOddsApiUrl + "/user/login",
+        config.kcappOddsApiUrl + "/user/login",
         {
           login: user.login,
           password: user.password,
@@ -21,6 +21,9 @@ class AuthService {
           return localStorage.getItem("user");
         }
         return response.data;
+      })
+      .catch((error) => {
+        console.log(error);
       });
   }
   logout() {
