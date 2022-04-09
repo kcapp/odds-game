@@ -11,7 +11,7 @@ kcapp.connect(() => {
     kcapp.on('warmup_started', (data) => {
         const match = data.match;
         debug(`warmup_started for match ${match.id}`);
-        axios.put(`${ODDS_API}/match/${match.id}/started`).then(response => {
+        axios.put(`${ODDS_API}/games/${match.id}/start`).then(response => {
             debug(`Updated Odds-API with match started`);
         })
     });
@@ -26,7 +26,7 @@ kcapp.connect(() => {
                 winner_id: match.winner_id // Will be `null` on Draw
                 // Can also add homeWins and awayWins if we need it
             };
-            axios.put(`${ODDS_API}/match/${match.id}/finished`, body).then(response => {
+            axios.put(`${ODDS_API}/games/${match.id}/finish`, body).then(response => {
                 debug(`Updated Odds-API with match finish`);
             })
             .catch(error => {
