@@ -1,7 +1,7 @@
 <script>
 import BetItem from "@/components/BetItem.vue";
 import axios from "axios";
-import io from "socket.io";
+import ioClient from "socket.io-client";
 
 export default {
   data() {
@@ -13,22 +13,12 @@ export default {
       immutableCoins: 0,
       coins: 0,
       socket: null,
+      activeGames: [],
     };
   },
   components: { BetItem },
   props: ["games", "players"],
   mounted() {
-    this.socket = io.Socket(`${window.location.origin}/active`);
-
-    socket.on("connect", (data) => {
-      socket.emit("join", "Client Connecting");
-    });
-    const activeSocket = io.connect();
-    activeSocket.on("warmup_started", (data) => {
-      if (data.match.tournament_id !== null) {
-        location.href = `/matches/${data.match.id}/obs`;
-      }
-    });
     axios
       .get(this.kcappApiUrl + "/tournament/current/" + this.officeId)
       .then((tournament) => {
@@ -53,14 +43,16 @@ export default {
                 this.tournamentId +
                 "/balance"
             ),
+            axios.get(this.kcappApiUrl + "/match/active"),
           ])
           .then(
-            axios.spread((bets, balance) => {
+            axios.spread((bets, balance, activeGames) => {
               for (const [index, value] of bets.data.entries()) {
                 this.gameBets[value.match_id] = value;
               }
               this.coins = balance.data.coins;
               this.immutableCoins = balance.data.coins;
+              this.activeGames = activeGames.data;
             })
           )
           .catch((error) => {
@@ -70,6 +62,15 @@ export default {
       .catch((error) => {
         console.log("Error when getting bets " + error);
       });
+    //ioClient("http://192.168.0.49:3000/active").on("warmup_started", (data) => {
+    ioClient("/sio/active").on("warmup_started", (data) => {
+      // get live match data from server socket
+      this.$refs.betItem.forEach((item) => {
+        if (item.game.id === data.match.id) {
+          item.live = true;
+        }
+      });
+    });
   },
   methods: {
     recalculateCoins(matchId, oldBet1, oldBet2) {
@@ -152,6 +153,7 @@ export default {
   <div v-for="(game, index) in this.games" v-bind:key="index">
     <BetItem
       ref="betItem"
+      :activeGames="this.activeGames"
       :coinsAvailable="this.coins"
       :tournamentId="tournamentId"
       :game="game"

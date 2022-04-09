@@ -11,9 +11,17 @@ export default {
       matchBetsSum: this.gameBets
         ? this.gameBets.bet_1 + this.gameBets.bet_2
         : 0,
+      live: false,
     };
   },
-  props: ["game", "players", "gameBets", "tournamentId", "coinsAvailable"],
+  props: [
+    "game",
+    "players",
+    "gameBets",
+    "tournamentId",
+    "coinsAvailable",
+    "activeGames",
+  ],
   computed: {
     player1BetResult() {
       return (
@@ -28,6 +36,11 @@ export default {
   },
   mounted() {
     this.betId = this.gameBets ? this.gameBets.id : 0;
+    this.activeGames.forEach((item) => {
+      if (this.game.id === item.id) {
+        this.live = true;
+      }
+    });
   },
   methods: {
     postBet() {
@@ -36,6 +49,8 @@ export default {
         user_id: this.$store.state.auth.user.user_id,
         tournament_id: parseInt(this.tournamentId),
         match_id: parseInt(this.game.id),
+        player_1: this.game.players[0],
+        player_2: this.game.players[1],
         bet_1: parseInt(this.player1Bet),
         bet_x: 0,
         bet_2: parseInt(this.player2Bet),
@@ -216,10 +231,11 @@ export default {
               <button
                 type="submit"
                 class="smSaveLabel"
-                v-if="!this.game.is_finished"
+                v-if="!this.game.is_finished && !this.live"
               >
                 save
               </button>
+              <span v-if="this.live">match live <a>spectate</a></span>
             </td>
             <td>
               <span>{{ this.messages[this.betId] }}</span>

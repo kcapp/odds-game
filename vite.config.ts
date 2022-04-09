@@ -22,6 +22,11 @@ export default defineConfig({
         target: "http://localhost:8001",
         rewrite: (path) => path.replace(/^\/kcapp-api/, ""),
       },
+      "/sio": {
+        target: "http://localhost:3000",
+        rewrite: (path) => path.replace(/^\/sio/, ""),
+        ws: true,
+      },
     },
   },
 });
