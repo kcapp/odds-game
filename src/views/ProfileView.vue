@@ -120,6 +120,8 @@ export default {
           axios.spread((userData) => {
             this.coins = userData.data.coins;
             this.tournamentCoins = userData.data.tournament_coins;
+            this.userData.first_name = userData.data.first_name;
+            this.userData.last_name = userData.data.last_name;
           })
         )
         .catch((error) => {

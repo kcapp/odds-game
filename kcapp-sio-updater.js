@@ -17,6 +17,7 @@ kcapp.connect(() => {
     debug(`warmup_started for match ${match.id}`);
     axios.post(`${ODDS_API}/games/${match.id}/start`).then((response) => {
       debug(`Updated Odds-API with match started`);
+      console.info(`Updated Odds-API with match started`);
     });
   });
 

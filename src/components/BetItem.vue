@@ -1,6 +1,8 @@
 <script>
 import axios from "axios";
+import TheBoardIcon from "@/components/TheBoardIcon.vue";
 export default {
+  components: { TheBoardIcon },
   data() {
     return {
       player1Bet: this.gameBets ? this.gameBets.bet_1 : 0,
@@ -12,6 +14,8 @@ export default {
         ? this.gameBets.bet_1 + this.gameBets.bet_2
         : 0,
       live: false,
+      message: "",
+      betsOff: 0,
     };
   },
   props: [
@@ -20,7 +24,7 @@ export default {
     "gameBets",
     "tournamentId",
     "coinsAvailable",
-    "activeGames",
+    "gameMeta",
   ],
   computed: {
     player1BetResult() {
@@ -36,13 +40,30 @@ export default {
   },
   mounted() {
     this.betId = this.gameBets ? this.gameBets.id : 0;
-    this.activeGames.forEach((item) => {
-      if (this.game.id === item.id) {
-        this.live = true;
-      }
-    });
+    this.betsOff = this.gameMeta ? this.gameMeta.bets_off : 0;
+    this.live = this.game.is_started && !this.game.is_finished;
   },
   methods: {
+    isNumber: function (evt) {
+      evt = evt ? evt : window.event;
+      const charCode = evt.which ? evt.which : evt.keyCode;
+      if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        evt.preventDefault();
+      } else {
+        return true;
+      }
+    },
+    setBetMessage(msg) {
+      this.message = msg;
+    },
+    validateAndEmit() {
+      this.$emit(
+        "recalculateCoins",
+        this.game.id ? this.game.id : 0,
+        this.gameBets ? this.gameBets.bet_1 : 0,
+        this.gameBets ? this.gameBets.bet_2 : 0
+      );
+    },
     postBet() {
       const json = JSON.stringify({
         id: this.betId,
@@ -54,20 +75,23 @@ export default {
         bet_1: parseInt(this.player1Bet),
         bet_x: 0,
         bet_2: parseInt(this.player2Bet),
-        odds_1: parseFloat(this.game.player_odds[[this.game.players[0]]]),
-        odds_x: parseFloat(0),
-        odds_2: parseFloat(this.game.player_odds[[this.game.players[1]]]),
+        odds_1: parseFloat(
+          this.game.player_odds[[this.game.players[0]]].toFixed(3)
+        ),
+        odds_x: parseFloat("0"),
+        odds_2: parseFloat(
+          this.game.player_odds[[this.game.players[1]]].toFixed(3)
+        ),
       });
       axios
         .post(this.kcappOddsApiUrl + "/bets/" + this.game.id, json)
         .then((res) => {
           this.betId = res.data;
-          setTimeout((this.messages[this.betId] = "saved"), 1000);
-          setTimeout((this.messages[this.betId] = ""), 1000);
-          console.log(res);
+          this.message = "saved";
+          setTimeout(this.setBetMessage, 3000, "bets placed");
         })
         .catch((error) => {
-          console.log(error);
+          console.log(error.message);
         });
     },
   },
@@ -75,15 +99,8 @@ export default {
 </script>
 
 <template>
-  <div style="margin: 20px 50px 20px 20px">
-    <div
-      style="
-        background-color: #22232c;
-        padding: 20px;
-        border-radius: 10px;
-        min-height: 100px;
-      "
-    >
+  <div class="gameDivContainer">
+    <div :class="{ gameDivLive: this.live, gameDiv: !this.live }">
       <form @submit.prevent="postBet()">
         <table style="text-align: left">
           <tr>
@@ -95,11 +112,9 @@ export default {
             </td>
             <td class="smGreenHeader">win prob.</td>
             <td class="smGreenHeader">odds</td>
-            <td style="font-size: 13px">&nbsp;</td>
-            <td style="font-size: 13px; color: #3aaa35; padding-left: 10px">
-              your bet
-            </td>
-            <td>&nbsp;</td>
+            <td class="smallText">&nbsp;</td>
+            <td class="pl10 smallText smGreenHeader">your bet</td>
+            <td colspan="2">&nbsp;</td>
           </tr>
           <tr>
             <td rowspan="2">
@@ -109,22 +124,7 @@ export default {
               <div class="icon" v-else-if="game.is_walkover">
                 <i class="fa-solid fa-flag"></i>
               </div>
-              <div
-                class="icon"
-                v-else
-                style="overflow: hidden; filter: grayscale(100%)"
-              >
-                <img
-                  src="@/assets/logo128VC.png"
-                  width="60"
-                  style="
-                    margin-top: 44px;
-                    margin-left: -32px;
-                    transform: rotate(45deg);
-                    opacity: 0.3;
-                  "
-                />
-              </div>
+              <TheBoardIcon v-else />
             </td>
             <td style="padding-left: 30px; min-width: 250px">
               <h3 v-if="game.winner_id === players[0]" class="winnerColor">
@@ -143,27 +143,17 @@ export default {
             <td class="txtC">
               <i class="fa-solid fa-xmark"></i>
             </td>
-            <td style="padding-left: 10px">
-              <input
-                v-if="game.is_finished"
-                disabled="disabled"
-                type="text"
-                class="textInput txtC w40"
-                v-model="this.player1Bet"
-              />
+            <td class="pl10 txtC">
+              <span v-if="game.is_finished || this.live" class="txtC">
+                {{ this.player1Bet }}
+              </span>
               <input
                 v-else
                 type="text"
                 class="textInput txtC w40"
                 v-model="this.player1Bet"
-                @change="
-                  $emit(
-                    'recalculateCoins',
-                    this.game.id ? this.game.id : 0,
-                    this.gameBets ? this.gameBets.bet_1 : 0,
-                    this.gameBets ? this.gameBets.bet_2 : 0
-                  )
-                "
+                @keypress="this.isNumber($event)"
+                @change="this.validateAndEmit()"
               />
             </td>
             <td style="padding-left: 10px">
@@ -191,27 +181,17 @@ export default {
             <td class="txtC">
               <i class="fa-solid fa-xmark"></i>
             </td>
-            <td style="padding-left: 10px">
-              <input
-                v-if="game.is_finished"
-                disabled="disabled"
-                type="text"
-                class="textInput txtC w40"
-                v-model="this.player2Bet"
-              />
+            <td class="pl10 txtC">
+              <span v-if="game.is_finished || this.live" class="txtC">
+                {{ this.player2Bet }}
+              </span>
               <input
                 v-else
                 type="text"
                 class="textInput txtC w40"
                 v-model="this.player2Bet"
-                @change="
-                  $emit(
-                    'recalculateCoins',
-                    this.game.id ? this.game.id : 0,
-                    this.gameBets ? this.gameBets.bet_1 : 0,
-                    this.gameBets ? this.gameBets.bet_2 : 0
-                  )
-                "
+                @keypress="this.isNumber($event)"
+                @change="this.validateAndEmit()"
               />
             </td>
             <td style="padding-left: 10px">
@@ -227,26 +207,39 @@ export default {
             </td>
           </tr>
           <tr>
-            <td>
-              <button
-                type="submit"
-                class="smSaveLabel"
-                v-if="!this.game.is_finished && !this.live"
-              >
-                save
-              </button>
-              <span v-if="this.live">match live <a>spectate</a></span>
+            <td class="smallText">
+              <div v-if="this.live">
+                <button
+                  class="smSaveLabel"
+                  v-if="this.live"
+                  @click="$router.push('/')"
+                >
+                  view
+                </button>
+              </div>
+              <div v-else>
+                <button
+                  type="submit"
+                  class="smSaveLabel"
+                  v-if="!this.game.is_finished && !this.live && !this.betsOff"
+                >
+                  save
+                </button>
+              </div>
             </td>
-            <td>
-              <span>{{ this.messages[this.betId] }}</span>
-              <span v-if="gameBets" class="smWhite">bets placed</span>
-              <span v-else>&nbsp;</span>
+            <td class="smallText pl30 colWhite">
+              <span v-if="this.live"
+                ><i class="fa-solid fa-circle-play"></i> live match</span
+              >
+              <span v-else>{{ this.message }}</span>
             </td>
             <td colspan="4" class="txtR">
               <span class="smallText">coins available: </span>
-              <span class="colWhite smallText">{{ this.coinsAvailable }}</span>
+              <span class="colWhite smallText">{{
+                this.coinsAvailable.toFixed(2)
+              }}</span>
             </td>
-            <td colspan="1">&nbsp;</td>
+            <td colspan="2">&nbsp;</td>
           </tr>
         </table>
       </form>
@@ -255,6 +248,10 @@ export default {
 </template>
 
 <style scoped="scoped">
+table td {
+  border: 0px solid white;
+}
+
 h3 {
   display: inline;
   font-weight: 400;
@@ -305,5 +302,23 @@ button {
     width: 0;
     height: 0;
   }
+}
+
+.gameDivContainer {
+  margin: 20px 50px 20px 20px;
+}
+
+.gameDiv {
+  background-color: #22232c;
+  padding: 20px;
+  border-radius: 10px;
+  min-height: 100px;
+}
+
+.gameDivLive {
+  background-color: #333444;
+  padding: 20px;
+  border-radius: 10px;
+  min-height: 100px;
 }
 </style>

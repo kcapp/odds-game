@@ -8,6 +8,7 @@ export default {
     return {
       tournamentId: 0,
       gameBets: [],
+      gameMeta: [],
       finishedOnly: false,
       unfinishedOnly: false,
       immutableCoins: 0,
@@ -43,16 +44,19 @@ export default {
                 this.tournamentId +
                 "/balance"
             ),
-            axios.get(this.kcappApiUrl + "/match/active"),
+            axios.get(this.kcappOddsApiUrl + "/games/meta"),
           ])
           .then(
-            axios.spread((bets, balance, activeGames) => {
+            axios.spread((bets, balance, meta) => {
               for (const [index, value] of bets.data.entries()) {
                 this.gameBets[value.match_id] = value;
               }
+              // set metadata indexed by match id
+              for (const [index, value] of meta.data.entries()) {
+                this.gameMeta[value.match_id] = value;
+              }
               this.coins = balance.data.coins;
               this.immutableCoins = balance.data.coins;
-              this.activeGames = activeGames.data;
             })
           )
           .catch((error) => {
@@ -62,8 +66,8 @@ export default {
       .catch((error) => {
         console.log("Error when getting bets " + error);
       });
-    //ioClient("http://192.168.0.49:3000/active").on("warmup_started", (data) => {
-    ioClient("/sio/active").on("warmup_started", (data) => {
+    // connection to server
+    ioClient(this.kcappSocketUrl + "/active").on("warmup_started", (data) => {
       // get live match data from server socket
       this.$refs.betItem.forEach((item) => {
         if (item.game.id === data.match.id) {
@@ -84,6 +88,12 @@ export default {
       }
 
       this.$refs.betItem.forEach((item) => {
+        if (item.player1Bet === "") {
+          item.player1Bet = 0;
+        }
+        if (item.player2Bet === "") {
+          item.player2Bet = 0;
+        }
         sumNewBets += parseInt(item.player1Bet) + parseInt(item.player2Bet);
       });
 
@@ -153,12 +163,12 @@ export default {
   <div v-for="(game, index) in this.games" v-bind:key="index">
     <BetItem
       ref="betItem"
-      :activeGames="this.activeGames"
       :coinsAvailable="this.coins"
       :tournamentId="tournamentId"
       :game="game"
       :players="game.players"
       :gameBets="gameBets[game.id]"
+      :gameMeta="gameMeta[game.id]"
       :class="{ hideItem: isShown(game) }"
       @recalculateCoins="recalculateCoins"
     >

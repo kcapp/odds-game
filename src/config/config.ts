@@ -1,7 +1,7 @@
 const config = {
   kcappApiUrl: "/kcapp-api",
-  kcappSocketUrl: "/sio",
   kcappOddsApiUrl: "/api",
+  kcappSocketUrl: `${window.location.protocol}//${window.location.hostname}:3000`,
   officeId: 1,
 };
 
