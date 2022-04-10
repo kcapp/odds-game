@@ -1,8 +1,9 @@
 <script>
 import axios from "axios";
 import TheBoardIcon from "@/components/TheBoardIcon.vue";
+import TheCoin from "@/components/TheCoin.vue";
 export default {
-  components: { TheBoardIcon },
+  components: { TheCoin, TheBoardIcon },
   data() {
     return {
       player1Bet: this.gameBets ? this.gameBets.bet_1 : 0,
@@ -44,6 +45,23 @@ export default {
     this.live = this.game.is_started && !this.game.is_finished;
   },
   methods: {
+    getBetCoinSum() {
+      if (this.game.winner_id === this.players[0]) {
+        if (this.player1BetResult - this.matchBetsSum > 0) {
+          return "+" + (this.player1BetResult - this.matchBetsSum).toFixed(2);
+        } else {
+          return (this.player1BetResult - this.matchBetsSum).toFixed(2);
+        }
+      }
+      if (this.game.winner_id === this.players[1]) {
+        if (this.player2BetResult - this.matchBetsSum > 0) {
+          return "+" + (this.player2BetResult - this.matchBetsSum).toFixed(2);
+        } else {
+          return (this.player2BetResult - this.matchBetsSum).toFixed(2);
+        }
+      }
+      return 0;
+    },
     isNumber: function (evt) {
       evt = evt ? evt : window.event;
       const charCode = evt.which ? evt.which : evt.keyCode;
@@ -115,6 +133,7 @@ export default {
             <td class="smallText">&nbsp;</td>
             <td class="pl10 smallText smGreenHeader">your bet</td>
             <td colspan="2">&nbsp;</td>
+            <td>&nbsp;</td>
           </tr>
           <tr>
             <td rowspan="2">
@@ -162,6 +181,20 @@ export default {
             <td class="w60 txtR">
               {{ this.player1BetResult }}
             </td>
+            <td rowspan="2">
+              <span v-if="game.is_finished && this.matchBetsSum > 0"
+                ><span
+                  :class="{
+                    betResultPlus: this.getBetCoinSum() > 0,
+                    betResultMinus: this.getBetCoinSum() < 0,
+                    betResult: this.getBetCoinSum() === 0,
+                  }"
+                >
+                  {{ this.getBetCoinSum() }}</span
+                >
+                <span><TheCoin /></span
+              ></span>
+            </td>
           </tr>
           <tr>
             <td style="padding-left: 30px">
@@ -202,7 +235,7 @@ export default {
             </td>
           </tr>
           <tr>
-            <td colspan="8">
+            <td colspan="9">
               <hr />
             </td>
           </tr>
@@ -239,7 +272,7 @@ export default {
                 this.coinsAvailable.toFixed(2)
               }}</span>
             </td>
-            <td colspan="2">&nbsp;</td>
+            <td colspan="3">&nbsp;</td>
           </tr>
         </table>
       </form>
@@ -250,6 +283,26 @@ export default {
 <style scoped="scoped">
 table td {
   border: 0px solid white;
+}
+
+.betResult {
+  padding-left: 20px;
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.betResultPlus {
+  padding-left: 20px;
+  font-size: 30px;
+  font-weight: 500;
+  color: #3aaa35;
+}
+
+.betResultMinus {
+  padding-left: 20px;
+  font-size: 30px;
+  font-weight: 500;
+  color: #e30716;
 }
 
 h3 {

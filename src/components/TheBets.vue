@@ -11,6 +11,7 @@ export default {
       gameMeta: [],
       finishedOnly: false,
       unfinishedOnly: false,
+      betsOnly: false,
       immutableCoins: 0,
       coins: 0,
       socket: null,
@@ -108,17 +109,25 @@ export default {
         });
       }
     },
+    toggleBets() {
+      this.betsOnly = true;
+      this.finishedOnly = false;
+      this.unfinishedOnly = false;
+    },
     toggleFinished() {
       this.finishedOnly = true;
       this.unfinishedOnly = false;
+      this.betsOnly = false;
     },
     toggleUnfinished() {
       this.unfinishedOnly = true;
       this.finishedOnly = false;
+      this.betsOnly = false;
     },
     toggleAll() {
       this.finishedOnly = false;
       this.unfinishedOnly = false;
+      this.betsOnly = false;
     },
     // Returns boolean value indicating whether the BetItem should be shown or not
     isShown(game) {
@@ -127,6 +136,12 @@ export default {
         return gameFinished === true;
       } else if (this.finishedOnly === true) {
         return gameFinished !== true;
+      } else if (this.betsOnly === true) {
+        if (this.gameBets[game.id] !== undefined) {
+          return true;
+        } else {
+          return false;
+        }
       } else {
         // By default, do not hide
         return false;
