@@ -81,13 +81,6 @@ export default {
       if (data.match.is_finished) {
         this.finalizeGame(data.match);
       }
-      console.log("leg_finished", data);
-      // get live match data from server socket
-      // this.$refs.betItem.forEach((item) => {
-      //   if (item.game.id === data.match.id) {
-      //     item.live = true;
-      //   }
-      // });
     });
   },
   methods: {
