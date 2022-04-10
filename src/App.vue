@@ -5,24 +5,14 @@
     <nav v-if="showUserMenu">
       <div style="margin-bottom: 50px">
         <img src="@/assets/logo128VC.png" width="60" />
-        <span
-          class="fa-stack fa-2x"
+        <TheCoin
           style="
-            font-size: 12px;
             position: absolute;
-            margin-left: -17px;
+            font-size: 14px;
+            margin-left: -16px;
             margin-top: 0px;
           "
-        >
-          <i
-            class="fa-solid fa-circle fa-stack-2x"
-            style="color: rgb(58, 170, 53)"
-          ></i>
-          <i
-            class="fa-solid fa-k fa-stack-1x fa-inverse fa-rotate-by"
-            style="--fa-rotate-angle: -25deg"
-          ></i>
-        </span>
+        />
       </div>
       <div class="item">
         <RouterLink to="/"> <i class="fa-solid fa-house"></i> Home</RouterLink>
@@ -69,7 +59,9 @@
 </template>
 
 <script>
+import TheCoin from "@/components/TheCoin.vue";
 export default {
+  components: { TheCoin },
   computed: {
     showUserMenu() {
       return !!this.$store.state.auth.user;

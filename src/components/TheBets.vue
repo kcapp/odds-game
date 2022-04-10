@@ -76,8 +76,31 @@ export default {
         }
       });
     });
+
+    ioClient(this.kcappSocketUrl + "/active").on("leg_finished", (data) => {
+      if (data.match.is_finished) {
+        this.finalizeGame(data.match);
+      }
+      console.log("leg_finished", data);
+      // get live match data from server socket
+      // this.$refs.betItem.forEach((item) => {
+      //   if (item.game.id === data.match.id) {
+      //     item.live = true;
+      //   }
+      // });
+    });
   },
   methods: {
+    finalizeGame(g) {
+      this.$refs.betItem.forEach((item) => {
+        if (item.game.id === g.id) {
+          item.game.is_finished = true;
+          item.live = false;
+          item.betsOff = true;
+          item.game.winner_id = g.winner_id;
+        }
+      });
+    },
     recalculateCoins(matchId, oldBet1, oldBet2) {
       let sumNewBets = 0;
       let sumOldBets = 0;
