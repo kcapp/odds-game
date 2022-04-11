@@ -1,6 +1,5 @@
 import axios from "axios";
 import config from "../config/config";
-import bcryptjs from "bcryptjs";
 
 class AuthService {
   login(user) {

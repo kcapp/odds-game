@@ -58,8 +58,8 @@ export default {
       this.loading = true;
       this.hashPass(this.user)
         .then((res) => {
-          this.user.password = btoa(this.user.password);
           if (this.user.login && this.user.password) {
+            this.user.password = btoa(this.user.password);
             this.$store.dispatch("auth/login", this.user).then(
               () => {
                 this.$router.push("/profile");

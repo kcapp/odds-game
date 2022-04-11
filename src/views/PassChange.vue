@@ -90,7 +90,7 @@ export default {
         return;
       }
 
-      //this.changePassword(this.$store.state.auth.user.login, btoa(this.p1));
+      this.changePassword(this.$store.state.auth.user.login, btoa(this.p1));
     },
   },
 };
