@@ -1,7 +1,8 @@
 <template>
   <div style="margin: 30px">
     <div class="passwordWarning" v-if="currentUser.requires_change">
-      You are using starter password. Please change it here.
+      You are using starter password. Please change it
+      <RouterLink style="color: black" to="/changepass">here</RouterLink>.
     </div>
     <table class="profileTable">
       <tr>

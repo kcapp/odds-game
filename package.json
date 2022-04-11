@@ -13,11 +13,12 @@
   },
   "dependencies": {
     "axios": "^0.26.1",
+    "bcryptjs": "^2.4.3",
+    "debug": "^4.3.2",
+    "socket.io-client": "^4.2.0",
     "vue": "^3.2.31",
     "vue-router": "^4.0.12",
-    "vuex": "^4.0.2",
-    "socket.io-client": "^4.2.0",
-    "debug": "^4.3.2"
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",
@@ -28,8 +29,8 @@
     "@vue/tsconfig": "^0.1.3",
     "eslint": "^8.5.0",
     "eslint-plugin-vue": "^8.2.0",
-    "prettier": "^2.5.1",
     "kcapp-sio-client": "github:kcapp/kcapp-sio-client",
+    "prettier": "^2.5.1",
     "typescript": "~4.5.5",
     "vite": "^2.8.4",
     "vue-tsc": "^0.31.4"

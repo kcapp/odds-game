@@ -30,6 +30,7 @@
 
 <script>
 import User from "../models/user";
+import bcryptjs from "bcryptjs";
 
 export default {
   data() {
@@ -50,19 +51,29 @@ export default {
     }
   },
   methods: {
+    hashPass(user) {
+      return bcryptjs.hash(user.password, 10);
+    },
     handleLogin() {
       this.loading = true;
-      if (this.user.login && this.user.password) {
-        this.$store.dispatch("auth/login", this.user).then(
-          () => {
-            this.$router.push("/profile");
-          },
-          (error) => {
-            this.loading = false;
-            this.message = error.response && error.response.data;
+      this.hashPass(this.user)
+        .then((res) => {
+          this.user.password = btoa(this.user.password);
+          if (this.user.login && this.user.password) {
+            this.$store.dispatch("auth/login", this.user).then(
+              () => {
+                this.$router.push("/profile");
+              },
+              (error) => {
+                this.loading = false;
+                this.message = error.response && error.response.data;
+              }
+            );
           }
-        );
-      }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
   },
 };
