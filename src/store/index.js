@@ -5,4 +5,9 @@ export default createStore({
   modules: {
     auth,
   },
+  mutations: {
+    disableRequiredPassChange(state) {
+      state.auth.user.requires_change = false;
+    },
+  },
 });

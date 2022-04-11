@@ -20,7 +20,10 @@
         <br />
         <br />
         <button type="submit" class="buttonGreen">change</button>
-        <div v-if="message" class="error" role="alert">
+        <div v-if="message" class="success" role="alert">
+          {{ message }}
+        </div>
+        <div v-if="errorMessage" class="error">
           {{ message }}
         </div>
       </form>
@@ -36,6 +39,7 @@ export default {
   data() {
     return {
       user: new User("", ""),
+      errorMessage: "",
       message: "",
       p1: "",
       p2: "",
@@ -58,7 +62,7 @@ export default {
     changePassword(userId, pass) {
       return axios
         .post(
-          this.kcappOddsApiUrl + "/user/changepass",
+          "/api/user/changepass",
           {
             login: userId,
             password: pass,
@@ -70,11 +74,28 @@ export default {
           }
         )
         .then((response) => {
-          return response.data;
+          // show only success message
+          this.message = response.data.message;
+          this.errorMessage = "";
+
+          // reset form fields
+          this.p1 = "";
+          this.p2 = "";
+
+          // set store value of required pass change to false
+          this.$store.commit("disableRequiredPassChange");
+          this.updateStorageValue("requires_change", false);
         })
         .catch((error) => {
-          console.log(error);
+          // show only error message
+          this.message = "";
+          this.errorMessage = error.data.message;
         });
+    },
+    updateStorageValue(key, value) {
+      let storageUser = JSON.parse(localStorage.getItem("user"));
+      storageUser[key] = value;
+      localStorage.setItem("user", JSON.stringify(storageUser));
     },
     handlePassChange() {
       if (this.p1 === "" || this.p2 === "") {
@@ -95,3 +116,10 @@ export default {
   },
 };
 </script>
+
+<style>
+.success {
+  padding: 20px 0px;
+  color: #3aaa35;
+}
+</style>

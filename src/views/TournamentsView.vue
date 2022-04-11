@@ -12,7 +12,9 @@ export default {
   mounted() {
     axios
       .all([
-        axios.get(this.kcappApiUrl + "/tournament/office/" + this.officeId),
+        axios.get(
+          "/kcapp-api/tournament/office/" + import.meta.env.VITE_OFFICE_ID
+        ),
       ])
       .then(
         axios.spread((tournaments) => {

@@ -102,7 +102,7 @@ export default {
         ),
       });
       axios
-        .post(this.kcappOddsApiUrl + "/bets/" + this.game.id, json)
+        .post("/api/bets/" + this.game.id, json)
         .then((res) => {
           this.betId = res.data;
           this.message = "saved";

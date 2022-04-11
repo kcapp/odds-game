@@ -14,13 +14,16 @@
                   <i class="fa-solid fa-robot"></i>
                 </div>
               </div>
-              <div class="profileName pt20 pl20">
+              <div class="profileName pt20 txtC">
                 <h3 class="cWhite noMargin">
                   {{ this.userData.first_name }}
                 </h3>
                 <h2 class="cWhite noMargin">
                   {{ this.userData.last_name }}
                 </h2>
+              </div>
+              <div class="pt20 txtC" v-if="!currentUser.requires_change">
+                <RouterLink to="/changepass">change password</RouterLink>
               </div>
             </div>
           </div>
@@ -92,7 +95,7 @@ export default {
     } else {
       this.requires_change = this.currentUser.requires_change;
       axios
-        .get(this.kcappApiUrl + "/tournament/current/" + this.officeId)
+        .get("/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID)
         .then((tournament) => {
           this.currentTournamentId = tournament.data.id;
 
@@ -109,8 +112,7 @@ export default {
       axios
         .all([
           axios.get(
-            this.kcappOddsApiUrl +
-              "/user/" +
+            "/api/user/" +
               userId +
               "/tournament/" +
               this.currentTournamentId +

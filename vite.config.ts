@@ -1,32 +1,28 @@
 import { fileURLToPath, URL } from "url";
-
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [vue()],
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
-  },
-  server: {
-    proxy: {
-      // string shorthand
-      "/api": {
-        target: "http://localhost:9999",
-        rewrite: (path) => path.replace(/^\/api/, ""),
+export default defineConfig(({ command, mode }) => {
+  // Load env file based on `mode` in the current working directory
+  const env = loadEnv(mode, process.cwd());
+  return {
+    plugins: [vue()],
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
-      "/kcapp-api": {
-        target: "http://localhost:8001",
-        rewrite: (path) => path.replace(/^\/kcapp-api/, ""),
-      },
-      // "/socket.io": {
-      //   target: "http://localhost:3000",
-      //   rewrite: (path) => path.replace(/^\/socket.io/, ""),
-      //   ws: true,
-      // },
     },
-  },
+    server: {
+      proxy: {
+        "/api": {
+          target: env.VITE_ODDS_API,
+          rewrite: (path) => path.replace(/^\/api/, ""),
+        },
+        "/kcapp-api": {
+          target: env.VITE_KCAPP_API,
+          rewrite: (path) => path.replace(/^\/kcapp-api/, ""),
+        },
+      },
+    },
+  };
 });

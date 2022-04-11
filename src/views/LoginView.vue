@@ -20,8 +20,8 @@
         <br />
         <br />
         <button type="submit" class="buttonGreen">login</button>
-        <div v-if="message" class="error" role="alert">
-          {{ message }}
+        <div v-if="this.message" class="error" role="alert">
+          {{ this.message }}
         </div>
       </form>
     </div>
@@ -51,29 +51,19 @@ export default {
     }
   },
   methods: {
-    hashPass(user) {
-      return bcryptjs.hash(user.password, 10);
-    },
     handleLogin() {
       this.loading = true;
-      this.hashPass(this.user)
-        .then((res) => {
-          if (this.user.login && this.user.password) {
-            this.user.password = btoa(this.user.password);
-            this.$store.dispatch("auth/login", this.user).then(
-              () => {
-                this.$router.push("/profile");
-              },
-              (error) => {
-                this.loading = false;
-                this.message = error.response && error.response.data;
-              }
-            );
+      if (this.user.login && this.user.password) {
+        this.$store.dispatch("auth/login", this.user).then(
+          () => {
+            this.$router.push("/profile");
+          },
+          (error) => {
+            this.loading = false;
+            this.message = error.message;
           }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        );
+      }
     },
   },
 };

@@ -1,14 +1,13 @@
 import axios from "axios";
-import config from "../config/config";
 
 class AuthService {
   login(user) {
     return axios
       .post(
-        config.kcappOddsApiUrl + "/user/login",
+        "/api/user/login",
         {
           login: user.login,
-          password: user.password,
+          password: btoa(user.password),
         },
         {
           headers: {
@@ -24,7 +23,7 @@ class AuthService {
         return response.data;
       })
       .catch((error) => {
-        console.log(error);
+        throw new Error(error.response.data.message);
       });
   }
   logout() {

@@ -22,7 +22,7 @@ export default {
   props: ["games", "players"],
   mounted() {
     axios
-      .get(this.kcappApiUrl + "/tournament/current/" + this.officeId)
+      .get("/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID)
       .then((tournament) => {
         this.tournamentId = tournament.data.id;
 
@@ -30,22 +30,20 @@ export default {
         axios
           .all([
             axios.get(
-              this.kcappOddsApiUrl +
-                "/user/" +
+              "/api/user/" +
                 this.$store.state.auth.user.user_id +
                 "/tournament/" +
                 this.tournamentId +
                 "/bets"
             ),
             axios.get(
-              this.kcappOddsApiUrl +
-                "/user/" +
+              "/api/user/" +
                 this.$store.state.auth.user.user_id +
                 "/tournament/" +
                 this.tournamentId +
                 "/balance"
             ),
-            axios.get(this.kcappOddsApiUrl + "/games/meta"),
+            axios.get("/api/games/meta"),
           ])
           .then(
             axios.spread((bets, balance, meta) => {
@@ -68,7 +66,12 @@ export default {
         console.log("Error when getting bets " + error);
       });
     // connection to server
-    ioClient(this.kcappSocketUrl + "/active").on("warmup_started", (data) => {
+    ioClient(
+      import.meta.env.VITE_KCAPP_SOCKET +
+        ":" +
+        import.meta.env.VITE_KCAPP_SOCKET_PORT +
+        "/active"
+    ).on("warmup_started", (data) => {
       // get live match data from server socket
       this.$refs.betItem.forEach((item) => {
         if (item.game.id === data.match.id) {
@@ -77,7 +80,12 @@ export default {
       });
     });
 
-    ioClient(this.kcappSocketUrl + "/active").on("leg_finished", (data) => {
+    ioClient(
+      import.meta.env.VITE_KCAPP_SOCKET +
+        ":" +
+        import.meta.env.VITE_KCAPP_SOCKET_PORT +
+        "/active"
+    ).on("leg_finished", (data) => {
       if (data.match.is_finished) {
         this.finalizeGame(data.match);
       }
