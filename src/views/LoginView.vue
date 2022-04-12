@@ -30,7 +30,6 @@
 
 <script>
 import User from "../models/user";
-import bcryptjs from "bcryptjs";
 
 export default {
   data() {

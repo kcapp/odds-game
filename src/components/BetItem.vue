@@ -17,6 +17,7 @@ export default {
       live: false,
       message: "",
       betsOff: 0,
+      enabledSave: true,
     };
   },
   props: [
@@ -45,6 +46,9 @@ export default {
     this.live = this.game.is_started && !this.game.is_finished;
   },
   methods: {
+    getGameId() {
+      return this.game.id;
+    },
     getBetCoinSum() {
       if (this.game.winner_id === this.players[0]) {
         if (this.player1BetResult - this.matchBetsSum > 0) {
@@ -81,6 +85,8 @@ export default {
         this.gameBets ? this.gameBets.bet_1 : 0,
         this.gameBets ? this.gameBets.bet_2 : 0
       );
+      // disable all others save buttons except the one on the bet you're editing
+      this.$emit("handleBetSaving", this.game.id);
     },
     postBet() {
       const json = JSON.stringify({
@@ -107,6 +113,8 @@ export default {
           this.betId = res.data;
           this.message = "saved";
           setTimeout(this.setBetMessage, 3000, "bets placed");
+          // enable all save buttons
+          this.$emit("enableBetSaving", this.game.id);
         })
         .catch((error) => {
           console.log(error.message);
@@ -168,6 +176,7 @@ export default {
               </span>
               <input
                 v-else
+                :disabled="!this.enabledSave"
                 type="text"
                 class="textInput txtC w40"
                 v-model="this.player1Bet"
@@ -220,6 +229,7 @@ export default {
               </span>
               <input
                 v-else
+                :disabled="!this.enabledSave"
                 type="text"
                 class="textInput txtC w40"
                 v-model="this.player2Bet"
@@ -245,13 +255,19 @@ export default {
                 <button
                   class="smSaveLabel"
                   v-if="this.live"
-                  @click="$router.push('/')"
+                  @click="
+                    $router.push({
+                      name: 'game',
+                      params: { id: this.game.id },
+                    })
+                  "
                 >
                   view
                 </button>
               </div>
               <div v-else>
                 <button
+                  :disabled="!this.enabledSave"
                   type="submit"
                   class="smSaveLabel"
                   v-if="!this.game.is_finished && !this.live && !this.betsOff"
@@ -346,6 +362,10 @@ button {
   text-align: center;
 }
 
+button:disabled {
+  background-color: #4a4b52b0;
+}
+
 @keyframes fadeOut {
   from {
     opacity: 1;
@@ -355,23 +375,5 @@ button {
     width: 0;
     height: 0;
   }
-}
-
-.gameDivContainer {
-  margin: 20px 50px 20px 20px;
-}
-
-.gameDiv {
-  background-color: #22232c;
-  padding: 20px;
-  border-radius: 10px;
-  min-height: 100px;
-}
-
-.gameDivLive {
-  background-color: #333444;
-  padding: 20px;
-  border-radius: 10px;
-  min-height: 100px;
 }
 </style>

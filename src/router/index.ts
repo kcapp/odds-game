@@ -4,6 +4,7 @@ import LoginView from "@/views/LoginView.vue";
 import BetsView from "@/views/BetsView.vue";
 import TournamentsView from "@/views/TournamentsView.vue";
 import PassChange from "@/views/PassChange.vue";
+import GameView from "@/views/GameView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +43,11 @@ const router = createRouter({
       path: "/changepass",
       name: "changePassword",
       component: PassChange,
+    },
+    {
+      path: "/game/:id",
+      name: "game",
+      component: GameView,
     },
   ],
 });

@@ -133,6 +133,16 @@ export default {
         });
       }
     },
+    handleBetSaving(gameId) {
+      this.$refs.betItem.forEach((item) => {
+        item.enabledSave = item.getGameId() === gameId;
+      });
+    },
+    enableBetSaving() {
+      this.$refs.betItem.forEach((item) => {
+        item.enabledSave = true;
+      });
+    },
     toggleBets() {
       this.betsOnly = true;
       this.finishedOnly = false;
@@ -210,6 +220,8 @@ export default {
       :gameMeta="gameMeta[game.id]"
       :class="{ hideItem: isShown(game) }"
       @recalculateCoins="recalculateCoins"
+      @handleBetSaving="handleBetSaving"
+      @enableBetSaving="enableBetSaving"
     >
       <template #playerOneName>
         {{ this.players[game.players[0]].name }}

@@ -163,8 +163,11 @@ a {
     color: #fff;
 }
 
+.m50 {margin: 50px;}
+
 .w40 {width: 40px;}
 .w60 {width: 60px;}
+.w100pc { width: 100%;}
 
 .pt20 { padding-top: 20px;}
 .pl10 { padding-left: 10px;}
@@ -176,4 +179,22 @@ a {
 .ibDisplay { display: inline-block;}
 
 .router-link-exact-active {
+}
+
+.gameDivContainer {
+    margin: 20px 50px 20px 20px;
+}
+
+.gameDiv {
+    background-color: #22232c;
+    padding: 20px;
+    border-radius: 10px;
+    min-height: 100px;
+}
+
+.gameDivLive {
+    background-color: #333444;
+    padding: 20px;
+    border-radius: 10px;
+    min-height: 100px;
 }
