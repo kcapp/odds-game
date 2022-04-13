@@ -6,6 +6,9 @@ import ioClient from "socket.io-client";
 export default {
   data() {
     return {
+      loaded: false,
+      balance: null,
+      coinsAvailable: 0,
       tournamentId: 0,
       gameBets: [],
       gameMeta: [],
@@ -20,7 +23,7 @@ export default {
   },
   components: { BetItem },
   props: ["games", "players"],
-  mounted() {
+  created() {
     axios
       .get("/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID)
       .then((tournament) => {
@@ -54,8 +57,10 @@ export default {
               for (const [index, value] of meta.data.entries()) {
                 this.gameMeta[value.match_id] = value;
               }
-              this.coins = balance.data.coins;
-              this.immutableCoins = balance.data.coins;
+              this.balance = balance.data;
+              this.loaded = true;
+
+              this.immutableCoins = 0; //balance.data.coins;
             })
           )
           .catch((error) => {
@@ -92,6 +97,16 @@ export default {
     });
   },
   methods: {
+    reloadBalance(newBalance) {
+      this.balance = newBalance;
+      this.$refs.betItem.forEach((item) => {
+        item.coinsAvailable =
+          newBalance.start_coins -
+          newBalance.coins_bets_open -
+          newBalance.coins_bets_closed +
+          newBalance.coins_won;
+      });
+    },
     finalizeGame(g) {
       this.$refs.betItem.forEach((item) => {
         if (item.game.id === g.id) {
@@ -209,47 +224,51 @@ export default {
       >all</a
     >
   </div>
-  <div v-for="(game, index) in this.games" v-bind:key="index">
-    <BetItem
-      ref="betItem"
-      :coinsAvailable="this.coins"
-      :tournamentId="tournamentId"
-      :game="game"
-      :players="game.players"
-      :gameBets="gameBets[game.id]"
-      :gameMeta="gameMeta[game.id]"
-      :class="{ hideItem: isShown(game) }"
-      @recalculateCoins="recalculateCoins"
-      @handleBetSaving="handleBetSaving"
-      @enableBetSaving="enableBetSaving"
-    >
-      <template #playerOneName>
-        {{ this.players[game.players[0]].name }}
-      </template>
-      <template #playerTwoName>
-        {{ this.players[game.players[1]].name }}
-      </template>
-      <template #probsPlayerOne>
-        {{
-          (game.player_winning_probabilities[[game.players[0]]] * 100).toFixed(
-            2
-          )
-        }}%
-      </template>
-      <template #probsPlayerTwo>
-        {{
-          (game.player_winning_probabilities[[game.players[1]]] * 100).toFixed(
-            2
-          )
-        }}%
-      </template>
-      <template #oddsPlayerOne>
-        {{ game.player_odds[[game.players[0]]] }}
-      </template>
-      <template #oddsPlayerTwo>
-        {{ game.player_odds[[game.players[1]]] }}
-      </template>
-    </BetItem>
+  <div v-if="loaded">
+    <div v-for="(game, index) in this.games" v-bind:key="index">
+      <BetItem
+        ref="betItem"
+        :balance="this.balance"
+        :coinsAvailable="this.coinsAvailable"
+        :tournamentId="tournamentId"
+        :game="game"
+        :players="game.players"
+        :gameBets="gameBets[game.id]"
+        :gameMeta="gameMeta[game.id]"
+        :class="{ hideItem: isShown(game) }"
+        @recalculateCoins="recalculateCoins"
+        @handleBetSaving="handleBetSaving"
+        @enableBetSaving="enableBetSaving"
+        @reloadBalance="reloadBalance"
+      >
+        <template #playerOneName>
+          {{ this.players[game.players[0]].name }}
+        </template>
+        <template #playerTwoName>
+          {{ this.players[game.players[1]].name }}
+        </template>
+        <template #probsPlayerOne>
+          {{
+            (
+              game.player_winning_probabilities[[game.players[0]]] * 100
+            ).toFixed(2)
+          }}%
+        </template>
+        <template #probsPlayerTwo>
+          {{
+            (
+              game.player_winning_probabilities[[game.players[1]]] * 100
+            ).toFixed(2)
+          }}%
+        </template>
+        <template #oddsPlayerOne>
+          {{ game.player_odds[[game.players[0]]] }}
+        </template>
+        <template #oddsPlayerTwo>
+          {{ game.player_odds[[game.players[1]]] }}
+        </template>
+      </BetItem>
+    </div>
   </div>
 </template>
 

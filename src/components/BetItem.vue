@@ -6,6 +6,7 @@ export default {
   components: { TheCoin, TheBoardIcon },
   data() {
     return {
+      coinsAvailable: 0,
       player1Bet: this.gameBets ? this.gameBets.bet_1 : 0,
       player2Bet: this.gameBets ? this.gameBets.bet_2 : 0,
       floatingDigits: 2,
@@ -20,14 +21,7 @@ export default {
       enabledSave: true,
     };
   },
-  props: [
-    "game",
-    "players",
-    "gameBets",
-    "tournamentId",
-    "coinsAvailable",
-    "gameMeta",
-  ],
+  props: ["balance", "game", "players", "gameBets", "tournamentId", "gameMeta"],
   computed: {
     player1BetResult() {
       return (
@@ -41,11 +35,32 @@ export default {
     },
   },
   mounted() {
+    this.coinsAvailable =
+      this.balance.start_coins -
+      this.balance.coins_bets_open -
+      this.balance.coins_bets_closed +
+      this.balance.coins_won;
+
     this.betId = this.gameBets ? this.gameBets.id : 0;
     this.betsOff = this.gameMeta ? this.gameMeta.bets_off : 0;
     this.live = this.game.is_started && !this.game.is_finished;
   },
   methods: {
+    getImmutableCoinsAvailable() {
+      return (
+        this.balance.start_coins -
+        this.balance.coins_bets_open -
+        this.balance.coins_bets_closed +
+        this.balance.coins_won
+      );
+    },
+    resetBalance() {
+      this.coinsAvailable =
+        this.balance.start_coins -
+        this.balance.coins_bets_open -
+        this.balance.coins_bets_closed +
+        this.balance.coins_won;
+    },
     getGameId() {
       return this.game.id;
     },
@@ -79,14 +94,70 @@ export default {
       this.message = msg;
     },
     validateAndEmit() {
-      this.$emit(
-        "recalculateCoins",
-        this.game.id ? this.game.id : 0,
-        this.gameBets ? this.gameBets.bet_1 : 0,
-        this.gameBets ? this.gameBets.bet_2 : 0
-      );
+      if (this.player1Bet === undefined || this.player1Bet === "") {
+        this.player1Bet = 0;
+      }
+      if (this.player2Bet === undefined || this.player2Bet === "") {
+        this.player2Bet = 0;
+      }
+
       // disable all others save buttons except the one on the bet you're editing
       this.$emit("handleBetSaving", this.game.id);
+
+      // this is the most important part, all the save buttons are disabled except current one
+      // is this an existing bet?
+      if (this.betId) {
+        let oldBetSum = parseInt(this.player1Bet) + parseInt(this.player2Bet);
+        let newBetSum = this.gameBets.bet_1 + this.gameBets.bet_2;
+        let balanceAfterBet =
+          this.getImmutableCoinsAvailable() - oldBetSum + newBetSum;
+        // check if we have enough coins
+        if (balanceAfterBet < 0) {
+          // if we do not, reset to db values and enable save buttons
+          this.resetBet(this.gameBets.bet_1, this.gameBets.bet_2);
+        } else {
+          // if we have enough coins, display balance - value and wait for save
+          this.coinsAvailable = balanceAfterBet;
+        }
+      } else {
+        // if this is not an existing bet in the db
+        // check the balance, if we have enough coins (more than the value)
+        let newBetSum = parseInt(this.player1Bet) + parseInt(this.player2Bet);
+        if (newBetSum === 0) {
+          // empty new bet, reset
+          this.resetBet(0, 0);
+        }
+        let balanceAfterBet = this.getImmutableCoinsAvailable() - newBetSum;
+        if (balanceAfterBet < 0) {
+          // if we do not, reset to 0 and enable save buttons
+          this.resetBet(0, 0);
+        } else {
+          // if we have enough coins, display balance - value and wait for save
+          this.coinsAvailable = balanceAfterBet;
+        }
+      }
+    },
+    resetBet(bet1, bet2) {
+      this.player1Bet = bet1;
+      this.player2Bet = bet2;
+      this.resetBalance();
+      this.$emit("enableBetSaving", this.game.id);
+    },
+    reloadBalance() {
+      axios
+        .get(
+          "/api/user/" +
+            this.$store.state.auth.user.user_id +
+            "/tournament/" +
+            this.tournamentId +
+            "/balance"
+        )
+        .then((balance) => {
+          this.$emit("reloadBalance", balance.data);
+        })
+        .catch((error) => {
+          console.log("Error reloading balance " + error);
+        });
     },
     postBet() {
       const json = JSON.stringify({
@@ -115,9 +186,13 @@ export default {
           setTimeout(this.setBetMessage, 3000, "bets placed");
           // enable all save buttons
           this.$emit("enableBetSaving", this.game.id);
+          // reset available coins for all games
         })
         .catch((error) => {
           console.log(error.message);
+        })
+        .finally(() => {
+          this.reloadBalance();
         });
     },
   },
@@ -283,10 +358,12 @@ export default {
               <span v-else>{{ this.message }}</span>
             </td>
             <td colspan="4" class="txtR">
-              <span class="smallText">coins available: </span>
-              <span class="colWhite smallText">{{
-                this.coinsAvailable.toFixed(2)
-              }}</span>
+              <div v-if="this.enabledSave">
+                <span class="smallText">coins available: </span>
+                <span class="colWhite smallText">{{
+                  this.coinsAvailable ? this.coinsAvailable.toFixed(2) : 0
+                }}</span>
+              </div>
             </td>
             <td colspan="3">&nbsp;</td>
           </tr>
