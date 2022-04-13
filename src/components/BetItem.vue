@@ -6,6 +6,7 @@ export default {
   components: { TheCoin, TheBoardIcon },
   data() {
     return {
+      currentUserId: null,
       coinsAvailable: 0,
       player1Bet: this.gameBets ? this.gameBets.bet_1 : 0,
       player2Bet: this.gameBets ? this.gameBets.bet_2 : 0,
@@ -44,6 +45,7 @@ export default {
     this.betId = this.gameBets ? this.gameBets.id : 0;
     this.betsOff = this.gameMeta ? this.gameMeta.bets_off : 0;
     this.live = this.game.is_started && !this.game.is_finished;
+    this.currentUserId = this.$store.state.auth.user.user_id;
   },
   methods: {
     getImmutableCoinsAvailable() {
@@ -251,7 +253,9 @@ export default {
               </span>
               <input
                 v-else
-                :disabled="!this.enabledSave"
+                :disabled="
+                  !this.enabledSave || this.currentUserId === this.players[0]
+                "
                 type="text"
                 class="textInput txtC w40"
                 v-model="this.player1Bet"
@@ -304,7 +308,9 @@ export default {
               </span>
               <input
                 v-else
-                :disabled="!this.enabledSave"
+                :disabled="
+                  !this.enabledSave || this.currentUserId === this.players[1]
+                "
                 type="text"
                 class="textInput txtC w40"
                 v-model="this.player2Bet"
