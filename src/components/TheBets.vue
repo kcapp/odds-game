@@ -180,17 +180,15 @@ export default {
     },
     // Returns boolean value indicating whether the BetItem should be shown or not
     isShown(game) {
+      console.log(this.betsOnly);
       let gameFinished = game.is_finished;
+      let hasBets = this.gameBets[game.id];
       if (this.unfinishedOnly === true) {
         return gameFinished === true;
       } else if (this.finishedOnly === true) {
         return gameFinished !== true;
       } else if (this.betsOnly === true) {
-        if (this.gameBets[game.id] !== undefined) {
-          return true;
-        } else {
-          return false;
-        }
+        return hasBets === undefined;
       } else {
         // By default, do not hide
         return false;
@@ -203,6 +201,10 @@ export default {
 <template>
   <div class="filterHeader">
     Filter:
+    <a href="#" @click="toggleBets" :class="{ juicyGreen: this.betsOnly }"
+      >my bets</a
+    >
+    |
     <a
       href="#"
       @click="toggleFinished"
