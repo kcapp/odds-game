@@ -413,13 +413,6 @@ input:disabled {
   background-color: #383838;
 }
 
-hr {
-  height: 1px;
-  border: none;
-  color: #1e5b44;
-  background-color: #1e5b44;
-}
-
 button {
   border: none;
 }

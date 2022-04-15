@@ -165,21 +165,6 @@ export default {
   height: 100%;
 }
 
-.profilePictureCircleWrapper {
-  overflow: hidden;
-  border-radius: 100%;
-  width: 200px;
-  height: 200px;
-  background-color: #1e1f26;
-}
-
-.profilePictureContent {
-  font-size: 50px;
-  color: #595959;
-  margin-top: 60px;
-  margin-left: 70px;
-}
-
 .cWhite {
   color: white;
 }

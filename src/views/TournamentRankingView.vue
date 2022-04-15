@@ -7,7 +7,7 @@ import TheGame from "@/components/TheGame.vue";
 import axios from "axios";
 import TheRanking from "@/components/TheRanking.vue";
 export default {
-  components: { TheRanking, TheGame },
+  components: { TheRanking },
   data() {
     return {
       tournamentId: 0,
