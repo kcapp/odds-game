@@ -1,6 +1,6 @@
 <template>
   <td class="txtR betFont"><slot name="bet1" /></td>
-  <td class="txtC"><slot name="playerName" /></td>
+  <td class="txtC colWhite"><slot name="playerName" /></td>
   <td class="txtL betFont"><slot name="bet2" /></td>
 </template>
 <script>

@@ -83,6 +83,22 @@
               <div class="gameTitle">Bets</div>
             </td>
           </tr>
+          <tr>
+            <td class="playerColumn txtR betFont">
+              {{ this.player1SumBets }}
+            </td>
+            <td class="txtC midColumn">total bets</td>
+            <td class="playerColumn txtL betFont">
+              {{ this.player2SumBets }}
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3">
+              <div style="margin: 0 auto; width: 60%">
+                <hr />
+              </div>
+            </td>
+          </tr>
           <tr v-for="(bet, index) in this.gameBets" v-bind:key="index">
             <GameBet>
               <template #bet1>{{ bet.bet_1 }}</template>
@@ -106,7 +122,7 @@ import GameBet from "@/components/GameBet.vue";
 import TheCoin from "@/components/TheCoin.vue";
 
 export default {
-  components: { TheCoin, GameBet },
+  components: { GameBet },
   props: ["gameId"],
   data() {
     return {
@@ -116,6 +132,8 @@ export default {
       gameBets: [],
       player1: null,
       player2: null,
+      player1SumBets: 0,
+      player2SumBets: 0,
       live: true,
       player1Elo: 0,
       player2Elo: 0,
@@ -157,16 +175,11 @@ export default {
                 }
               });
 
-              // // Assign names to bets
-              // Object.entries(this.gameBets).forEach((item) => {
-              //   if (this.players[item[1].user_id] !== undefined) {
-              //     item.user_name =
-              //       this.players[item[1].user_id].first_name +
-              //       " " +
-              //       this.players[item[1].user_id].last_name;
-              //   }
-              // });
-              // console.log(this.gameBets);
+              // summarise the bets
+              Object.entries(this.gameBets).forEach((item) => {
+                this.player1SumBets += item[1].bet_1;
+                this.player2SumBets += item[1].bet_2;
+              });
             })
           )
           .catch((error) => {
@@ -199,6 +212,11 @@ export default {
 }
 .gamePlayerName {
   font-size: 25px;
+  font-weight: 300;
+}
+
+.betFont {
+  font-size: 20px;
   font-weight: 300;
 }
 </style>

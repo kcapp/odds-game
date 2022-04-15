@@ -180,7 +180,6 @@ export default {
     },
     // Returns boolean value indicating whether the BetItem should be shown or not
     isShown(game) {
-      console.log(this.betsOnly);
       let gameFinished = game.is_finished;
       let hasBets = this.gameBets[game.id];
       if (this.unfinishedOnly === true) {
