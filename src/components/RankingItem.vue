@@ -4,6 +4,7 @@
   <td class="txtL"><TheCoin /></td>
   <td class="txtC"><slot name="coinsInActiveBets" /></td>
   <td class="txtC"><slot name="betsPlaced" /></td>
+  <td class="txtC"><slot name="potentialWinnings" /></td>
   <td class="txtR"><slot name="avgWin" /></td>
 </template>
 <script>

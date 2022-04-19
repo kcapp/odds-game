@@ -4,7 +4,7 @@
       You are using starter password. Please change it
       <RouterLink style="color: black" to="/changepass">here</RouterLink>.
     </div>
-    <table class="profileTable">
+    <table class="profileTable" v-if="this.userData && this.coins">
       <tr>
         <td>
           <div class="profileBlockFill">

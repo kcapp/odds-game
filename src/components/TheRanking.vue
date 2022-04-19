@@ -13,6 +13,7 @@
             <td>&nbsp;</td>
             <td class="juicyGreen txtC">coins in open bets</td>
             <td class="juicyGreen txtC">bets placed</td>
+            <td class="juicyGreen txtC">potential winnings</td>
             <td class="juicyGreen txtR">avg coins won / bet</td>
           </tr>
           <tr v-for="(item, index) in this.ranking" v-bind:key="index">
@@ -28,6 +29,9 @@
               </template>
               <template #betsPlaced>
                 {{ item.bets_placed }}
+              </template>
+              <template #potentialWinnings>
+                {{ item.potential_winnings.toFixed(2) }}
               </template>
               <template #avgWin>
                 {{ (item.coins_won / item.bets_placed).toFixed(2) }}
