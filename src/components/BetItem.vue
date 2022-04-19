@@ -20,6 +20,8 @@ export default {
       message: "",
       betsOff: 0,
       enabledSave: true,
+      gameDate: null,
+      gameTime: null,
     };
   },
   props: ["balance", "game", "players", "gameBets", "tournamentId", "gameMeta"],
@@ -46,6 +48,12 @@ export default {
     this.betsOff = this.gameMeta ? this.gameMeta.bets_off : 0;
     this.live = this.game.is_started && !this.game.is_finished;
     this.currentUserId = this.$store.state.auth.user.user_id;
+
+    this.gameDate = new Date(this.game.created_at).toLocaleDateString("en-gb");
+    this.gameTime = new Date(this.game.created_at).toLocaleTimeString("en-gb", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   },
   methods: {
     getImmutableCoinsAvailable() {
@@ -211,7 +219,8 @@ export default {
               finished
             </td>
             <td colspan="2" class="smGreenHeader" v-else>
-              scheduled: {{ game.created_at }}
+              scheduled:
+              {{ this.gameDate }} {{ this.gameTime }}
             </td>
             <td class="smGreenHeader">win prob.</td>
             <td class="smGreenHeader">odds</td>
