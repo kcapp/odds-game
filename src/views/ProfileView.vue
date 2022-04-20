@@ -8,10 +8,22 @@
       <tr>
         <td>
           <div class="profileBlockFill">
-            <div>
+            <div style="width: 200px">
               <div class="profilePictureCircleWrapper">
                 <div class="profilePictureContent">
-                  <i class="fa-solid fa-robot"></i>
+                  <img
+                    class="profileImg"
+                    v-bind:src="
+                      'https://darts.sportradar.ag' + this.profilePictureUrl
+                    "
+                    v-if="this.profilePictureUrl.startsWith('/')"
+                  />
+                  <img
+                    class="profileImg"
+                    v-bind:src="this.profilePictureUrl"
+                    v-else-if="this.profilePictureUrl.startsWith('https://')"
+                  />
+                  <i class="fa-solid fa-robot" v-else></i>
                 </div>
               </div>
               <div class="profileName pt20 txtC">
@@ -79,6 +91,7 @@ export default {
       coins: 0,
       tournamentCoins: 0,
       currentTournamentId: 0,
+      profilePictureUrl: "",
     };
   },
   computed: {
@@ -108,6 +121,13 @@ export default {
     }
   },
   methods: {
+    setProfilePictureUrl(s) {
+      if (s.startsWith("/")) {
+        this.profilePictureUrl = "https://darts.sportradar.ag" + s;
+      } else {
+        this.profilePictureUrl = s;
+      }
+    },
     getUserData(userId) {
       axios
         .all([
@@ -118,9 +138,10 @@ export default {
               this.currentTournamentId +
               "/balance"
           ),
+          axios.get("/kcapp-api/player/" + userId),
         ])
         .then(
-          axios.spread((userData) => {
+          axios.spread((userData, kcappPlayer) => {
             this.coins =
               userData.data.start_coins -
               userData.data.coins_bets_open -
@@ -129,6 +150,7 @@ export default {
             this.tournamentCoins = userData.data.tournament_coins_closed;
             this.userData.first_name = userData.data.first_name;
             this.userData.last_name = userData.data.last_name;
+            this.profilePictureUrl = kcappPlayer.data.profile_pic_url;
           })
         )
         .catch((error) => {
@@ -146,6 +168,11 @@ export default {
   border-radius: 8px;
   color: white;
   font-weight: 600;
+}
+
+.profileImg {
+  width: 120px;
+  margin-top: -20px;
 }
 
 .profileTable {

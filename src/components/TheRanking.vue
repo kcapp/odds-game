@@ -33,8 +33,16 @@
               <template #potentialWinnings>
                 {{ item.potential_winnings.toFixed(2) }}
               </template>
-              <template #avgWin>
-                {{ (item.coins_won / item.bets_placed).toFixed(2) }}
+              <template #avgWin v-if="item.bets_closed > 0">
+                {{
+                  (
+                    (item.coins_won - item.coins_bets_closed) /
+                    item.bets_closed
+                  ).toFixed(2)
+                }}
+              </template>
+              <template #avgWin v-else>
+                {{ (0).toFixed(2) }}
               </template>
             </RankingItem>
           </tr>
