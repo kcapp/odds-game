@@ -18,7 +18,7 @@
                 >{{ player1.first_name }} {{ player1.last_name }}</span
               >
             </td>
-            <td class="midColumn txtC">VS</td>
+            <td class="midColumn txtC">vs</td>
             <td class="playerColumn txtL colWhite">
               <span class="gamePlayerName" v-if="this.player2"
                 >{{ player2.first_name }} {{ player2.last_name }}</span
@@ -31,7 +31,7 @@
                 player1Elo
               }}</span>
             </td>
-            <td class="midColumn txtC">ELO</td>
+            <td class="midColumn txtC">elo</td>
             <td class="playerColumn txtL">
               <span class="gamePlayerName" v-if="this.player2">{{
                 player2Elo
@@ -51,7 +51,7 @@
                 %</span
               >
             </td>
-            <td class="midColumn txtC">WINNING</td>
+            <td class="midColumn txtC">winning</td>
             <td class="playerColumn txtL">
               <span class="gamePlayerName" v-if="this.player2"
                 >{{
@@ -71,7 +71,7 @@
                 this.probabilities.player_odds[player1.id]
               }}</span>
             </td>
-            <td class="midColumn txtC">ODDS</td>
+            <td class="midColumn txtC">odds</td>
             <td class="playerColumn txtL">
               <span class="gamePlayerName" v-if="this.player2">{{
                 this.probabilities.player_odds[player2.id]

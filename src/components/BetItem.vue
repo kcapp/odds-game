@@ -10,6 +10,10 @@ export default {
       coinsAvailable: 0,
       player1Bet: this.gameBets ? this.gameBets.bet_1 : 0,
       player2Bet: this.gameBets ? this.gameBets.bet_2 : 0,
+      player1CurrentOdds: 0,
+      player2CurrentOdds: 0,
+      player1BetOdds: 0,
+      player2BetOdds: 0,
       floatingDigits: 2,
       betId: 0,
       messages: [],
@@ -54,6 +58,15 @@ export default {
       hour: "2-digit",
       minute: "2-digit",
     });
+
+    this.player1CurrentOdds = this.game.player_odds[this.players[0]];
+    this.player2CurrentOdds = this.game.player_odds[this.players[1]];
+    this.player1BetOdds = this.gameBets
+      ? this.gameBets.odds_1
+      : this.player1CurrentOdds;
+    this.player2BetOdds = this.gameBets
+      ? this.gameBets.odds_2
+      : this.player2CurrentOdds;
   },
   methods: {
     getImmutableCoinsAvailable() {
@@ -223,7 +236,7 @@ export default {
               {{ this.gameDate }} {{ this.gameTime }}
             </td>
             <td class="smGreenHeader">win prob.</td>
-            <td class="smGreenHeader">odds</td>
+            <td class="smGreenHeader txtC">odds</td>
             <td class="smallText">&nbsp;</td>
             <td class="pl10 smallText smGreenHeader">your bet</td>
             <td colspan="2">&nbsp;</td>
@@ -250,7 +263,7 @@ export default {
             <td style="width: 80px">
               <slot name="probsPlayerOne" />
             </td>
-            <td style="width: 50px">
+            <td style="width: 90px" class="txtC">
               <slot name="oddsPlayerOne" />
             </td>
             <td class="txtC">
@@ -305,7 +318,7 @@ export default {
             <td>
               <slot name="probsPlayerTwo" />
             </td>
-            <td>
+            <td class="txtC">
               <slot name="oddsPlayerTwo" />
             </td>
             <td class="txtC">

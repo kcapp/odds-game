@@ -263,10 +263,18 @@ export default {
           }}%
         </template>
         <template #oddsPlayerOne>
-          {{ game.player_odds[[game.players[0]]] }}
+          {{
+            gameBets[game.id]
+              ? gameBets[game.id].odds_1
+              : game.player_odds[[game.players[0]]]
+          }}
         </template>
         <template #oddsPlayerTwo>
-          {{ game.player_odds[[game.players[1]]] }}
+          {{
+            gameBets[game.id]
+              ? gameBets[game.id].odds_2
+              : game.player_odds[[game.players[1]]]
+          }}
         </template>
       </BetItem>
     </div>
