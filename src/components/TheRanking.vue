@@ -8,18 +8,30 @@
       <div class="pt20">
         <table class="rankingTable">
           <tr>
+            <td class="juicyGreen pr10">#</td>
             <td class="juicyGreen">user</td>
+            <td class="juicyGreen txtR">total potential</td>
             <td class="juicyGreen txtR">coins</td>
             <td>&nbsp;</td>
             <td class="juicyGreen txtC">coins in open bets</td>
             <td class="juicyGreen txtC">bets placed</td>
             <td class="juicyGreen txtC">potential winnings</td>
-            <td class="juicyGreen txtR">avg coins won / bet</td>
+            <td class="juicyGreen txtR">avg coins / bet</td>
           </tr>
           <tr v-for="(item, index) in this.ranking" v-bind:key="index">
             <RankingItem>
+              <template #index>{{ index + 1 }}.</template>
               <template #playerName>
                 {{ item.first_name }} {{ item.last_name }}
+              </template>
+              <template #totalPotential>
+                {{
+                  (
+                    item.coins_available +
+                    item.coins_bets_open +
+                    item.potential_winnings
+                  ).toFixed(2)
+                }}
               </template>
               <template #coins>
                 {{ item.coins_available.toFixed(2) }}
