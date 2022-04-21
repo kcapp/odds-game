@@ -14,27 +14,31 @@
           "
         />
       </div>
+      <RouterLink to="/"
+        ><div class="item">
+          <i class="fa-solid fa-house"></i> Home
+        </div></RouterLink
+      >
+
+      <RouterLink to="/profile"
+        ><div class="item">
+          <i class="fa-solid fa-user"></i> Profile
+        </div></RouterLink
+      >
+
+      <RouterLink to="/tournaments">
+        <div class="item">
+          <i class="fa-solid fa-trophy"></i> Tournaments
+        </div></RouterLink
+      >
+
+      <RouterLink to="/bets">
+        <div class="item">
+          <i class="fa-solid fa-coins"></i> Bets
+        </div></RouterLink
+      >
       <div class="item">
-        <RouterLink to="/"> <i class="fa-solid fa-house"></i> Home</RouterLink>
-      </div>
-      <div class="item">
-        <RouterLink to="/profile"
-          ><i class="fa-solid fa-user"></i> Profile</RouterLink
-        >
-      </div>
-      <div class="item">
-        <RouterLink to="/tournaments"
-          ><i class="fa-solid fa-trophy"></i> Tournaments</RouterLink
-        >
-      </div>
-      <div class="item">
-        <RouterLink to="/bets">
-          <i class="fa-solid fa-coins"></i>
-          Bets</RouterLink
-        >
-      </div>
-      <div class="item">
-        <RouterLink @click.prevent="logOut" to="/"
+        <RouterLink @click.prevent="logOut" to="/logout"
           ><i class="fa-solid fa-right-from-bracket"></i> Log out</RouterLink
         >
       </div>
@@ -43,14 +47,18 @@
       <div style="margin-bottom: 50px">
         <img src="@/assets/logo128VC.png" width="60" />
       </div>
-      <div class="item">
-        <RouterLink to="/"><i class="fa-solid fa-house"></i> Home</RouterLink>
-      </div>
-      <div class="item">
-        <RouterLink to="/login"
-          ><i class="fa-solid fa-right-to-bracket"></i> Log in</RouterLink
-        >
-      </div>
+
+      <RouterLink to="/"
+        ><div class="item">
+          <i class="fa-solid fa-house"></i> Home
+        </div></RouterLink
+      >
+
+      <RouterLink to="/login"
+        ><div class="item">
+          <i class="fa-solid fa-right-to-bracket"></i> Log in
+        </div></RouterLink
+      >
     </nav>
   </div>
   <div class="content">
@@ -78,4 +86,10 @@ export default {
 
 <style>
 @import "assets/base.css";
+
+a.router-link-active,
+a.router-link-exact-active > div {
+  background-color: #333445;
+  border-radius: 5px;
+}
 </style>

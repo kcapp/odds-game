@@ -1,7 +1,7 @@
 <template>
-  <td class="txtR betFont"><slot name="bet1" /></td>
+  <td class="txtR betFont"><slot name="payout1" /> <slot name="bet1" /></td>
   <td class="txtC colWhite"><slot name="playerName" /></td>
-  <td class="txtL betFont"><slot name="bet2" /></td>
+  <td class="txtL betFont"><slot name="bet2" /> <slot name="payout2" /></td>
 </template>
 <script>
 // import TheCoin from "@/components/TheCoin.vue";

@@ -101,6 +101,10 @@
           </tr>
           <tr v-for="(bet, index) in this.gameBets" v-bind:key="index">
             <GameBet>
+              <template #payout1 v-if="bet.bet_1"
+                >(+ {{ (bet.bet_1 * bet.odds_1).toFixed(0) }}
+                <TheSmallCoin />)</template
+              >
               <template #bet1>{{ bet.bet_1 }}</template>
               <template #playerName
                 >{{ this.players[bet.user_id].first_name }}
@@ -108,6 +112,10 @@
                 {{ this.players[bet.user_id].last_name }}</template
               >
               <template #bet2>{{ bet.bet_2 }}</template>
+              <template #payout2 v-if="bet.bet_2"
+                >(+ {{ (bet.bet_2 * bet.odds_2).toFixed(0) }}
+                <TheSmallCoin />)</template
+              >
             </GameBet>
           </tr>
         </table>
@@ -120,9 +128,10 @@
 import axios from "axios";
 import GameBet from "@/components/GameBet.vue";
 import TheCoin from "@/components/TheCoin.vue";
+import TheSmallCoin from "@/components/TheSmallCoin.vue";
 
 export default {
-  components: { GameBet },
+  components: { TheSmallCoin, TheCoin, GameBet },
   props: ["gameId"],
   data() {
     return {
@@ -211,7 +220,7 @@ export default {
   width: 20%;
 }
 .gamePlayerName {
-  font-size: 25px;
+  font-size: 20px;
   font-weight: 300;
 }
 
