@@ -97,6 +97,10 @@ export default {
     });
   },
   methods: {
+    resetBet(gameId, odds1, odds2) {
+      this.gameBets[gameId].odds_1 = odds1;
+      this.gameBets[gameId].odds_2 = odds2;
+    },
     reloadBalance(newBalance) {
       this.balance = newBalance;
       this.$refs.betItem.forEach((item) => {
@@ -241,6 +245,7 @@ export default {
         @handleBetSaving="handleBetSaving"
         @enableBetSaving="enableBetSaving"
         @reloadBalance="reloadBalance"
+        @resetBet="resetBet"
       >
         <template #playerOneName>
           {{ this.players[game.players[0]].name }}

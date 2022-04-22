@@ -2,8 +2,9 @@
 import axios from "axios";
 import TheBoardIcon from "@/components/TheBoardIcon.vue";
 import TheCoin from "@/components/TheCoin.vue";
+import TheTooltip from "@/components/TheTooltip.vue";
 export default {
-  components: { TheCoin, TheBoardIcon },
+  components: { TheTooltip, TheCoin, TheBoardIcon },
   data() {
     return {
       currentUserId: null,
@@ -71,6 +72,12 @@ export default {
       : this.player2CurrentOdds;
   },
   methods: {
+    isOddsChanged() {
+      return (
+        this.player1CurrentOdds !== this.player1BetOdds ||
+        this.player2CurrentOdds !== this.player2BetOdds
+      );
+    },
     getImmutableCoinsAvailable() {
       return (
         this.balance.start_coins -
@@ -211,7 +218,17 @@ export default {
           setTimeout(this.setBetMessage, 3000, "bets placed");
           // enable all save buttons
           this.$emit("enableBetSaving", this.game.id);
-          // reset available coins for all games
+
+          this.player1BetOdds = this.player1CurrentOdds;
+          this.player2BetOdds = this.player2CurrentOdds;
+          // TODO - set bet odds for specific game
+          this.$emit(
+            "resetBet",
+            this.game.id,
+            this.player1CurrentOdds,
+            this.player2CurrentOdds
+          );
+          console.log(this.gameBets);
         })
         .catch((error) => {
           console.log(error.message);
@@ -228,7 +245,7 @@ export default {
   <div class="gameDivContainer">
     <div :class="{ gameDivLive: this.live, gameDiv: !this.live }">
       <form @submit.prevent="postBet()">
-        <table style="text-align: left">
+        <table class="txtL">
           <tr>
             <td colspan="2" class="smGreenHeader" v-if="game.is_finished">
               finished
@@ -238,14 +255,34 @@ export default {
               {{ this.gameDate }} {{ this.gameTime }}
             </td>
             <td class="smGreenHeader">win prob.</td>
-            <td class="smGreenHeader txtC">odds</td>
+            <td class="smGreenHeader txtC">
+              odds
+              <span
+                v-if="
+                  this.player1CurrentOdds !== this.player1BetOdds ||
+                  this.player2CurrentOdds !== this.player2BetOdds
+                "
+              >
+                <TheTooltip
+                  text="Odds for this match have changed (new odds below).
+                  If you choose to use new odds, adjust your bet and click save button.
+                  Both odds are updated."
+                >
+                  <i class="fa-solid fa-circle-info"></i></TheTooltip
+              ></span>
+            </td>
             <td class="smallText">&nbsp;</td>
             <td class="pl10 smallText smGreenHeader">your bet</td>
             <td colspan="2">&nbsp;</td>
             <td>&nbsp;</td>
           </tr>
-          <tr>
-            <td rowspan="2">
+          <tr
+            :class="{
+              vBottom: this.isOddsChanged,
+              vMiddle: !this.isOddsChanged,
+            }"
+          >
+            <td rowspan="2" class="vMiddle">
               <div class="icon" v-if="game.is_finished">
                 <i class="fa-solid fa-flag-checkered"></i>
               </div>
@@ -269,7 +306,7 @@ export default {
               <slot name="oddsPlayerOne" />
               <span
                 style="font-size: 11px; color: white"
-                v-if="player1CurrentOdds != player1BetOdds"
+                v-if="player1CurrentOdds !== player1BetOdds"
                 ><br />
                 ({{ (player1CurrentOdds - player1BetOdds).toFixed(3) }})
                 {{ player1CurrentOdds }}
@@ -299,6 +336,16 @@ export default {
             </td>
             <td class="w60 txtR">
               {{ this.player1BetResult }}
+              <span
+                style="font-size: 11px; color: white"
+                v-if="player1CurrentOdds !== player1BetOdds"
+                ><br />
+                {{
+                  (player1CurrentOdds * this.player1Bet).toFixed(
+                    this.floatingDigits
+                  )
+                }}
+              </span>
             </td>
             <td rowspan="2">
               <span v-if="game.is_finished && this.matchBetsSum > 0"
@@ -315,7 +362,12 @@ export default {
               ></span>
             </td>
           </tr>
-          <tr>
+          <tr
+            :class="{
+              vTop: this.isOddsChanged,
+              vMiddle: !this.isOddsChanged,
+            }"
+          >
             <td style="padding-left: 30px">
               <h3 v-if="game.winner_id === players[1]" class="winnerColor">
                 <slot name="playerTwoName" />
@@ -361,6 +413,16 @@ export default {
             </td>
             <td class="w60 txtR">
               {{ this.player2BetResult }}
+              <span
+                style="font-size: 11px; color: white"
+                v-if="player2CurrentOdds !== player2BetOdds"
+                ><br />
+                {{
+                  (player2CurrentOdds * this.player2Bet).toFixed(
+                    this.floatingDigits
+                  )
+                }}
+              </span>
             </td>
           </tr>
           <tr>
@@ -478,6 +540,18 @@ button {
 
 button:disabled {
   background-color: #4a4b52b0;
+}
+
+.vBottom {
+  vertical-align: bottom;
+}
+
+.vMiddle {
+  vertical-align: middle;
+}
+
+.vTop {
+  vertical-align: top;
 }
 
 @keyframes fadeOut {
