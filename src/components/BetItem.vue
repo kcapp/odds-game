@@ -31,14 +31,16 @@ export default {
   props: ["balance", "game", "players", "gameBets", "tournamentId", "gameMeta"],
   computed: {
     player1BetResult() {
-      return (
-        this.player1Bet * this.game.player_odds[[this.game.players[0]]]
-      ).toFixed(this.floatingDigits);
+      let b1 = this.gameBets
+        ? this.gameBets.odds_1
+        : this.game.player_odds[[this.game.players[0]]];
+      return (this.player1Bet * b1).toFixed(this.floatingDigits);
     },
     player2BetResult() {
-      return (
-        this.player2Bet * this.game.player_odds[[this.game.players[1]]]
-      ).toFixed(this.floatingDigits);
+      let b2 = this.gameBets
+        ? this.gameBets.odds_2
+        : this.game.player_odds[[this.game.players[1]]];
+      return (this.player2Bet * b2).toFixed(this.floatingDigits);
     },
   },
   mounted() {
@@ -263,8 +265,15 @@ export default {
             <td style="width: 80px">
               <slot name="probsPlayerOne" />
             </td>
-            <td style="width: 90px" class="txtC">
+            <td style="width: 120px" class="txtC">
               <slot name="oddsPlayerOne" />
+              <span
+                style="font-size: 11px; color: white"
+                v-if="player1CurrentOdds != player1BetOdds"
+                ><br />
+                ({{ (player1CurrentOdds - player1BetOdds).toFixed(3) }})
+                {{ player1CurrentOdds }}
+              </span>
             </td>
             <td class="txtC">
               <i class="fa-solid fa-xmark"></i>
@@ -320,6 +329,13 @@ export default {
             </td>
             <td class="txtC">
               <slot name="oddsPlayerTwo" />
+              <span
+                style="font-size: 11px; color: white"
+                v-if="player2CurrentOdds != player2BetOdds"
+                ><br />
+                ({{ (player2CurrentOdds - player2BetOdds).toFixed(3) }})
+                {{ player2CurrentOdds }}
+              </span>
             </td>
             <td class="txtC">
               <i class="fa-solid fa-xmark"></i>
