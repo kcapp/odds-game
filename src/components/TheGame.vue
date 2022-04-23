@@ -14,15 +14,29 @@
         <table class="gameTable">
           <tr>
             <td class="playerColumn txtR colWhite">
-              <span class="gamePlayerName" v-if="this.player1"
-                >{{ player1.first_name }} {{ player1.last_name }}</span
-              >
+              <span class="gamePlayerName" v-if="this.player1">
+                <span
+                  v-if="this.game.winner_id === this.player1.id"
+                  class="juicyGreen"
+                  >{{ player1.first_name }} {{ player1.last_name }}</span
+                >
+                <span v-else
+                  >{{ player1.first_name }} {{ player1.last_name }}</span
+                >
+              </span>
             </td>
             <td class="midColumn txtC">vs</td>
             <td class="playerColumn txtL colWhite">
-              <span class="gamePlayerName" v-if="this.player2"
-                >{{ player2.first_name }} {{ player2.last_name }}</span
-              >
+              <span class="gamePlayerName" v-if="this.player2">
+                <span
+                  v-if="this.game.winner_id === this.player2.id"
+                  class="juicyGreen"
+                  >{{ player2.first_name }} {{ player2.last_name }}</span
+                >
+                <span v-else
+                  >{{ player2.first_name }} {{ player2.last_name }}</span
+                >
+              </span>
             </td>
           </tr>
           <tr>
@@ -78,6 +92,34 @@
               }}</span>
             </td>
           </tr>
+          <tr v-if="this.game && !this.game.is_finished">
+            <td colspan="3" class="txtC">
+              <div class="sliderBar"></div>
+              <div
+                style="
+                  margin: -38px auto 0 auto;
+                  width: 30px;
+                  height: 30px;
+                  position: relative;
+                "
+              >
+                <span class="indicator" :style="this.indicatorPositionString">
+                  <span class="fa-stack fa-2x indicatorStack">
+                    <i class="fa-solid fa-circle-up fa-stack-2x"></i>
+                    <i
+                      class="fa-solid fa-circle fa-stack-1x fa-inverse"
+                      style="z-index: -1; font-size: 20px"
+                    ></i>
+                  </span>
+                </span>
+              </div>
+            </td>
+          </tr>
+          <tr v-if="this.game && !this.game.is_finished">
+            <td class="txtC" colspan="3">
+              <div class="midIndicator"></div>
+            </td>
+          </tr>
           <tr>
             <td colspan="3" class="pt20">
               <div class="gameTitle">Bets</div>
@@ -127,14 +169,21 @@
 <script>
 import axios from "axios";
 import GameBet from "@/components/GameBet.vue";
-import TheCoin from "@/components/TheCoin.vue";
 import TheSmallCoin from "@/components/TheSmallCoin.vue";
+import ioClient from "socket.io-client";
 
 export default {
-  components: { TheSmallCoin, TheCoin, GameBet },
+  components: { TheSmallCoin, GameBet },
   props: ["gameId"],
   data() {
     return {
+      sliderWidth: 500,
+      indicatorPosition: 0,
+      indicatorPositionString: "left: 0px;",
+      totalWinningScore: 0,
+      currentLegId: 0,
+      p1TotalScore: 0,
+      p2TotalScore: 0,
       game: null,
       players: [],
       probabilities: [],
@@ -149,55 +198,141 @@ export default {
     };
   },
   methods: {
-    //getUserData(gameId) {},
+    setIndicator() {
+      let unit = this.sliderWidth / (this.totalWinningScore * 2);
+      if (this.p1TotalScore >= this.p2TotalScore) {
+        this.indicatorPosition = -(this.p1TotalScore * unit).toFixed(0);
+      } else {
+        this.indicatorPosition = (this.p2TotalScore * unit).toFixed(0);
+      }
+      this.indicatorPositionString = "left:" + this.indicatorPosition + "px;";
+    },
+    connectSocket(legId) {
+      ioClient(
+        import.meta.env.VITE_KCAPP_SOCKET +
+          ":" +
+          import.meta.env.VITE_KCAPP_SOCKET_PORT +
+          "/legs/" +
+          legId
+      )
+        .on("score_update", (data) => {
+          this.game.legs.forEach((leg) => {
+            if (data.leg.id === leg.id) {
+              leg.visits = data.leg.visits;
+            }
+          });
+          let scores = this.getPlayersTotalScores();
+          this.p1TotalScore = scores[this.game.players[0]];
+          this.p2TotalScore = scores[this.game.players[1]];
+          this.setIndicator();
+        })
+        .on("leg_finished", () => {
+          this.loadGame();
+        });
+    },
+    getPlayersTotalScores() {
+      let playerScores = [];
+      let playerLeg = [];
+      playerScores[this.game.players[0]] = 0;
+      playerScores[this.game.players[1]] = 0;
+      // get player score from legs
+      this.game.legs.forEach((leg) => {
+        playerLeg[this.game.players[0]] = 0;
+        playerLeg[this.game.players[1]] = 0;
+        leg.visits.forEach((visit) => {
+          playerLeg[visit.player_id] +=
+            visit.first_dart.value * visit.first_dart.multiplier +
+            visit.second_dart.value * visit.second_dart.multiplier +
+            visit.third_dart.value * visit.third_dart.multiplier;
+        });
+
+        if (leg.is_finished) {
+          if (leg.winner_player_id === this.game.players[0]) {
+            playerScores[this.game.players[0]] +=
+              playerLeg[this.game.players[0]];
+          }
+          if (leg.winner_player_id === this.game.players[1]) {
+            playerScores[this.game.players[1]] +=
+              playerLeg[this.game.players[1]];
+          }
+        } else {
+          playerScores[this.game.players[0]] += playerLeg[this.game.players[0]];
+          playerScores[this.game.players[1]] += playerLeg[this.game.players[1]];
+        }
+      });
+      return playerScores;
+    },
+    loadGame() {
+      // Get the rest of the data after we fetch current tournament id
+      axios
+        .get("/kcapp-api/player")
+        .then((players) => {
+          this.players = players.data;
+          axios
+            .all([
+              axios.get("/kcapp-api/match/" + this.gameId),
+              axios.get(
+                "/kcapp-api/tournament/match/" + this.gameId + "/probabilities"
+              ),
+              axios.get("/api/bets/" + this.gameId),
+            ])
+            .then(
+              axios.spread((game, probabilities, bets) => {
+                this.game = game.data;
+                this.probabilities = probabilities.data;
+                this.gameBets = bets.data;
+
+                Object.entries(this.players).forEach((item) => {
+                  if (item[1].id === this.game.players[0]) {
+                    this.player1 = item[1];
+                    this.player1Elo =
+                      this.probabilities.player_elo[this.player1.id];
+                  }
+                  if (item[1].id === this.game.players[1]) {
+                    this.player2 = item[1];
+                    this.player2Elo =
+                      this.probabilities.player_elo[this.player2.id];
+                  }
+                });
+
+                // summarise the bets
+                Object.entries(this.gameBets).forEach((item) => {
+                  this.player1SumBets += item[1].bet_1;
+                  this.player2SumBets += item[1].bet_2;
+                });
+
+                this.totalWinningScore =
+                  this.game.legs[0].starting_score *
+                  this.game.match_mode.wins_required;
+                this.currentLegId = this.game.current_leg_id;
+                this.connectSocket(this.currentLegId);
+
+                let scores = this.getPlayersTotalScores();
+                let s1 = scores[this.game.players[0]]
+                  ? scores[this.game.players[0]]
+                  : 0;
+                let s2 = scores[this.game.players[1]]
+                  ? scores[this.game.players[1]]
+                  : 0;
+                this.p1TotalScore = s1;
+                this.p2TotalScore = s2;
+
+                this.setIndicator();
+                console.log(this.game);
+                console.log(this.player1);
+              })
+            )
+            .catch((error) => {
+              console.log("Error when getting data for game " + error);
+            });
+        })
+        .catch((error) => {
+          console.log("Error when getting data for user " + error);
+        });
+    },
   },
   created() {
-    // Get the rest of the data after we fetch current tournament id
-    axios
-      .get("/kcapp-api/player")
-      .then((players) => {
-        this.players = players.data;
-        axios
-          .all([
-            axios.get("/kcapp-api/match/" + this.gameId),
-            axios.get(
-              "/kcapp-api/tournament/match/" + this.gameId + "/probabilities"
-            ),
-            axios.get("/api/bets/" + this.gameId),
-          ])
-          .then(
-            axios.spread((game, probabilities, bets) => {
-              this.game = game.data;
-              this.probabilities = probabilities.data;
-              this.gameBets = bets.data;
-
-              Object.entries(this.players).forEach((item) => {
-                if (item[1].id === this.game.players[0]) {
-                  this.player1 = item[1];
-                  this.player1Elo =
-                    this.probabilities.player_elo[this.player1.id];
-                }
-                if (item[1].id === this.game.players[1]) {
-                  this.player2 = item[1];
-                  this.player2Elo =
-                    this.probabilities.player_elo[this.player2.id];
-                }
-              });
-
-              // summarise the bets
-              Object.entries(this.gameBets).forEach((item) => {
-                this.player1SumBets += item[1].bet_1;
-                this.player2SumBets += item[1].bet_2;
-              });
-            })
-          )
-          .catch((error) => {
-            console.log("Error when getting data for game " + error);
-          });
-      })
-      .catch((error) => {
-        console.log("Error when getting data for user " + error);
-      });
+    this.loadGame();
   },
 };
 </script>
@@ -227,5 +362,30 @@ export default {
 .betFont {
   font-size: 20px;
   font-weight: 300;
+}
+
+.sliderBar {
+  width: 500px;
+  height: 3px;
+  margin: 20px auto;
+  border: 1px solid rgb(76, 77, 86);
+  background-color: #22232d;
+}
+.indicator {
+  position: relative;
+  font-size: 17px;
+  color: #00ae12;
+  z-index: 1;
+}
+.midIndicator {
+  margin: -40px auto 0 auto;
+  width: 3px;
+  border: 1px solid #494a54;
+  height: 19px;
+  background-color: #23242f;
+  position: relative;
+}
+.indicatorStack {
+  font-size: 12px;
 }
 </style>
