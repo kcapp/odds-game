@@ -227,6 +227,7 @@ export default {
           this.setIndicator();
         })
         .on("leg_finished", () => {
+          this.gameBets = [];
           this.loadGame();
         });
     },
@@ -263,6 +264,9 @@ export default {
       return playerScores;
     },
     loadGame() {
+      this.gameBets = [];
+      this.player1SumBets = 0;
+      this.player2SumBets = 0;
       // Get the rest of the data after we fetch current tournament id
       axios
         .get("/kcapp-api/player")

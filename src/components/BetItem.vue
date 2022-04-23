@@ -259,8 +259,10 @@ export default {
               odds
               <span
                 v-if="
-                  this.player1CurrentOdds !== this.player1BetOdds ||
-                  this.player2CurrentOdds !== this.player2BetOdds
+                  (this.player1CurrentOdds !== this.player1BetOdds ||
+                    this.player2CurrentOdds !== this.player2BetOdds) &&
+                  !this.game.is_finished &&
+                  !this.live
                 "
               >
                 <TheTooltip
@@ -306,7 +308,11 @@ export default {
               <slot name="oddsPlayerOne" />
               <span
                 style="font-size: 11px; color: white"
-                v-if="player1CurrentOdds !== player1BetOdds"
+                v-if="
+                  player1CurrentOdds !== player1BetOdds &&
+                  !this.game.is_finished &&
+                  !this.live
+                "
                 ><br />
                 ({{ (player1CurrentOdds - player1BetOdds).toFixed(3) }})
                 {{ player1CurrentOdds }}
@@ -338,7 +344,11 @@ export default {
               {{ this.player1BetResult }}
               <span
                 style="font-size: 11px; color: white"
-                v-if="player1CurrentOdds !== player1BetOdds"
+                v-if="
+                  player1CurrentOdds !== player1BetOdds &&
+                  !this.game.is_finished &&
+                  !this.live
+                "
                 ><br />
                 {{
                   (player1CurrentOdds * this.player1Bet).toFixed(
@@ -347,7 +357,7 @@ export default {
                 }}
               </span>
             </td>
-            <td rowspan="2">
+            <td rowspan="2" class="vMiddle">
               <span v-if="game.is_finished && this.matchBetsSum > 0"
                 ><span
                   :class="{
@@ -383,7 +393,11 @@ export default {
               <slot name="oddsPlayerTwo" />
               <span
                 style="font-size: 11px; color: white"
-                v-if="player2CurrentOdds != player2BetOdds"
+                v-if="
+                  player2CurrentOdds !== player2BetOdds &&
+                  !this.game.is_finished &&
+                  !this.live
+                "
                 ><br />
                 ({{ (player2CurrentOdds - player2BetOdds).toFixed(3) }})
                 {{ player2CurrentOdds }}
@@ -415,7 +429,11 @@ export default {
               {{ this.player2BetResult }}
               <span
                 style="font-size: 11px; color: white"
-                v-if="player2CurrentOdds !== player2BetOdds"
+                v-if="
+                  player2CurrentOdds !== player2BetOdds &&
+                  !this.game.is_finished &&
+                  !this.live
+                "
                 ><br />
                 {{
                   (player2CurrentOdds * this.player2Bet).toFixed(
