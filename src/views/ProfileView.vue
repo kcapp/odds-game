@@ -27,10 +27,10 @@
                 </div>
               </div>
               <div class="profileName pt20 txtC">
-                <h3 class="cWhite noMargin">
+                <h3 class="colWhite noMargin">
                   {{ this.userData.first_name }}
                 </h3>
-                <h2 class="cWhite noMargin">
+                <h2 class="colWhite noMargin">
                   {{ this.userData.last_name }}
                 </h2>
               </div>
@@ -68,6 +68,87 @@
               >
               <TheCoin></TheCoin>
             </div>
+            <div><hr /></div>
+            <div v-if="this.players && this.bets">
+              <table style="width: 100%">
+                <tr class="colWhite">
+                  <td class="txtR pr10">home player</td>
+                  <td class="txtC" colspan="3">bets</td>
+                  <td class="pl10">away player</td>
+                  <td>status</td>
+                  <td class="txtC">result</td>
+                </tr>
+                <tr>
+                  <td colspan="7">
+                    <hr />
+                  </td>
+                </tr>
+                <tr
+                  v-for="(bet, index) in this.bets"
+                  v-bind:key="index"
+                  class="colGray"
+                >
+                  <td
+                    class="txtR pr10"
+                    :class="{ juicyGreen: bet.outcome === bet.player_1 }"
+                  >
+                    {{ this.players[bet.player_1].first_name }}
+                    {{ this.players[bet.player_1].last_name }}
+                  </td>
+                  <td class="txtR colWhite">{{ bet.bet_1 }}</td>
+                  <td class="txtC">:</td>
+                  <td class="txtL colWhite">{{ bet.bet_2 }}</td>
+                  <td
+                    class="pl10"
+                    :class="{ juicyGreen: bet.outcome === bet.player_2 }"
+                  >
+                    {{ this.players[bet.player_2].first_name }}
+                    {{ this.players[bet.player_2].last_name }}
+                  </td>
+                  <td v-if="bet.outcome === undefined || bet.outcome === null">
+                    waiting
+                  </td>
+                  <td
+                    class="colWhite"
+                    v-else-if="
+                      bet.outcome === bet.player_1 ||
+                      bet.outcome === bet.player_2
+                    "
+                  >
+                    finished
+                  </td>
+                  <td class="colWhite" v-else-if="bet.outcome === 0">draw</td>
+                  <td v-else>unknown</td>
+                  <td
+                    class="txtR colWhite"
+                    v-if="bet.outcome && bet.outcome === bet.player_1"
+                  >
+                    {{
+                      (
+                        bet.bet_1 * bet.odds_1 -
+                        (bet.bet_1 + bet.bet_2)
+                      ).toFixed(2)
+                    }}
+                    <TheSmallCoin />
+                  </td>
+                  <td
+                    class="txtR colWhite"
+                    v-else-if="bet.outcome && bet.outcome === bet.player_1"
+                  >
+                    {{
+                      (
+                        bet.bet_2 * bet.odds_2 -
+                        (bet.bet_1 + bet.bet_2)
+                      ).toFixed(2)
+                    }}
+                    <TheSmallCoin />
+                  </td>
+                  <td class="txtR colWhite" v-else-if="bet.outcome === 0">
+                    -{{ (bet.bet_1 + bet.bet_2).toFixed(2) }} <TheSmallCoin />
+                  </td>
+                </tr>
+              </table>
+            </div>
           </div>
         </td>
       </tr>
@@ -77,16 +158,19 @@
 <script>
 import axios from "axios";
 import TheCoin from "@/components/TheCoin.vue";
+import TheSmallCoin from "../components/TheSmallCoin.vue";
 
 export default {
   name: "UserProfile",
-  components: { TheCoin },
+  components: { TheSmallCoin, TheCoin },
   data() {
     return {
       userData: {
         first_name: "",
         last_name: "",
       },
+      bets: [],
+      players: [],
       requires_change: true,
       coins: 0,
       tournamentCoins: 0,
@@ -139,9 +223,11 @@ export default {
               "/balance"
           ),
           axios.get("/kcapp-api/player/" + userId),
+          axios.get("/kcapp-api/player"),
+          axios.get("/api/user/" + userId + "/bets"),
         ])
         .then(
-          axios.spread((userData, kcappPlayer) => {
+          axios.spread((userData, kcappPlayer, players, bets) => {
             this.coins =
               userData.data.start_coins -
               userData.data.coins_bets_open -
@@ -151,6 +237,8 @@ export default {
             this.userData.first_name = userData.data.first_name;
             this.userData.last_name = userData.data.last_name;
             this.profilePictureUrl = kcappPlayer.data.profile_pic_url;
+            this.players = players.data;
+            this.bets = bets.data;
           })
         )
         .catch((error) => {
@@ -192,7 +280,7 @@ export default {
   height: 100%;
 }
 
-.cWhite {
-  color: white;
+.colGray {
+  color: #6d6d6d;
 }
 </style>
