@@ -6,6 +6,7 @@ import ioClient from "socket.io-client";
 export default {
   data() {
     return {
+      searchName: "",
       loaded: false,
       balance: null,
       coinsAvailable: 0,
@@ -97,6 +98,10 @@ export default {
     });
   },
   methods: {
+    filterName: function () {
+      // remove all filters
+      this.toggleAll();
+    },
     resetBet(gameId, odds1, odds2) {
       this.gameBets[gameId].odds_1 = odds1;
       this.gameBets[gameId].odds_2 = odds2;
@@ -163,16 +168,19 @@ export default {
       });
     },
     toggleBets() {
+      this.searchName = "";
       this.betsOnly = true;
       this.finishedOnly = false;
       this.unfinishedOnly = false;
     },
     toggleFinished() {
+      this.searchName = "";
       this.finishedOnly = true;
       this.unfinishedOnly = false;
       this.betsOnly = false;
     },
     toggleUnfinished() {
+      this.searchName = "";
       this.unfinishedOnly = true;
       this.finishedOnly = false;
       this.betsOnly = false;
@@ -193,41 +201,95 @@ export default {
       } else if (this.betsOnly === true) {
         return hasBets === undefined;
       } else {
-        // By default, do not hide
+        // By default, do not hide (hide = false)
+        if (this.searchName !== "" && this.searchName.length >= 3) {
+          return !this.hasPlayerName(game);
+        }
         return false;
       }
+    },
+    clearSearchName() {
+      this.searchName = "";
+    },
+    hasPlayerName(game) {
+      // get game players
+      let pNames = (
+        this.players[game.players[0]].first_name +
+        " " +
+        this.players[game.players[0]].last_name +
+        " " +
+        this.players[game.players[1]].first_name +
+        " " +
+        this.players[game.players[1]].last_name
+      ).toLowerCase();
+      return pNames.indexOf(this.searchName) > -1;
     },
   },
 };
 </script>
 
 <template>
-  <div class="filterHeader">
-    Filter:
-    <a href="#" @click="toggleBets" :class="{ juicyGreen: this.betsOnly }"
-      >my bets</a
-    >
-    |
-    <a
-      href="#"
-      @click="toggleFinished"
-      :class="{ juicyGreen: this.finishedOnly }"
-      >finished only</a
-    >
-    |
-    <a
-      href="#"
-      @click="toggleUnfinished()"
-      :class="{ juicyGreen: this.unfinishedOnly }"
-      >unfinished only</a
-    >
-    |
-    <a
-      href="#"
-      @click="toggleAll()"
-      :class="{ juicyGreen: !this.finishedOnly && !this.unfinishedOnly }"
-      >all</a
-    >
+  <div class="tableHeader">
+    <table style="width: 100%">
+      <tr>
+        <td class="txtL">
+          <div>
+            <form @submit.prevent="nameSearch" style="display: inline-block">
+              <input
+                v-model="searchName"
+                placeholder="name"
+                type="text"
+                class="textInput"
+                @keyup="this.filterName()"
+              />
+            </form>
+            <span
+              class="pl10"
+              v-if="this.searchName && this.searchName.length >= 3"
+            >
+              <i
+                @click="this.clearSearchName"
+                class="fa-solid fa-circle-xmark"
+              ></i>
+            </span>
+          </div>
+        </td>
+        <td class="txtR">
+          <div class="filterHeader">
+            Filter:
+            <a
+              href="#"
+              @click="toggleBets"
+              :class="{ juicyGreen: this.betsOnly }"
+              >my bets</a
+            >
+            |
+            <a
+              href="#"
+              @click="toggleFinished"
+              :class="{ juicyGreen: this.finishedOnly }"
+              >finished only</a
+            >
+            |
+            <a
+              href="#"
+              @click="toggleUnfinished()"
+              :class="{ juicyGreen: this.unfinishedOnly }"
+              >unfinished only</a
+            >
+            |
+            <a
+              href="#"
+              @click="toggleAll()"
+              :class="{
+                juicyGreen: !this.finishedOnly && !this.unfinishedOnly,
+              }"
+              >all</a
+            >
+          </div>
+        </td>
+      </tr>
+    </table>
   </div>
   <div v-if="loaded">
     <div v-for="(game, index) in this.games" v-bind:key="index">
@@ -290,10 +352,12 @@ export default {
 .hideItem {
   display: none;
 }
-.filterHeader {
+.tableHeader {
   margin: 30px 50px 10px 20px;
   border-bottom: 1px solid #363636;
   padding-bottom: 5px;
-  text-align: right;
+}
+.filterHeader {
+  padding-bottom: 5px;
 }
 </style>
