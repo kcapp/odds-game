@@ -55,6 +55,11 @@ const router = createRouter({
       name: "game",
       component: GameView,
     },
+    {
+      path: "/logout",
+      name: "logout",
+      component: HomeView,
+    },
   ],
 });
 

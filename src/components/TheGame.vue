@@ -322,8 +322,6 @@ export default {
                 this.p2TotalScore = s2;
 
                 this.setIndicator();
-                console.log(this.game);
-                console.log(this.player1);
               })
             )
             .catch((error) => {
