@@ -102,7 +102,7 @@ export default {
       // remove all filters
       this.toggleAll();
     },
-    resetBet(gameId, odds1, odds2) {
+    resetGameBets(gameId, odds1, odds2) {
       this.gameBets[gameId].odds_1 = odds1;
       this.gameBets[gameId].odds_2 = odds2;
     },
@@ -307,7 +307,7 @@ export default {
         @handleBetSaving="handleBetSaving"
         @enableBetSaving="enableBetSaving"
         @reloadBalance="reloadBalance"
-        @resetBet="resetBet"
+        @resetBet="resetGameBets"
       >
         <template #playerOneName>
           {{ this.players[game.players[0]].name }}

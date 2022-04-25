@@ -223,12 +223,11 @@ export default {
           this.player2BetOdds = this.player2CurrentOdds;
           // TODO - set bet odds for specific game
           this.$emit(
-            "resetBet",
+            "resetGameBets",
             this.game.id,
             this.player1CurrentOdds,
             this.player2CurrentOdds
           );
-          console.log(this.gameBets);
         })
         .catch((error) => {
           console.log(error.message);
@@ -510,14 +509,14 @@ table td {
 
 .betResultPlus {
   padding-left: 20px;
-  font-size: 30px;
+  font-size: 25px;
   font-weight: 500;
   color: #3aaa35;
 }
 
 .betResultMinus {
   padding-left: 20px;
-  font-size: 30px;
+  font-size: 25px;
   font-weight: 500;
   color: #e30716;
 }
