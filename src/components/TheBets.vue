@@ -25,52 +25,7 @@ export default {
   components: { BetItem },
   props: ["games", "players"],
   created() {
-    axios
-      .get("/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID)
-      .then((tournament) => {
-        this.tournamentId = tournament.data.id;
-
-        // Get the rest of the data after we fetch current tournament id
-        axios
-          .all([
-            axios.get(
-              "/api/user/" +
-                this.$store.state.auth.user.user_id +
-                "/tournament/" +
-                this.tournamentId +
-                "/bets"
-            ),
-            axios.get(
-              "/api/user/" +
-                this.$store.state.auth.user.user_id +
-                "/tournament/" +
-                this.tournamentId +
-                "/balance"
-            ),
-            axios.get("/api/games/meta"),
-          ])
-          .then(
-            axios.spread((bets, balance, meta) => {
-              for (const [index, value] of bets.data.entries()) {
-                this.gameBets[value.match_id] = value;
-              }
-              // set metadata indexed by match id
-              for (const [index, value] of meta.data.entries()) {
-                this.gameMeta[value.match_id] = value;
-              }
-              this.balance = balance.data;
-              this.loaded = true;
-
-              this.immutableCoins = 0; //balance.data.coins;
-            })
-          )
-          .catch((error) => {
-            console.log("Error when getting data for tournaments " + error);
-          });
-      })
-      .catch((error) => {
-        console.log("Error when getting bets " + error);
-      });
+    this.loadComponentData();
     // connection to server
     ioClient(
       import.meta.env.VITE_KCAPP_SOCKET +
@@ -98,13 +53,60 @@ export default {
     });
   },
   methods: {
+    loadComponentData() {
+      axios
+        .get("/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID)
+        .then((tournament) => {
+          this.tournamentId = tournament.data.id;
+
+          // Get the rest of the data after we fetch current tournament id
+          axios
+            .all([
+              axios.get(
+                "/api/user/" +
+                  this.$store.state.auth.user.user_id +
+                  "/tournament/" +
+                  this.tournamentId +
+                  "/bets"
+              ),
+              axios.get(
+                "/api/user/" +
+                  this.$store.state.auth.user.user_id +
+                  "/tournament/" +
+                  this.tournamentId +
+                  "/balance"
+              ),
+              axios.get("/api/games/meta"),
+            ])
+            .then(
+              axios.spread((bets, balance, meta) => {
+                for (const [index, value] of bets.data.entries()) {
+                  this.gameBets[value.match_id] = value;
+                }
+                // set metadata indexed by match id
+                for (const [index, value] of meta.data.entries()) {
+                  this.gameMeta[value.match_id] = value;
+                }
+                this.balance = balance.data;
+                this.loaded = true;
+
+                this.immutableCoins = 0; //balance.data.coins;
+              })
+            )
+            .catch((error) => {
+              console.log("Error when getting data for tournaments " + error);
+            });
+        })
+        .catch((error) => {
+          console.log("Error when getting bets " + error);
+        });
+    },
     filterName: function () {
       // remove all filters
       this.toggleAll();
     },
-    resetGameBets(gameId, odds1, odds2) {
-      this.gameBets[gameId].odds_1 = odds1;
-      this.gameBets[gameId].odds_2 = odds2;
+    resetGameBets() {
+      this.loadComponentData();
     },
     reloadBalance(newBalance) {
       this.balance = newBalance;
@@ -157,7 +159,7 @@ export default {
         });
       }
     },
-    handleBetSaving(gameId) {
+    disableOtherBetsSaving(gameId) {
       this.$refs.betItem.forEach((item) => {
         item.enabledSave = item.getGameId() === gameId;
       });
@@ -304,10 +306,10 @@ export default {
         :gameMeta="gameMeta[game.id]"
         :class="{ hideItem: isShown(game) }"
         @recalculateCoins="recalculateCoins"
-        @handleBetSaving="handleBetSaving"
+        @disableOtherBetsSaving="disableOtherBetsSaving"
         @enableBetSaving="enableBetSaving"
         @reloadBalance="reloadBalance"
-        @resetBet="resetGameBets"
+        @resetGameBets="resetGameBets"
       >
         <template #playerOneName>
           {{ this.players[game.players[0]].name }}

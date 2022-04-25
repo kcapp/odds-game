@@ -134,7 +134,7 @@ export default {
       }
 
       // disable all others save buttons except the one on the bet you're editing
-      this.$emit("handleBetSaving", this.game.id);
+      this.$emit("disableOtherBetsSaving", this.game.id);
 
       // this is the most important part, all the save buttons are disabled except current one
       // is this an existing bet?
@@ -215,19 +215,14 @@ export default {
         .then((res) => {
           this.betId = res.data;
           this.message = "saved";
-          setTimeout(this.setBetMessage, 3000, "bets placed");
+          setTimeout(this.setBetMessage, 2000, "bets placed");
           // enable all save buttons
           this.$emit("enableBetSaving", this.game.id);
 
           this.player1BetOdds = this.player1CurrentOdds;
           this.player2BetOdds = this.player2CurrentOdds;
           // TODO - set bet odds for specific game
-          this.$emit(
-            "resetGameBets",
-            this.game.id,
-            this.player1CurrentOdds,
-            this.player2CurrentOdds
-          );
+          this.$emit("resetGameBets");
         })
         .catch((error) => {
           console.log(error.message);
