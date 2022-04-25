@@ -1,5 +1,5 @@
 <template>
-  <div style="margin: 30px">
+  <div style="margin: 0px 15px">
     <div class="passwordWarning" v-if="currentUser.requires_change">
       You are using starter password. Please change it
       <RouterLink style="color: black" to="/changepass">here</RouterLink>.

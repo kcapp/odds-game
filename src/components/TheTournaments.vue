@@ -8,7 +8,7 @@ export default {
 </script>
 
 <template>
-  <div class="m50">
+  <div style="margin: 20px">
     <div class="gameDivLive">
       <div class="tournamentTitle">Tournament list</div>
       <div class="pt20">
