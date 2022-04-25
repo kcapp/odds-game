@@ -10,7 +10,25 @@
             : ""
         }}
       </div>
-      <div class="pt20">
+      <div class="pt20 txtC colWhite" v-if="this.game">
+        <div
+          style="
+            margin: 0 auto;
+            width: 125px;
+            font-weight: 500;
+            background-color: #00c178;
+            padding: 5px 10px;
+            border-radius: 5px;
+          "
+        >
+          <span v-if="this.game.is_finished === true">finished</span>
+          <span v-else-if="this.game.first_throw_time === null"
+            >not started</span
+          >
+          <span v-else>live game</span>
+        </div>
+      </div>
+      <div class="pt10">
         <table class="gameTable">
           <tr>
             <td class="playerColumn txtR colWhite">
@@ -125,7 +143,7 @@
               <div class="gameTitle">Bets</div>
             </td>
           </tr>
-          <tr>
+          <tr v-if="this.gameBets.length > 0">
             <td class="playerColumn txtR betFont">
               {{ this.player1SumBets }}
             </td>
@@ -134,11 +152,16 @@
               {{ this.player2SumBets }}
             </td>
           </tr>
-          <tr>
+          <tr v-if="this.gameBets.length > 0">
             <td colspan="3">
               <div style="margin: 0 auto; width: 60%">
                 <hr />
               </div>
+            </td>
+          </tr>
+          <tr v-if="this.gameBets.length === 0">
+            <td colspan="3" class="txtC pt20 colWhite">
+              No bets placed for this game
             </td>
           </tr>
           <tr v-for="(bet, index) in this.gameBets" v-bind:key="index">
@@ -322,6 +345,7 @@ export default {
                 this.p2TotalScore = s2;
 
                 this.setIndicator();
+                console.log(this.game);
               })
             )
             .catch((error) => {
