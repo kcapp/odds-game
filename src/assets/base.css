@@ -201,9 +201,12 @@ a {
 }
 
 .colWhite{ color: white;}
+.colRed{color: red;}
 
 .m50 {margin: 50px;}
 .ml20 {margin-left: 20px;}
+.mr5 {margin-right: 5px;}
+.mr10 {margin-right: 10px;}
 
 .w40 {width: 40px;}
 .w60 {width: 60px;}
@@ -239,4 +242,7 @@ a {
     padding: 20px;
     border-radius: 10px;
     min-height: 100px;
+}
+.font11 {
+    font-size: 11px;
 }

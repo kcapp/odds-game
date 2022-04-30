@@ -239,6 +239,7 @@ export default {
           legId
       )
         .on("score_update", (data) => {
+          console.log(data);
           this.game.legs.forEach((leg) => {
             if (data.leg.id === leg.id) {
               leg.visits = data.leg.visits;

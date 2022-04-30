@@ -3,8 +3,9 @@ import axios from "axios";
 import TheBoardIcon from "@/components/TheBoardIcon.vue";
 import TheCoin from "@/components/TheCoin.vue";
 import TheTooltip from "@/components/TheTooltip.vue";
+import TheOddsDiffLabel from "@/components/TheOddsDiffLabel.vue";
 export default {
-  components: { TheTooltip, TheCoin, TheBoardIcon },
+  components: { TheOddsDiffLabel, TheTooltip, TheCoin, TheBoardIcon },
   data() {
     return {
       currentUserId: null,
@@ -16,6 +17,7 @@ export default {
       player1BetOdds: 0,
       player2BetOdds: 0,
       floatingDigits: 2,
+      floatingOddsDigits: 3,
       betId: 0,
       messages: [],
       matchBetsSum: this.gameBets
@@ -45,18 +47,14 @@ export default {
     },
   },
   mounted() {
-    this.coinsAvailable =
-      this.balance.start_coins -
-      this.balance.coins_bets_open -
-      this.balance.coins_bets_closed +
-      this.balance.coins_won;
+    this.resetBalance();
 
     this.betId = this.gameBets ? this.gameBets.id : 0;
     this.betsOff = this.gameMeta ? this.gameMeta.bets_off : 0;
     this.live = this.game.is_started && !this.game.is_finished;
     this.currentUserId = this.$store.state.auth.user.user_id;
 
-    this.gameDate = new Date(this.game.created_at).toLocaleDateString("en-gb");
+    this.gameDate = new Date(this.game.created_at).toLocaleDateString("en-ca");
     this.gameTime = new Date(this.game.created_at).toLocaleTimeString("en-gb", {
       hour: "2-digit",
       minute: "2-digit",
@@ -72,11 +70,24 @@ export default {
       : this.player2CurrentOdds;
   },
   methods: {
-    isOddsChanged() {
-      return (
-        this.player1CurrentOdds !== this.player1BetOdds ||
-        this.player2CurrentOdds !== this.player2BetOdds
+    getP1OddsDiff() {
+      return (this.player1CurrentOdds - this.player1BetOdds).toFixed(
+        this.floatingOddsDigits
       );
+    },
+    getP2OddsDiff() {
+      return (this.player2CurrentOdds - this.player2BetOdds).toFixed(
+        this.floatingOddsDigits
+      );
+    },
+    isP1OddsChanged() {
+      return this.player1CurrentOdds !== this.player1BetOdds;
+    },
+    isP2OddsChanged() {
+      return this.player2CurrentOdds !== this.player2BetOdds;
+    },
+    isOddsChanged() {
+      return this.isP1OddsChanged() || this.isP2OddsChanged();
     },
     getImmutableCoinsAvailable() {
       return (
@@ -252,12 +263,7 @@ export default {
             <td class="smGreenHeader txtC">
               odds
               <span
-                v-if="
-                  (this.player1CurrentOdds !== this.player1BetOdds ||
-                    this.player2CurrentOdds !== this.player2BetOdds) &&
-                  !this.game.is_finished &&
-                  !this.live
-                "
+                v-if="isOddsChanged() && !this.game.is_finished && !this.live"
               >
                 <TheTooltip
                   text="Odds for this match have changed (new odds below).
@@ -301,14 +307,10 @@ export default {
             <td style="width: 120px" class="txtC">
               <slot name="oddsPlayerOne" />
               <span
-                style="font-size: 11px; color: white"
-                v-if="
-                  player1CurrentOdds !== player1BetOdds &&
-                  !this.game.is_finished &&
-                  !this.live
-                "
+                class="colWhite font11"
+                v-if="isP1OddsChanged() && !this.game.is_finished && !this.live"
                 ><br />
-                ({{ (player1CurrentOdds - player1BetOdds).toFixed(3) }})
+                <TheOddsDiffLabel :oddsValue="getP1OddsDiff()" class="mr5" />
                 {{ player1CurrentOdds }}
               </span>
             </td>
@@ -337,12 +339,8 @@ export default {
             <td class="w60 txtR">
               {{ this.player1BetResult }}
               <span
-                style="font-size: 11px; color: white"
-                v-if="
-                  player1CurrentOdds !== player1BetOdds &&
-                  !this.game.is_finished &&
-                  !this.live
-                "
+                class="colWhite font11"
+                v-if="isP1OddsChanged() && !this.game.is_finished && !this.live"
                 ><br />
                 {{
                   (player1CurrentOdds * this.player1Bet).toFixed(
@@ -386,14 +384,10 @@ export default {
             <td class="txtC">
               <slot name="oddsPlayerTwo" />
               <span
-                style="font-size: 11px; color: white"
-                v-if="
-                  player2CurrentOdds !== player2BetOdds &&
-                  !this.game.is_finished &&
-                  !this.live
-                "
+                class="colWhite font11"
+                v-if="isP2OddsChanged() && !this.game.is_finished && !this.live"
                 ><br />
-                ({{ (player2CurrentOdds - player2BetOdds).toFixed(3) }})
+                <TheOddsDiffLabel :oddsValue="getP2OddsDiff()" class="mr5" />
                 {{ player2CurrentOdds }}
               </span>
             </td>
@@ -416,18 +410,14 @@ export default {
                 @change="this.validateAndEmit()"
               />
             </td>
-            <td style="padding-left: 10px">
+            <td class="pl10">
               <i class="fa-solid fa-equals"></i>
             </td>
             <td class="w60 txtR">
               {{ this.player2BetResult }}
               <span
-                style="font-size: 11px; color: white"
-                v-if="
-                  player2CurrentOdds !== player2BetOdds &&
-                  !this.game.is_finished &&
-                  !this.live
-                "
+                class="colWhite font11"
+                v-if="isP2OddsChanged() && !this.game.is_finished && !this.live"
                 ><br />
                 {{
                   (player2CurrentOdds * this.player2Bet).toFixed(

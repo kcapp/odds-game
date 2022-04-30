@@ -106,7 +106,7 @@
                     {{ this.players[bet.player_2].last_name }}
                   </td>
                   <td v-if="bet.outcome === undefined || bet.outcome === null">
-                    waiting
+                    scheduled
                   </td>
                   <td
                     class="colWhite"
