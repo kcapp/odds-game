@@ -5,12 +5,12 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "noImplicitAny": false
   },
-
   "references": [
     {
       "path": "./tsconfig.vite-config.json"
     }
-  ]
+  ],
 }

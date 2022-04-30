@@ -189,7 +189,7 @@ export default {
     reloadBalance() {
       axios
         .get(
-          "/api/user/" +
+          "/odds-api/user/" +
             this.$store.state.auth.user.user_id +
             "/tournament/" +
             this.tournamentId +
@@ -222,7 +222,7 @@ export default {
         ),
       });
       axios
-        .post("/api/bets/" + this.game.id, json)
+        .post("/odds-api/bets/" + this.game.id, json)
         .then((res) => {
           this.betId = res.data;
           this.message = "saved";

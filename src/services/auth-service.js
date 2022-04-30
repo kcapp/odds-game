@@ -4,7 +4,7 @@ class AuthService {
   login(user) {
     return axios
       .post(
-        "/api/user/login",
+        "/odds-api/user/login",
         {
           login: user.login,
           password: btoa(user.password),

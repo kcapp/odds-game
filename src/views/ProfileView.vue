@@ -216,7 +216,7 @@ export default {
       axios
         .all([
           axios.get(
-            "/api/user/" +
+            "/odds-api/user/" +
               userId +
               "/tournament/" +
               this.currentTournamentId +
@@ -224,7 +224,7 @@ export default {
           ),
           axios.get("/kcapp-api/player/" + userId),
           axios.get("/kcapp-api/player"),
-          axios.get("/api/user/" + userId + "/bets"),
+          axios.get("/odds-api/user/" + userId + "/bets"),
         ])
         .then(
           axios.spread((userData, kcappPlayer, players, bets) => {

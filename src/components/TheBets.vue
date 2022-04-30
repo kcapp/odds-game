@@ -63,20 +63,20 @@ export default {
           axios
             .all([
               axios.get(
-                "/api/user/" +
+                "/odds-api/user/" +
                   this.$store.state.auth.user.user_id +
                   "/tournament/" +
                   this.tournamentId +
                   "/bets"
               ),
               axios.get(
-                "/api/user/" +
+                "/odds-api/user/" +
                   this.$store.state.auth.user.user_id +
                   "/tournament/" +
                   this.tournamentId +
                   "/balance"
               ),
-              axios.get("/api/games/meta"),
+              axios.get("/odds-api/games/meta"),
             ])
             .then(
               axios.spread((bets, balance, meta) => {

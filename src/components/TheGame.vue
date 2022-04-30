@@ -302,7 +302,7 @@ export default {
               axios.get(
                 "/kcapp-api/tournament/match/" + this.gameId + "/probabilities"
               ),
-              axios.get("/api/bets/" + this.gameId),
+              axios.get("/odds-api/bets/" + this.gameId),
             ])
             .then(
               axios.spread((game, probabilities, bets) => {

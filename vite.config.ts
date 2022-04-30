@@ -14,9 +14,9 @@ export default defineConfig(({ command, mode }) => {
     },
     server: {
       proxy: {
-        "/api": {
+        "/odds-api": {
           target: env.VITE_ODDS_API,
-          rewrite: (path) => path.replace(/^\/api/, ""),
+          rewrite: (path) => path.replace(/^\/odds-api/, ""),
         },
         "/kcapp-api": {
           target: env.VITE_KCAPP_API,

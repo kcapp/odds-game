@@ -62,7 +62,7 @@ export default {
     changePassword(userId, pass) {
       return axios
         .post(
-          "/api/user/changepass",
+          "/odds-api/user/changepass",
           {
             login: userId,
             password: pass,
