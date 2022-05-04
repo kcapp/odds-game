@@ -1,6 +1,6 @@
 <template>
-  <div class="m50">
-    <div class="gameDivLive">
+  <div class="m10">
+    <div class="gameDiv">
       <div class="tournamentTitle">
         Tournament ranking:
         {{ this.tournament ? this.tournament.name : "Unknown" }}
@@ -75,45 +75,11 @@ export default {
   methods: {
     //getUserData(gameId) {},
   },
-  mounted() {
-    // axios
-    //   .get("/kcapp-api/player")
-    //   .then((players) => {
-    //     this.players = players.data;
-    //     console.log("getting player data" + this.players);
-    //     axios
-    //       .get("/kcapp-api/match/" + this.gameId)
-    //       .then((gameData) => {
-    //         this.game = gameData.data;
-    //
-    //         Object.entries(this.players).forEach((item) => {
-    //           if (item[1].id === this.game.players[0]) {
-    //             this.player1 = item[1];
-    //           }
-    //           if (item[1].id === this.game.players[1]) {
-    //             this.player2 = item[1];
-    //           }
-    //         });
-    //       })
-    //       .catch((error) => {
-    //         console.log("Error when getting data for user " + error);
-    //       });
-    //   })
-    //   .catch((error) => {
-    //     console.log("Error when getting data for user " + error);
-    //   });
-  },
+  mounted() {},
 };
 </script>
 
 <style>
-.tournamentTitle {
-  padding: 10px 20px;
-  background-color: #22232c;
-  border-radius: 10px;
-  font-size: 20px;
-  text-align: left;
-}
 .rankingTable {
   width: 100%;
   padding: 10px 20px;

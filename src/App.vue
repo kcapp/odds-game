@@ -3,7 +3,7 @@
 <template>
   <div class="nav">
     <nav v-if="showUserMenu">
-      <div style="margin-bottom: 50px">
+      <div id="logo" style="margin-bottom: 50px">
         <img src="@/assets/logo128VC.png" width="60" />
         <TheCoin
           style="
@@ -37,11 +37,13 @@
           <i class="fa-solid fa-coins"></i> Bets
         </div></RouterLink
       >
-      <div class="item">
-        <RouterLink @click.prevent="logOut" to="/logout"
-          ><i class="fa-solid fa-right-from-bracket"></i> Log out</RouterLink
-        >
-      </div>
+      <a href="#">
+        <div class="item">
+          <RouterLink @click.prevent="logOut" to="/logout"
+            ><i class="fa-solid fa-right-from-bracket"></i> Log out</RouterLink
+          >
+        </div>
+      </a>
     </nav>
     <nav v-else>
       <div style="margin-bottom: 50px">

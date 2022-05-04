@@ -8,8 +8,8 @@ export default {
 </script>
 
 <template>
-  <div style="margin: 20px">
-    <div class="gameDivLive">
+  <div style="margin: 10px">
+    <div class="gameDiv">
       <div class="tournamentTitle">Tournament list</div>
       <div class="pt20">
         <table class="rankingTable">
@@ -27,13 +27,6 @@ export default {
 </template>
 
 <style>
-.tournamentTitle {
-  padding: 10px 20px;
-  background-color: #22232c;
-  border-radius: 10px;
-  font-size: 20px;
-  text-align: left;
-}
 .rankingTable {
   width: 100%;
   padding: 10px 20px;

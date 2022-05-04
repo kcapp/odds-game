@@ -99,7 +99,7 @@ export default {
                 this.balance = balance.data;
                 this.loaded = true;
 
-                this.immutableCoins = 0; //balance.data.coins;
+                this.immutableCoins = 0;
               })
             )
             .catch((error) => {
@@ -241,122 +241,119 @@ export default {
 
 <template>
   <div class="tableHeader">
-    <table style="width: 100%">
+    <table style="width: 100%; margin: 0px 10px">
       <tr>
         <td class="txtL">
-          <div>
-            <form @submit.prevent="nameSearch" style="display: inline-block">
-              <input
-                v-model="searchName"
-                placeholder="name"
-                type="text"
-                class="textInput"
-                @keyup="this.filterName()"
-              />
-            </form>
-            <span
-              class="pl10"
-              v-if="this.searchName && this.searchName.length >= 3"
-            >
-              <i
-                @click="this.clearSearchName"
-                class="fa-solid fa-circle-xmark"
-              ></i>
-            </span>
-          </div>
+          <form @submit.prevent="nameSearch" style="display: inline-block">
+            <input
+              v-model="searchName"
+              placeholder="name"
+              type="text"
+              class="textInput"
+              @keyup="this.filterName()"
+            />
+          </form>
+          <span
+            class="pl10"
+            v-if="this.searchName && this.searchName.length >= 3"
+          >
+            <i
+              @click="this.clearSearchName"
+              class="fa-solid fa-circle-xmark"
+            ></i>
+          </span>
         </td>
         <td class="txtR">
-          <div class="filterHeader">
-            Filter:
-            <a
-              href="#"
-              @click="toggleBets"
-              :class="{ juicyGreen: this.betsOnly }"
-              >my bets</a
-            >
-            |
-            <a
-              href="#"
-              @click="toggleFinished"
-              :class="{ juicyGreen: this.finishedOnly }"
-              >finished only</a
-            >
-            |
-            <a
-              href="#"
-              @click="toggleUnfinished()"
-              :class="{ juicyGreen: this.unfinishedOnly }"
-              >unfinished only</a
-            >
-            |
-            <a
-              href="#"
-              @click="toggleAll()"
-              :class="{
-                juicyGreen: !this.finishedOnly && !this.unfinishedOnly,
-              }"
-              >all</a
-            >
-          </div>
+          Filter:
+          <a href="#" @click="toggleBets" :class="{ juicyGreen: this.betsOnly }"
+            >my bets</a
+          >
+          |
+          <a
+            href="#"
+            @click="toggleFinished"
+            :class="{ juicyGreen: this.finishedOnly }"
+            >finished only</a
+          >
+          |
+          <a
+            href="#"
+            @click="toggleUnfinished()"
+            :class="{ juicyGreen: this.unfinishedOnly }"
+            >unfinished only</a
+          >
+          |
+          <a
+            href="#"
+            @click="toggleAll()"
+            :class="{
+              juicyGreen: !this.finishedOnly && !this.unfinishedOnly,
+            }"
+            >all</a
+          >
         </td>
       </tr>
     </table>
   </div>
-  <div v-if="loaded">
-    <div v-for="(game, index) in this.games" v-bind:key="index">
-      <BetItem
-        ref="betItem"
-        :balance="this.balance"
-        :coinsAvailable="this.coinsAvailable"
-        :tournamentId="tournamentId"
-        :tournament-finished="tournamentFinished"
-        :game="game"
-        :players="game.players"
-        :gameBets="gameBets[game.id]"
-        :gameMeta="gameMeta[game.id]"
-        :class="{ hideItem: isShown(game) }"
-        @recalculateCoins="recalculateCoins"
-        @disableOtherBetsSaving="disableOtherBetsSaving"
-        @enableBetSaving="enableBetSaving"
-        @reloadBalance="reloadBalance"
-        @resetGameBets="resetGameBets"
-      >
-        <template #playerOneName>
-          {{ this.players[game.players[0]].name }}
-        </template>
-        <template #playerTwoName>
-          {{ this.players[game.players[1]].name }}
-        </template>
-        <template #probsPlayerOne>
-          {{
-            (
-              game.player_winning_probabilities[[game.players[0]]] * 100
-            ).toFixed(2)
-          }}%
-        </template>
-        <template #probsPlayerTwo>
-          {{
-            (
-              game.player_winning_probabilities[[game.players[1]]] * 100
-            ).toFixed(2)
-          }}%
-        </template>
-        <template #oddsPlayerOne>
-          {{
-            gameBets[game.id]
-              ? gameBets[game.id].odds_1
-              : game.player_odds[[game.players[0]]]
-          }}
-        </template>
-        <template #oddsPlayerTwo>
-          {{
-            gameBets[game.id]
-              ? gameBets[game.id].odds_2
-              : game.player_odds[[game.players[1]]]
-          }}
-        </template>
-      </BetItem>
-    </div>
+  <div>
+    <table v-if="loaded" class="gameBetsTable">
+      <tr v-for="(game, index) in this.games" v-bind:key="index">
+        <td>
+          <BetItem
+            ref="betItem"
+            :balance="this.balance"
+            :coinsAvailable="this.coinsAvailable"
+            :tournamentId="tournamentId"
+            :tournament-finished="tournamentFinished"
+            :game="game"
+            :players="game.players"
+            :gameBets="gameBets[game.id]"
+            :gameMeta="gameMeta[game.id]"
+            :class="{ hideItem: isShown(game) }"
+            @recalculateCoins="recalculateCoins"
+            @disableOtherBetsSaving="disableOtherBetsSaving"
+            @enableBetSaving="enableBetSaving"
+            @reloadBalance="reloadBalance"
+            @resetGameBets="resetGameBets"
+          >
+            <template #playerOneName>
+              {{ this.players[game.players[0]].name }}
+            </template>
+            <template #playerTwoName>
+              {{ this.players[game.players[1]].name }}
+            </template>
+            <template #probsPlayerOne>
+              {{
+                (
+                  game.player_winning_probabilities[[game.players[0]]] * 100
+                ).toFixed(2)
+              }}%
+            </template>
+            <template #probsPlayerTwo>
+              {{
+                (
+                  game.player_winning_probabilities[[game.players[1]]] * 100
+                ).toFixed(2)
+              }}%
+            </template>
+            <template #oddsPlayerOne>
+              {{
+                gameBets[game.id]
+                  ? gameBets[game.id].odds_1
+                  : game.player_odds[[game.players[0]]]
+              }}
+            </template>
+            <template #oddsPlayerTwo>
+              {{
+                gameBets[game.id]
+                  ? gameBets[game.id].odds_2
+                  : game.player_odds[[game.players[1]]]
+              }}
+            </template>
+          </BetItem>
+        </td>
+      </tr>
+    </table>
   </div>
 </template>
 
@@ -365,11 +362,17 @@ export default {
   display: none;
 }
 .tableHeader {
-  margin: 30px 50px 10px 20px;
-  border-bottom: 1px solid #363636;
-  padding-bottom: 5px;
+  display: flex;
+  /*margin: 10px;*/
+  /*border-bottom: 1px solid #363636;*/
+  /*padding-bottom: 10px;*/
+  /*width: 100%;*/
 }
 .filterHeader {
   padding-bottom: 5px;
+}
+.gameBetsTable {
+  width: 100%;
+  margin: 0px 10px;
 }
 </style>
