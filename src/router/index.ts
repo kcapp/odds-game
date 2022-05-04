@@ -6,6 +6,7 @@ import TournamentsView from "@/views/TournamentsView.vue";
 import TournamentRankingView from "@/views/TournamentRankingView.vue";
 import PassChange from "@/views/PassChange.vue";
 import GameView from "@/views/GameView.vue";
+import LadderView from "@/views/LadderView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,6 +55,11 @@ const router = createRouter({
       path: "/game/:id",
       name: "game",
       component: GameView,
+    },
+    {
+      path: "/ladder/:id",
+      name: "ladder",
+      component: LadderView,
     },
     {
       path: "/logout",

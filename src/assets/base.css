@@ -223,6 +223,10 @@ a {
 .noMargin { margin: 0px;}
 .ibDisplay { display: inline-block;}
 
+.strike {
+    text-decoration: line-through;
+}
+
 .router-link-exact-active {
 }
 

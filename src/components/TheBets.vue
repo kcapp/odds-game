@@ -11,6 +11,7 @@ export default {
       balance: null,
       coinsAvailable: 0,
       tournamentId: 0,
+      tournamentFinished: false,
       gameBets: [],
       gameMeta: [],
       finishedOnly: false,
@@ -23,7 +24,7 @@ export default {
     };
   },
   components: { BetItem },
-  props: ["games", "players"],
+  props: ["games", "players", "requestedTournamentId"],
   created() {
     this.loadComponentData();
     // connection to server
@@ -54,10 +55,18 @@ export default {
   },
   methods: {
     loadComponentData() {
+      // By default, load current tournament
+      let url =
+        "/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID;
+      // If there was requested tournament (i.e. previous ones), load data for it
+      if (this.requestedTournamentId !== 0) {
+        url = "/kcapp-api/tournament/" + this.requestedTournamentId;
+      }
       axios
-        .get("/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID)
+        .get(url)
         .then((tournament) => {
           this.tournamentId = tournament.data.id;
+          this.tournamentFinished = tournament.data.is_finished;
 
           // Get the rest of the data after we fetch current tournament id
           axios
@@ -300,6 +309,7 @@ export default {
         :balance="this.balance"
         :coinsAvailable="this.coinsAvailable"
         :tournamentId="tournamentId"
+        :tournament-finished="tournamentFinished"
         :game="game"
         :players="game.players"
         :gameBets="gameBets[game.id]"

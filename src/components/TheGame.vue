@@ -144,11 +144,11 @@
             </td>
           </tr>
           <tr v-if="this.gameBets.length > 0">
-            <td class="playerColumn txtR betFont">
+            <td class="playerColumn txtR">
               {{ this.player1SumBets }}
             </td>
             <td class="txtC midColumn">total bets</td>
-            <td class="playerColumn txtL betFont">
+            <td class="playerColumn txtL">
               {{ this.player2SumBets }}
             </td>
           </tr>
@@ -165,21 +165,19 @@
             </td>
           </tr>
           <tr v-for="(bet, index) in this.gameBets" v-bind:key="index">
-            <GameBet>
+            <GameBet
+              :player1="this.player1"
+              :player2="this.player2"
+              :bet="bet"
+              :better="this.players[bet.user_id]"
+            >
               <template #payout1 v-if="bet.bet_1"
-                >(+ {{ (bet.bet_1 * bet.odds_1).toFixed(0) }}
-                <TheSmallCoin />)</template
+                >(+ {{ (bet.bet_1 * bet.odds_1).toFixed(0) }})</template
               >
               <template #bet1>{{ bet.bet_1 }}</template>
-              <template #playerName
-                >{{ this.players[bet.user_id].first_name }}
-
-                {{ this.players[bet.user_id].last_name }}</template
-              >
               <template #bet2>{{ bet.bet_2 }}</template>
               <template #payout2 v-if="bet.bet_2"
-                >(+ {{ (bet.bet_2 * bet.odds_2).toFixed(0) }}
-                <TheSmallCoin />)</template
+                >(+ {{ (bet.bet_2 * bet.odds_2).toFixed(0) }})</template
               >
             </GameBet>
           </tr>
@@ -196,7 +194,7 @@ import TheSmallCoin from "@/components/TheSmallCoin.vue";
 import ioClient from "socket.io-client";
 
 export default {
-  components: { TheSmallCoin, GameBet },
+  components: { GameBet },
   props: ["gameId"],
   data() {
     return {
@@ -239,7 +237,6 @@ export default {
           legId
       )
         .on("score_update", (data) => {
-          console.log(data);
           this.game.legs.forEach((leg) => {
             if (data.leg.id === leg.id) {
               leg.visits = data.leg.visits;
@@ -309,7 +306,6 @@ export default {
                 this.game = game.data;
                 this.probabilities = probabilities.data;
                 this.gameBets = bets.data;
-
                 Object.entries(this.players).forEach((item) => {
                   if (item[1].id === this.game.players[0]) {
                     this.player1 = item[1];
@@ -325,8 +321,14 @@ export default {
 
                 // summarise the bets
                 Object.entries(this.gameBets).forEach((item) => {
-                  this.player1SumBets += item[1].bet_1;
-                  this.player2SumBets += item[1].bet_2;
+                  // player1 is game's player 0 (displayed on the left side)
+                  if (item[1].player_1 === this.player1.id) {
+                    this.player1SumBets += item[1].bet_1;
+                    this.player2SumBets += item[1].bet_2;
+                  } else if (item[1].player_1 === this.player2.id) {
+                    this.player2SumBets += item[1].bet_1;
+                    this.player1SumBets += item[1].bet_2;
+                  }
                 });
 
                 this.totalWinningScore =
@@ -346,7 +348,6 @@ export default {
                 this.p2TotalScore = s2;
 
                 this.setIndicator();
-                console.log(this.game);
               })
             )
             .catch((error) => {

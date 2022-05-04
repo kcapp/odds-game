@@ -31,7 +31,15 @@ export default {
       gameTime: null,
     };
   },
-  props: ["balance", "game", "players", "gameBets", "tournamentId", "gameMeta"],
+  props: [
+    "balance",
+    "game",
+    "players",
+    "gameBets",
+    "tournamentId",
+    "gameMeta",
+    "tournamentFinished",
+  ],
   computed: {
     player1BetResult() {
       let b1 = this.gameBets
@@ -318,7 +326,10 @@ export default {
               <i class="fa-solid fa-xmark"></i>
             </td>
             <td class="pl10 txtC">
-              <span v-if="game.is_finished || this.live" class="txtC">
+              <span
+                v-if="game.is_finished || this.live || this.tournamentFinished"
+                class="txtC"
+              >
                 {{ this.player1Bet }}
               </span>
               <input
@@ -395,7 +406,10 @@ export default {
               <i class="fa-solid fa-xmark"></i>
             </td>
             <td class="pl10 txtC">
-              <span v-if="game.is_finished || this.live" class="txtC">
+              <span
+                v-if="game.is_finished || this.live || this.tournamentFinished"
+                class="txtC"
+              >
                 {{ this.player2Bet }}
               </span>
               <input
@@ -434,10 +448,13 @@ export default {
           </tr>
           <tr>
             <td class="smallText">
-              <div v-if="this.live">
+              <div
+                v-if="
+                  this.live || this.game.is_finished || this.tournamentFinished
+                "
+              >
                 <button
                   class="smSaveLabel"
-                  v-if="this.live"
                   @click="
                     $router.push({
                       name: 'game',
@@ -453,7 +470,12 @@ export default {
                   :disabled="!this.enabledSave"
                   type="submit"
                   class="smSaveLabel"
-                  v-if="!this.game.is_finished && !this.live && !this.betsOff"
+                  v-if="
+                    !this.game.is_finished &&
+                    !this.live &&
+                    !this.betsOff &&
+                    !this.tournamentFinished
+                  "
                 >
                   save
                 </button>

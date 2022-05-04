@@ -17,6 +17,12 @@
     >
       ranking
     </RouterLink>
+    <span v-if="tournament.is_playoffs">
+      .
+      <RouterLink :to="{ name: 'ladder', params: { id: this.tournament.id } }">
+        ladder
+      </RouterLink>
+    </span>
   </td>
 </template>
 

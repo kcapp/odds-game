@@ -57,5 +57,9 @@ export default {
 </script>
 
 <template>
-  <TheBets :games="this.games" :players="this.players" />
+  <TheBets
+    :games="this.games"
+    :players="this.players"
+    :requested-tournament-id="this.tournamentId"
+  />
 </template>
