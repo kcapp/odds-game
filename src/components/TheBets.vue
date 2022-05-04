@@ -233,7 +233,7 @@ export default {
         " " +
         this.players[game.players[1]].last_name
       ).toLowerCase();
-      return pNames.indexOf(this.searchName) > -1;
+      return pNames.indexOf(this.searchName.toLowerCase()) > -1;
     },
   },
 };
