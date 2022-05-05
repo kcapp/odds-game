@@ -290,16 +290,27 @@ export default {
       this.player2SumBets = 0;
       // Get the rest of the data after we fetch current tournament id
       axios
-        .get("/kcapp-api/player")
+        .get(import.meta.env.VITE_KCAPP_API_PROXY_STRING + "/player")
         .then((players) => {
           this.players = players.data;
           axios
             .all([
-              axios.get("/kcapp-api/match/" + this.gameId),
               axios.get(
-                "/kcapp-api/tournament/match/" + this.gameId + "/probabilities"
+                import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+                  "/match/" +
+                  this.gameId
               ),
-              axios.get("/odds-api/bets/" + this.gameId),
+              axios.get(
+                import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+                  "/api/tournament/match/" +
+                  this.gameId +
+                  "/probabilities"
+              ),
+              axios.get(
+                import.meta.env.VITE_ODDS_API_PROXY_STRING +
+                  "/bets/" +
+                  this.gameId
+              ),
             ])
             .then(
               axios.spread((game, probabilities, bets) => {

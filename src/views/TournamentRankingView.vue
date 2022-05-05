@@ -21,8 +21,17 @@ export default {
     }
     axios
       .all([
-        axios.get("/kcapp-api/tournament/" + this.tournamentId),
-        axios.get("/odds-api/tournament/" + this.tournamentId + "/ranking"),
+        axios.get(
+          import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+            "/tournament/" +
+            this.tournamentId
+        ),
+        axios.get(
+          import.meta.env.VITE_ODDS_API_PROXY_STRING +
+            "/tournament/" +
+            this.tournamentId +
+            "/ranking"
+        ),
       ])
       .then(
         axios.spread((tournament, ranking) => {

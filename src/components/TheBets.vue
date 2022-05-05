@@ -57,10 +57,15 @@ export default {
     loadComponentData() {
       // By default, load current tournament
       let url =
-        "/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID;
+        import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+        "/tournament/current/" +
+        import.meta.env.VITE_OFFICE_ID;
       // If there was requested tournament (i.e. previous ones), load data for it
       if (this.requestedTournamentId !== 0) {
-        url = "/kcapp-api/tournament/" + this.requestedTournamentId;
+        url =
+          import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+          "/tournament/" +
+          this.requestedTournamentId;
       }
       axios
         .get(url)
@@ -72,20 +77,24 @@ export default {
           axios
             .all([
               axios.get(
-                "/odds-api/user/" +
+                import.meta.env.VITE_ODDS_API_PROXY_STRING +
+                  "/user/" +
                   this.$store.state.auth.user.user_id +
                   "/tournament/" +
                   this.tournamentId +
                   "/bets"
               ),
               axios.get(
-                "/odds-api/user/" +
+                import.meta.env.VITE_ODDS_API_PROXY_STRING +
+                  "/user/" +
                   this.$store.state.auth.user.user_id +
                   "/tournament/" +
                   this.tournamentId +
                   "/balance"
               ),
-              axios.get("/odds-api/games/meta"),
+              axios.get(
+                import.meta.env.VITE_ODDS_API_PROXY_STRING + "/games/meta"
+              ),
             ])
             .then(
               axios.spread((bets, balance, meta) => {

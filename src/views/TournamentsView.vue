@@ -13,7 +13,9 @@ export default {
     axios
       .all([
         axios.get(
-          "/kcapp-api/tournament/office/" + import.meta.env.VITE_OFFICE_ID
+          import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+            "/tournament/office/" +
+            import.meta.env.VITE_OFFICE_ID
         ),
       ])
       .then(

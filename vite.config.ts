@@ -18,9 +18,9 @@ export default defineConfig(({ command, mode }) => {
           target: env.VITE_ODDS_API,
           rewrite: (path) => path.replace(/^\/odds-api/, ""),
         },
-        "/kcapp-api": {
+        "/api": {
           target: env.VITE_KCAPP_API,
-          rewrite: (path) => path.replace(/^\/kcapp-api/, ""),
+          rewrite: (path) => path.replace(/^\/api/, ""),
         },
       },
     },

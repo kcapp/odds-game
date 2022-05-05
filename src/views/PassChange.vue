@@ -62,7 +62,7 @@ export default {
     changePassword(userId, pass) {
       return axios
         .post(
-          "/odds-api/user/changepass",
+          import.meta.env.VITE_ODDS_API_PROXY_STRING + "/user/changepass",
           {
             login: userId,
             password: pass,

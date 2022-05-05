@@ -4,7 +4,7 @@ class AuthService {
   login(user) {
     return axios
       .post(
-        "/odds-api/user/login",
+        import.meta.env.VITE_ODDS_API_PROXY_STRING + "/user/login",
         {
           login: user.login,
           password: btoa(user.password),

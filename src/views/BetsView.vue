@@ -21,7 +21,11 @@ export default {
     // In case we got tournament id from the route parameter
     if (!this.tournamentId) {
       axios
-        .get("/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID)
+        .get(
+          import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+            "/tournament/current/" +
+            import.meta.env.VITE_OFFICE_ID
+        )
         .then((tournament) => {
           this.tournamentId = tournament.data.id;
           this.getData();
@@ -38,9 +42,12 @@ export default {
       axios
         .all([
           axios.get(
-            "/kcapp-api/tournament/" + this.tournamentId + "/probabilities"
+            import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+              "/tournament/" +
+              this.tournamentId +
+              "/probabilities"
           ),
-          axios.get("/kcapp-api/player"),
+          axios.get(import.meta.env.VITE_KCAPP_API_PROXY_STRING + "/player"),
         ])
         .then(
           axios.spread((games, players) => {

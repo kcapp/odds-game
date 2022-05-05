@@ -192,7 +192,11 @@ export default {
     } else {
       this.requires_change = this.currentUser.requires_change;
       axios
-        .get("/kcapp-api/tournament/current/" + import.meta.env.VITE_OFFICE_ID)
+        .get(
+          import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+            "/tournament/current/" +
+            import.meta.env.VITE_OFFICE_ID
+        )
         .then((tournament) => {
           this.currentTournamentId = tournament.data.id;
 
@@ -216,15 +220,23 @@ export default {
       axios
         .all([
           axios.get(
-            "/odds-api/user/" +
+            import.meta.env.VITE_ODDS_API_PROXY_STRING +
+              "/user/" +
               userId +
               "/tournament/" +
               this.currentTournamentId +
               "/balance"
           ),
-          axios.get("/kcapp-api/player/" + userId),
-          axios.get("/kcapp-api/player"),
-          axios.get("/odds-api/user/" + userId + "/bets"),
+          axios.get(
+            import.meta.env.VITE_KCAPP_API_PROXY_STRING + "/player/" + userId
+          ),
+          axios.get(import.meta.env.VITE_KCAPP_API_PROXY_STRING + "/player"),
+          axios.get(
+            import.meta.env.VITE_ODDS_API_PROXY_STRING +
+              "/user/" +
+              userId +
+              "/bets"
+          ),
         ])
         .then(
           axios.spread((userData, kcappPlayer, players, bets) => {

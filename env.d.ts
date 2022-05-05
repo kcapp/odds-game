@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_KCAPP_SOCKET: string;
   readonly VITE_KCAPP_SOCKET_PORT: string;
   readonly VITE_OFFICE_ID: string;
+  readonly VITE_KCAPP_API_PROXY_STRING: string;
+  readonly VITE_ODDS_API_PROXY_STRING: string;
 }
 
 interface ImportMeta {
