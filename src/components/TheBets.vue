@@ -385,6 +385,6 @@ export default {
 }
 .gameBetsTable {
   width: 100%;
-  margin: 0px 10px;
+  margin: 0px 5px;
 }
 </style>

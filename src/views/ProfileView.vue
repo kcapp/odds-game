@@ -117,34 +117,41 @@
                   >
                     finished
                   </td>
-                  <td class="colWhite" v-else-if="bet.outcome === 0">draw</td>
+                  <td class="colWhite" v-else-if="bet.outcome === 0">
+                    finished (draw)
+                  </td>
                   <td v-else>unknown</td>
                   <td
                     class="txtR colWhite"
                     v-if="bet.outcome && bet.outcome === bet.player_1"
                   >
-                    {{
-                      (
-                        bet.bet_1 * bet.odds_1 -
-                        (bet.bet_1 + bet.bet_2)
-                      ).toFixed(2)
-                    }}
+                    <span
+                      :class="{
+                        colPlus: this.getBet1Coins(bet) > 0,
+                        colMinus: this.getBet1Coins(bet) < 0,
+                      }"
+                      >{{ this.getBet1Coins(bet).toFixed(2) }}</span
+                    >
                     <TheSmallCoin />
                   </td>
                   <td
                     class="txtR colWhite"
-                    v-else-if="bet.outcome && bet.outcome === bet.player_1"
+                    v-else-if="bet.outcome && bet.outcome === bet.player_2"
                   >
-                    {{
-                      (
-                        bet.bet_2 * bet.odds_2 -
-                        (bet.bet_1 + bet.bet_2)
-                      ).toFixed(2)
-                    }}
+                    <span
+                      :class="{
+                        colPlus: this.getBet2Coins(bet) > 0,
+                        colMinus: this.getBet2Coins(bet) < 0,
+                      }"
+                      >{{ this.getBet2Coins(bet).toFixed(2) }}</span
+                    >
                     <TheSmallCoin />
                   </td>
                   <td class="txtR colWhite" v-else-if="bet.outcome === 0">
-                    -{{ (bet.bet_1 + bet.bet_2).toFixed(2) }} <TheSmallCoin />
+                    <span class="colMinus"
+                      >-{{ (bet.bet_1 + bet.bet_2).toFixed(2) }}</span
+                    >
+                    <TheSmallCoin />
                   </td>
                 </tr>
               </table>
@@ -209,6 +216,12 @@ export default {
     }
   },
   methods: {
+    getBet1Coins(bet) {
+      return bet.bet_1 * bet.odds_1 - (bet.bet_1 + bet.bet_2);
+    },
+    getBet2Coins(bet) {
+      return bet.bet_2 * bet.odds_2 - (bet.bet_1 + bet.bet_2);
+    },
     setProfilePictureUrl(s) {
       if (s.startsWith("/")) {
         this.profilePictureUrl = "https://darts.sportradar.ag" + s;
@@ -292,6 +305,14 @@ export default {
 }
 
 .colGray {
+  color: #6d6d6d;
+}
+
+.colPlus {
+  color: #3aaa35;
+}
+
+.colMinus {
   color: #6d6d6d;
 }
 </style>
