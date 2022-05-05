@@ -302,7 +302,7 @@ export default {
               ),
               axios.get(
                 import.meta.env.VITE_KCAPP_API_PROXY_STRING +
-                  "/api/tournament/match/" +
+                  "/tournament/match/" +
                   this.gameId +
                   "/probabilities"
               ),
