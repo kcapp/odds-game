@@ -306,7 +306,11 @@ export default {
   </div>
   <div>
     <table v-if="loaded" class="gameBetsTable">
-      <tr v-for="(game, index) in this.games" v-bind:key="index">
+      <tr
+        v-for="(game, index) in this.games"
+        v-bind:key="index"
+        :class="{ hideItem: isShown(game) }"
+      >
         <td>
           <BetItem
             ref="betItem"
@@ -318,7 +322,6 @@ export default {
             :players="game.players"
             :gameBets="gameBets[game.id]"
             :gameMeta="gameMeta[game.id]"
-            :class="{ hideItem: isShown(game) }"
             @recalculateCoins="recalculateCoins"
             @disableOtherBetsSaving="disableOtherBetsSaving"
             @enableBetSaving="enableBetSaving"
