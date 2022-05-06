@@ -172,12 +172,14 @@
               :better="this.players[bet.user_id]"
             >
               <template #payout1 v-if="bet.bet_1"
-                >(+ {{ (bet.bet_1 * bet.odds_1).toFixed(0) }})</template
+                >(+
+                {{ (bet.bet_1 * bet.odds_1 - bet.bet_1).toFixed(0) }})</template
               >
               <template #bet1>{{ bet.bet_1 }}</template>
               <template #bet2>{{ bet.bet_2 }}</template>
               <template #payout2 v-if="bet.bet_2"
-                >(+ {{ (bet.bet_2 * bet.odds_2).toFixed(0) }})</template
+                >(+
+                {{ (bet.bet_2 * bet.odds_2 - bet.bet_2).toFixed(0) }})</template
               >
             </GameBet>
           </tr>

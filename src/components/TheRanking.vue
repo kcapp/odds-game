@@ -10,11 +10,10 @@
           <tr>
             <td class="juicyGreen pr10">#</td>
             <td class="juicyGreen">user</td>
-            <td class="juicyGreen txtR">coins</td>
-            <td>&nbsp;</td>
-            <td class="juicyGreen txtC">coins in open bets</td>
+            <td class="juicyGreen txtC" colspan="3">
+              coins available (open bets)
+            </td>
             <td class="juicyGreen txtC">bets placed</td>
-            <td class="juicyGreen txtC">potential winnings</td>
             <td class="juicyGreen txtR">total potential</td>
             <td class="juicyGreen txtR">avg coins / bet</td>
           </tr>
@@ -33,9 +32,6 @@
               <template #betsPlaced>
                 {{ item.bets_placed }}
               </template>
-              <template #potentialWinnings>
-                {{ item.potential_winnings.toFixed(2) }}
-              </template>
               <template #totalPotential>
                 {{
                   (
@@ -46,12 +42,19 @@
                 }}
               </template>
               <template #avgWin v-if="item.bets_closed > 0">
-                {{
-                  (
-                    (item.coins_won - item.coins_bets_closed) /
-                    item.bets_closed
-                  ).toFixed(2)
-                }}
+                <span
+                  :class="{
+                    colPlus: item.coins_won - item.coins_bets_closed > 0,
+                    colMinus: item.coins_won - item.coins_bets_closed < 0,
+                  }"
+                >
+                  {{
+                    (
+                      (item.coins_won - item.coins_bets_closed) /
+                      item.bets_closed
+                    ).toFixed(2)
+                  }}
+                </span>
               </template>
               <template #avgWin v-else>
                 {{ (0).toFixed(2) }}

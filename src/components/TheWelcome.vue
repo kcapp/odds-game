@@ -20,9 +20,9 @@ import WelcomeItem from "./WelcomeItem.vue";
     </template>
     <template #heading>Betting</template>
     What do I bet?<br />
-    Every user gets an in-game currency: KcappCoins. A 1000 of those to start
-    with and bet on upcoming match results. You spend a certain amount on player
-    A vs player B game. If you predicted the winner correctly, you get your bet
+    Every user gets an in-game currency: k-Coins. A 1000 of those to start with
+    and bet on upcoming match results. You spend a certain amount on player A vs
+    player B game. If you predicted the winner correctly, you get your bet
     amount multiplied by our odds calculation.
   </WelcomeItem>
 

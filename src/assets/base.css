@@ -39,7 +39,7 @@ nav {
 }
 
 .item {
-    padding: 10px 5px 10px 70px;
+    padding: 10px 5px 10px 40px;
     width: 170px;
     margin: 0 auto;
     text-align: left;
@@ -201,6 +201,8 @@ a {
 
 .colWhite{ color: white;}
 .colRed{color: red;}
+.colPlus {color: #3aaa35;}
+.colMinus {  color: #e30716;}
 
 .m10 {margin: 10px;}
 .m50 {margin: 50px;}

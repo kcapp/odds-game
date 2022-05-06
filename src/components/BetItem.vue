@@ -116,7 +116,6 @@ export default {
       return this.game.id;
     },
     getBetCoinSum() {
-      console.log(this.game.winner_id);
       if (this.game.winner_id === this.players[0]) {
         if (this.player1BetResult - this.matchBetsSum > 0) {
           return "+" + (this.player1BetResult - this.matchBetsSum).toFixed(2);

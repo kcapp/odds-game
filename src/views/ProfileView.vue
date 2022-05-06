@@ -43,7 +43,7 @@
         <td style="padding-left: 20px; width: 100%">
           <div class="profileBlockFill">
             <div style="color: white; font-weight: 500">
-              Match kcappCoins balance
+              Match k-Coins balance
             </div>
             <div style="color: #575656">
               Coins earned by betting on match results.
@@ -55,7 +55,7 @@
               <TheCoin></TheCoin>
             </div>
             <div style="color: white; font-weight: 500">
-              Tournament kcappCoins balance
+              Tournament k-Coins balance
             </div>
             <div style="color: #575656">
               Coins earned by betting on tournament outcomes and special bets.

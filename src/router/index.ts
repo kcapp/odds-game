@@ -27,7 +27,12 @@ const router = createRouter({
       component: () => import("../views/ProfileView.vue"),
     },
     {
-      path: "/bets",
+      path: "/tournamentbets",
+      name: "tournamentbets",
+      component: BetsView,
+    },
+    {
+      path: "/gamebets",
       name: "bets",
       component: BetsView,
     },

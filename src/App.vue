@@ -32,9 +32,9 @@
         </div></RouterLink
       >
 
-      <RouterLink to="/bets">
+      <RouterLink to="/gamebets">
         <div class="item">
-          <i class="fa-solid fa-coins"></i> Bets
+          <i class="fa-solid fa-coins"></i> Match bets
         </div></RouterLink
       >
       <a href="#">
