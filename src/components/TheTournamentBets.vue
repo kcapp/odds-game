@@ -38,15 +38,46 @@
           </BetTotalItem>
         </td>
       </tr>
+      <tr>
+        <td class="colWhite">
+          <div>
+            <h3>Outrights (futures)</h3>
+          </div>
+        </td>
+      </tr>
+      <template
+        v-for="(futuresOutcomesGroup, futuresOutcomesGroupIndex) in this
+          .groupsFutures"
+        v-bind:key="futuresOutcomesGroupIndex"
+      >
+        <tr v-if="futuresOutcomesGroup">
+          <td>
+            <BetFuturesItem
+              ref="betItem"
+              :market-names="this.marketNames"
+              :outcomeMarketId="futuresOutcomesGroupIndex"
+              :outcomes="getFuturesOutcomesIndexed(futuresOutcomesGroup)"
+              :tournamentId="tournamentId"
+              :balance="this.balance"
+              :user-bets="getFuturesBets()"
+              @resetBets="resetBets"
+              @reloadBalance="reloadBalance"
+              @disableOtherBetsSaving="disableOtherBetsSaving"
+              @enableBetSaving="enableBetSaving"
+            />
+          </td>
+        </tr>
+      </template>
     </table>
   </div>
 </template>
 <script>
 import { Outcome } from "@/models/Outcome.ts";
 import BetTotalItem from "@/components/BetTotalItem.vue";
+import BetFuturesItem from "@/components/BetFuturesItem.vue";
 import axios from "axios";
 export default {
-  components: { BetTotalItem },
+  components: { BetTotalItem, BetFuturesItem },
   props: ["outcomes", "requestedTournamentId"],
   data() {
     return {
@@ -55,11 +86,29 @@ export default {
       outcomesTotal: [],
       outcomesFutures: [],
       outcomesProps: [],
+      groupsFutures: [],
+      marketNames: [],
       userBets: [],
       balance: null,
     };
   },
   methods: {
+    getFuturesBets() {
+      let futuresBets = [];
+      this.userBets.forEach((item) => {
+        if (item.market_type_id === 2) {
+          futuresBets[item.id] = item;
+        }
+      });
+      return futuresBets;
+    },
+    getFuturesOutcomesIndexed(outcomes) {
+      let futuresOutcomes = [];
+      outcomes.forEach((item) => {
+        futuresOutcomes[item.id] = item;
+      });
+      return futuresOutcomes;
+    },
     reloadBalance(newBalance) {
       this.balance = newBalance;
       this.$refs.betItem.forEach((item) => {
@@ -128,10 +177,6 @@ export default {
                   this.userBets[value.outcome_id] = value;
                 }
 
-                // // set metadata indexed by match id
-                // for (const [index, value] of meta.data.entries()) {
-                //   this.gameMeta[value.match_id] = value;
-                // }
                 this.balance = balance.data;
                 this.loaded = true;
 
@@ -159,6 +204,17 @@ export default {
         }
         // also keep all markets in one array
         this.outcomesAll.push(oc);
+        this.marketNames[oc.getMarketId()] = oc.getMarketName();
+      });
+
+      this.outcomesFutures.forEach((item) => {
+        if (this.groupsFutures[item.getMarketId()] === undefined) {
+          this.groupsFutures[item.getMarketId()] = [];
+        }
+        this.groupsFutures[item.getMarketId()].push(item);
+      });
+      this.groupsFutures.forEach((item) => {
+        item.sort((a, b) => (a.odds_x > b.odds_x ? 1 : -1));
       });
     },
   },

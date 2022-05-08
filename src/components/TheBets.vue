@@ -210,6 +210,12 @@ export default {
       this.unfinishedOnly = false;
       this.betsOnly = false;
     },
+    getPlayer1Initials(game) {
+      return this.players[game.players[0]].name;
+    },
+    getPlayer2Initials(game) {
+      return this.players[game.players[1]].name;
+    },
     // Returns boolean value indicating whether the BetItem should be shown or not
     isShown(game) {
       let gameFinished = game.is_finished;
@@ -322,6 +328,8 @@ export default {
             :players="game.players"
             :gameBets="gameBets[game.id]"
             :gameMeta="gameMeta[game.id]"
+            :p1Initials="this.getPlayer1Initials(game)"
+            :p2Initials="this.getPlayer2Initials(game)"
             @recalculateCoins="recalculateCoins"
             @disableOtherBetsSaving="disableOtherBetsSaving"
             @enableBetSaving="enableBetSaving"

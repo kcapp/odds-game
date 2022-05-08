@@ -4,70 +4,83 @@
       You are using starter password. Please change it
       <RouterLink style="color: black" to="/changepass">here</RouterLink>.
     </div>
-    <table class="profileTable" v-if="this.userData && this.coins">
+    <table
+      class="profileTable profileBlockFill"
+      v-if="this.userData && this.coins"
+    >
       <tr>
-        <td>
-          <div class="profileBlockFill">
-            <div style="width: 200px">
-              <div class="profilePictureCircleWrapper">
-                <div class="profilePictureContent">
-                  <img
-                    class="profileImg"
-                    v-bind:src="
-                      'https://darts.sportradar.ag' + this.profilePictureUrl
-                    "
-                    v-if="this.profilePictureUrl.startsWith('/')"
-                  />
-                  <img
-                    class="profileImg"
-                    v-bind:src="this.profilePictureUrl"
-                    v-else-if="this.profilePictureUrl.startsWith('https://')"
-                  />
-                  <i class="fa-solid fa-robot" v-else></i>
+        <td style="width: 100%">
+          <table>
+            <tr>
+              <td style="padding-left: 20px">
+                <div>
+                  <div>
+                    <div class="profilePictureCircleWrapper">
+                      <div class="profilePictureContent">
+                        <img
+                          class="profileImg"
+                          v-bind:src="
+                            'https://darts.sportradar.ag' +
+                            this.profilePictureUrl
+                          "
+                          v-if="this.profilePictureUrl.startsWith('/')"
+                        />
+                        <img
+                          class="profileImg"
+                          v-bind:src="this.profilePictureUrl"
+                          v-else-if="
+                            this.profilePictureUrl.startsWith('https://')
+                          "
+                        />
+                        <i class="fa-solid fa-robot" v-else></i>
+                      </div>
+                    </div>
+                    <div class="profileName pt20 txtC">
+                      <h3 class="colWhite noMargin">
+                        {{ this.userData.first_name }}
+                      </h3>
+                      <h2 class="colWhite noMargin">
+                        {{ this.userData.last_name }}
+                      </h2>
+                    </div>
+                    <div class="pt20 txtC" v-if="!currentUser.requires_change">
+                      <RouterLink to="/changepass">change password</RouterLink>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="profileName pt20 txtC">
-                <h3 class="colWhite noMargin">
-                  {{ this.userData.first_name }}
-                </h3>
-                <h2 class="colWhite noMargin">
-                  {{ this.userData.last_name }}
-                </h2>
-              </div>
-              <div class="pt20 txtC" v-if="!currentUser.requires_change">
-                <RouterLink to="/changepass">change password</RouterLink>
-              </div>
-            </div>
-          </div>
-        </td>
-        <td style="padding-left: 20px; width: 100%">
+              </td>
+              <td style="padding-left: 50px">
+                <div style="color: white; font-weight: 500">
+                  Match k-Coins balance
+                </div>
+                <div style="color: #575656">
+                  Coins earned by betting on match results.
+                </div>
+                <div style="padding: 10px 0px">
+                  <span class="ibDisplay"
+                    ><h1 class="noMargin">{{ this.coins.toFixed(2) }}</h1></span
+                  >
+                  <TheCoin></TheCoin>
+                </div>
+                <div style="color: white; font-weight: 500">
+                  Tournament k-Coins balance
+                </div>
+                <div style="color: #575656">
+                  Coins earned by betting on tournament outcomes and special
+                  bets.
+                </div>
+                <div style="padding: 10px 0px">
+                  <span class="ibDisplay"
+                    ><h1 class="noMargin">
+                      {{ this.tournamentCoins.toFixed(2) }}
+                    </h1></span
+                  >
+                  <TheCoin></TheCoin>
+                </div>
+              </td>
+            </tr>
+          </table>
           <div class="profileBlockFill">
-            <div style="color: white; font-weight: 500">
-              Match k-Coins balance
-            </div>
-            <div style="color: #575656">
-              Coins earned by betting on match results.
-            </div>
-            <div style="padding: 10px 0px">
-              <span class="ibDisplay"
-                ><h1 class="noMargin">{{ this.coins.toFixed(2) }}</h1></span
-              >
-              <TheCoin></TheCoin>
-            </div>
-            <div style="color: white; font-weight: 500">
-              Tournament k-Coins balance
-            </div>
-            <div style="color: #575656">
-              Coins earned by betting on tournament outcomes and special bets.
-            </div>
-            <div style="padding: 10px 0px">
-              <span class="ibDisplay"
-                ><h1 class="noMargin">
-                  {{ this.tournamentCoins.toFixed(2) }}
-                </h1></span
-              >
-              <TheCoin></TheCoin>
-            </div>
             <div><hr /></div>
             <div v-if="this.players && this.bets">
               <table style="width: 100%">
@@ -127,17 +140,18 @@
                       :to="{ name: 'game', params: { id: bet.match_id } }"
                       >odds</RouterLink
                     >
-                    .
-                    <a
-                      v-if="this.isFinished(bet)"
-                      :href="
-                        'https://darts.sportradar.ag/matches/' +
-                        bet.match_id +
-                        '/result'
-                      "
-                      target="_blank"
-                      >kcapp</a
-                    >
+                    <span v-if="this.isFinished(bet)">
+                      .
+                      <a
+                        :href="
+                          'https://darts.sportradar.ag/matches/' +
+                          bet.match_id +
+                          '/result'
+                        "
+                        target="_blank"
+                        >kcapp</a
+                      >
+                    </span>
                   </td>
                   <td
                     class="txtR colWhite"
@@ -150,7 +164,7 @@
                       }"
                       >{{ this.getBet1Coins(bet).toFixed(2) }}</span
                     >
-                    <TheSmallCoin />
+                    <span class="pl20"><TheSmallCoin /></span>
                   </td>
                   <td
                     class="txtR colWhite"
@@ -163,13 +177,13 @@
                       }"
                       >{{ this.getBet2Coins(bet).toFixed(2) }}</span
                     >
-                    <TheSmallCoin />
+                    <span class="pl20"><TheSmallCoin /></span>
                   </td>
                   <td class="txtR colWhite" v-else-if="bet.outcome === 0">
                     <span class="colMinus"
                       >-{{ (bet.bet_1 + bet.bet_2).toFixed(2) }}</span
                     >
-                    <TheSmallCoin />
+                    <span class="pl20"><TheSmallCoin /></span>
                   </td>
                 </tr>
               </table>
@@ -283,14 +297,16 @@ export default {
               userData.data.coins_bets_open -
               userData.data.coins_bets_closed +
               userData.data.coins_won;
-            this.tournamentCoins = userData.data.tournament_coins_closed;
+            this.tournamentCoins =
+              userData.data.start_coins -
+              userData.data.tournament_coins_open -
+              userData.data.tournament_coins_closed +
+              userData.data.tournament_coins_won;
             this.userData.first_name = userData.data.first_name;
             this.userData.last_name = userData.data.last_name;
             this.profilePictureUrl = kcappPlayer.data.profile_pic_url;
             this.players = players.data;
             this.bets = bets.data;
-
-            console.log(this.bets);
           })
         )
         .catch((error) => {
@@ -341,5 +357,10 @@ export default {
 
 .colMinus {
   color: #6d6d6d;
+}
+
+h1 {
+  font-size: 40px;
+  font-weight: 300;
 }
 </style>

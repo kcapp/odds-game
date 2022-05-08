@@ -4,8 +4,15 @@ import TheBoardIcon from "@/components/TheBoardIcon.vue";
 import TheCoin from "@/components/TheCoin.vue";
 import TheTooltip from "@/components/TheTooltip.vue";
 import TheOddsDiffLabel from "@/components/TheOddsDiffLabel.vue";
+import TheInitials from "@/components/TheInitials.vue";
 export default {
-  components: { TheOddsDiffLabel, TheTooltip, TheCoin, TheBoardIcon },
+  components: {
+    TheInitials,
+    TheOddsDiffLabel,
+    TheTooltip,
+    TheCoin,
+    TheBoardIcon,
+  },
   data() {
     return {
       currentUserId: null,
@@ -39,6 +46,8 @@ export default {
     "tournamentId",
     "gameMeta",
     "tournamentFinished",
+    "p1Initials",
+    "p2Initials",
   ],
   computed: {
     player1BetResult() {
@@ -257,6 +266,15 @@ export default {
           this.reloadBalance();
         });
     },
+    getGameWinnerInitials(game) {
+      if (game.winner_id === this.players[0]) {
+        return this.p1Initials;
+      }
+      if (game.winner_id === this.players[1]) {
+        return this.p2Initials;
+      }
+      return "";
+    },
   },
 };
 </script>
@@ -299,9 +317,16 @@ export default {
           }"
         >
           <td rowspan="2" class="vMiddle">
-            <div class="icon" v-if="game.is_finished">
-              <i class="fa-solid fa-flag-checkered"></i>
+            <div
+              class="icon"
+              v-if="game.is_finished && game.winner_id === null"
+            >
+              <i class="fa-solid fa-equals"></i>
             </div>
+            <TheInitials
+              v-else-if="game.is_finished"
+              :initials="getGameWinnerInitials(game)"
+            />
             <div class="icon" v-else-if="game.is_walkover">
               <i class="fa-solid fa-flag"></i>
             </div>

@@ -1,7 +1,7 @@
 export class Outcome {
   private id: number;
   private tournamentId: number;
-  private marketId: number;
+  private market_id: number;
   private market_name: string;
   private market_type_id: number;
   private market_type_name: string;
@@ -14,7 +14,7 @@ export class Outcome {
   constructor(data) {
     this.id = data.id;
     this.tournamentId = data.tournament_id;
-    this.marketId = data.market_id;
+    this.market_id = data.market_id;
     this.market_name = data.market_name;
     this.market_type_id = data.market_type_id;
     this.market_type_name = data.market_type_name;
@@ -27,6 +27,10 @@ export class Outcome {
 
   getMarketTypeId() {
     return this.market_type_id;
+  }
+
+  getMarketId() {
+    return this.market_id;
   }
 
   getMarketName() {
