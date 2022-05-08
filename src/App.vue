@@ -37,6 +37,13 @@
           <i class="fa-solid fa-coins"></i> Match bets
         </div></RouterLink
       >
+
+      <RouterLink to="/tournamentbets">
+        <div class="item">
+          <i class="fa-solid fa-coins"></i> Tournament bets
+        </div></RouterLink
+      >
+
       <a href="#">
         <div class="item">
           <RouterLink @click.prevent="logOut" to="/logout"

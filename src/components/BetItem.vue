@@ -311,10 +311,7 @@ export default {
             <span></span>
           </td>
           <td style="min-width: 200px">
-            <h3 v-if="game.winner_id === players[0]" class="winnerColor">
-              <slot name="playerOneName" />
-            </h3>
-            <h3 v-else>
+            <h3 :class="{ winnerColor: game.winner_id === players[0] }">
               <slot name="playerOneName" />
             </h3>
           </td>
@@ -394,10 +391,7 @@ export default {
             <span></span>
           </td>
           <td>
-            <h3 v-if="game.winner_id === players[1]" class="winnerColor">
-              <slot name="playerTwoName" />
-            </h3>
-            <h3 v-else>
+            <h3 :class="{ winnerColor: game.winner_id === players[1] }">
               <slot name="playerTwoName" />
             </h3>
           </td>
@@ -519,37 +513,9 @@ table td {
   border: 0px solid white;
 }
 
-.betResult {
-  padding-left: 20px;
-  font-size: 30px;
-  font-weight: 500;
-}
-
-.betResultPlus {
-  padding-left: 20px;
-  font-size: 25px;
-  font-weight: 500;
-  color: #3aaa35;
-}
-
-.betResultMinus {
-  padding-left: 20px;
-  font-size: 25px;
-  font-weight: 500;
-  color: #e30716;
-}
-
 h3 {
   display: inline;
   font-weight: 400;
-}
-
-input:disabled {
-  background-color: #383838;
-}
-
-button {
-  border: none;
 }
 
 .smallText {
@@ -571,22 +537,6 @@ button {
   animation-delay: 1s;
   color: white;
   text-align: center;
-}
-
-button:disabled {
-  background-color: #4a4b52b0;
-}
-
-.vBottom {
-  vertical-align: bottom;
-}
-
-.vMiddle {
-  vertical-align: middle;
-}
-
-.vTop {
-  vertical-align: top;
 }
 
 @keyframes fadeOut {

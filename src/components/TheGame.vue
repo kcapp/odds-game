@@ -247,6 +247,7 @@ export default {
           let scores = this.getPlayersTotalScores();
           this.p1TotalScore = scores[this.game.players[0]];
           this.p2TotalScore = scores[this.game.players[1]];
+          console.log(this.p1TotalScore, this.p2TotalScore);
           this.setIndicator();
         })
         .on("leg_finished", () => {

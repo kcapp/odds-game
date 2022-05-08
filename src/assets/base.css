@@ -54,6 +54,26 @@ nav item.router-link-active {
     border-radius: 5px;
 }
 
+.betResult {
+    padding-left: 20px;
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.betResultPlus {
+    padding-left: 20px;
+    font-size: 25px;
+    font-weight: 500;
+    color: #3aaa35;
+}
+
+.betResultMinus {
+    padding-left: 20px;
+    font-size: 25px;
+    font-weight: 500;
+    color: #e30716;
+}
+
 .textInput {
     border: 1px solid rgba(84, 84, 84, 0.65);
     border-radius: 4px;
@@ -230,6 +250,30 @@ a {
 }
 
 .router-link-exact-active {
+}
+
+.vBottom {
+    vertical-align: bottom;
+}
+
+.vMiddle {
+    vertical-align: middle;
+}
+
+.vTop {
+    vertical-align: top;
+}
+
+input:disabled {
+    background-color: #383838;
+}
+
+button {
+    border: none;
+}
+
+button:disabled {
+    background-color: #4a4b52b0;
 }
 
 .gameDiv {

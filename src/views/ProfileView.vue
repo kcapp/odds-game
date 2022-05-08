@@ -76,10 +76,11 @@
                   <td class="txtC" colspan="3">bets</td>
                   <td class="pl10">away player</td>
                   <td>status</td>
+                  <td>view options</td>
                   <td class="txtC">result</td>
                 </tr>
                 <tr>
-                  <td colspan="7">
+                  <td colspan="8">
                     <hr />
                   </td>
                 </tr>
@@ -121,6 +122,23 @@
                     finished (draw)
                   </td>
                   <td v-else>unknown</td>
+                  <td>
+                    <RouterLink
+                      :to="{ name: 'game', params: { id: bet.match_id } }"
+                      >odds</RouterLink
+                    >
+                    .
+                    <a
+                      v-if="this.isFinished(bet)"
+                      :href="
+                        'https://darts.sportradar.ag/matches/' +
+                        bet.match_id +
+                        '/result'
+                      "
+                      target="_blank"
+                      >kcapp</a
+                    >
+                  </td>
                   <td
                     class="txtR colWhite"
                     v-if="bet.outcome && bet.outcome === bet.player_1"
@@ -216,6 +234,13 @@ export default {
     }
   },
   methods: {
+    isFinished(bet) {
+      return (
+        bet.outcome === bet.player_1 ||
+        bet.outcome === bet.player_2 ||
+        bet.outcome === 0
+      );
+    },
     getBet1Coins(bet) {
       return bet.bet_1 * bet.odds_1 - (bet.bet_1 + bet.bet_2);
     },
@@ -264,6 +289,8 @@ export default {
             this.profilePictureUrl = kcappPlayer.data.profile_pic_url;
             this.players = players.data;
             this.bets = bets.data;
+
+            console.log(this.bets);
           })
         )
         .catch((error) => {
