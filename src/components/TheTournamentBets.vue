@@ -1,10 +1,54 @@
 <template>
-  <div>
+  <div ref="jumpTop">
     <table v-if="this.outcomes && this.balance" class="tournamentBetsTable">
       <tr>
-        <td class="colWhite">
+        <td>
+          Jump to section:
+          <span
+            class="colPlus"
+            style="cursor: pointer"
+            @click="this.jumpTo('jumpBetTotal')"
+            >Total bets</span
+          >
+          |
+          <span
+            class="colPlus"
+            style="cursor: pointer"
+            @click="this.jumpTo('jumpBetFutures')"
+            >Outcomes (futures)</span
+          >
+          |
+          <span
+            class="colPlus"
+            style="cursor: pointer"
+            @click="this.jumpTo('jumpBetProps')"
+            >Player props</span
+          >
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <hr />
+        </td>
+      </tr>
+      <tr>
+        <td class="colWhite" ref="jumpBetTotal">
           <div>
-            <h3>Total bets (over / under)</h3>
+            <table style="width: 98%">
+              <tr>
+                <td>
+                  <h3 class="h3class">Total bets (over / under)</h3>
+                </td>
+                <td class="txtR">
+                  <span
+                    class="colPlus"
+                    style="cursor: pointer"
+                    @click="this.jumpTo('jumpTop')"
+                    >Back to top</span
+                  >
+                </td>
+              </tr>
+            </table>
           </div>
         </td>
       </tr>
@@ -39,9 +83,23 @@
         </td>
       </tr>
       <tr>
-        <td class="colWhite">
+        <td class="colWhite" ref="jumpBetFutures">
           <div>
-            <h3>Outrights (futures)</h3>
+            <table style="width: 98%">
+              <tr>
+                <td>
+                  <h3 class="h3class">Outrights (futures)</h3>
+                </td>
+                <td class="txtR">
+                  <span
+                    class="colPlus"
+                    style="cursor: pointer"
+                    @click="this.jumpTo('jumpTop')"
+                    >Back to top</span
+                  >
+                </td>
+              </tr>
+            </table>
           </div>
         </td>
       </tr>
@@ -69,9 +127,23 @@
         </tr>
       </template>
       <tr>
-        <td class="colWhite">
+        <td class="colWhite" ref="jumpBetProps">
           <div>
-            <h3>Player props</h3>
+            <table style="width: 98%">
+              <tr>
+                <td>
+                  <h3 class="h3class">Player props</h3>
+                </td>
+                <td class="txtR">
+                  <span
+                    class="colPlus"
+                    style="cursor: pointer"
+                    @click="this.jumpTo('jumpTop')"
+                    >Back to top</span
+                  >
+                </td>
+              </tr>
+            </table>
           </div>
         </td>
       </tr>
@@ -125,6 +197,13 @@ export default {
     };
   },
   methods: {
+    jumpTo(refName) {
+      const element = this.$refs[refName];
+      if (element) {
+        // Use el.scrollIntoView() to instantly scroll to the element
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    },
     getFuturesBets() {
       let futuresBets = [];
       this.userBets.forEach((item) => {
@@ -334,8 +413,9 @@ export default {
 }
 .tournamentBetsTable h3 {
   margin: 0px;
-  font-size: 30px;
+  font-size: 15px;
   font-weight: 300;
   color: #00bd7e;
+  display: inline-block;
 }
 </style>
