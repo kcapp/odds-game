@@ -116,7 +116,7 @@ export default {
       }
 
       // disable all others save buttons except the one on the bet you're editing
-      this.$emit("disableOtherBetsSaving", this.outcome.id);
+      this.$emit("disableBetsSavingForTotals", this.outcome.id);
 
       // this is the most important part, all the save buttons are disabled except current one
       // is this an existing bet?

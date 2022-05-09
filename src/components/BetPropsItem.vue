@@ -7,13 +7,13 @@ export default {
     return {
       currentUserId: null,
       coinsAvailable: 0,
-      overBet: this.userBets ? this.userBets.bet_1 : 0,
-      underBet: this.userBets ? this.userBets.bet_2 : 0,
-      overBetOdds: 0,
-      underBetOdds: 0,
+      singleBet: 0,
+      singleBetResult: 0,
+      betOdds: 0,
       floatingDigits: 2,
       floatingOddsDigits: 3,
       betId: 0,
+      betOutcomeId: 0,
       messages: [],
       matchBetsSum: this.userBets
         ? this.userBets.bet_1 + this.userBets.bet_2
@@ -21,10 +21,12 @@ export default {
       live: false,
       message: "",
       enabledSave: true,
+      selectedKey: null,
     };
   },
   props: [
-    "futuresOutcomes",
+    "outcomeMarketId",
+    "outcomes",
     "marketNames",
     // ---
     "balance",
@@ -36,24 +38,38 @@ export default {
     "tournamentFinished",
   ],
   computed: {
-    overBetResult() {
-      let b1 = this.userBets ? this.userBets.odds_1 : 0;
-      return (this.overBet * b1).toFixed(this.floatingDigits);
-    },
-    underBetResult() {
-      let b2 = this.userBets ? this.userBets.odds_2 : 0;
-      return (this.underBet * b2).toFixed(this.floatingDigits);
+    betResult() {
+      this.userBets.forEach((item) => {
+        if (this.outcomeMarketId === item.market_id) {
+          this.betId = item.id;
+        }
+      });
+
+      return (this.singleBet * this.betOdds).toFixed(this.floatingDigits);
     },
   },
   mounted() {
     this.resetBalance();
 
-    this.betId = this.userBets ? this.userBets.outcome_id : 0;
+    if (this.userBets.filter(Boolean).length === 0) {
+      this.betId = 0;
+      this.betOdds = 0;
+    } else {
+      this.userBets.forEach((item) => {
+        if (this.outcomeMarketId === item.market_id) {
+          this.betId = item.id;
+          this.betOutcomeId = item.outcome_id;
+          this.betOdds = item.odds_x;
+          this.singleBet = item.bet_x;
+          this.singleBetResult = (this.singleBet * this.betOdds).toFixed(
+            this.floatingDigits
+          );
+        }
+      });
+    }
+
     this.live = this.tournamentStarted;
     this.currentUserId = this.$store.state.auth.user.user_id;
-
-    this.overBetOdds = this.userBets ? this.userBets.odds_1 : 0;
-    this.underBetOdds = this.userBets ? this.userBets.odds_2 : 0;
   },
   methods: {
     getImmutableCoinsAvailable() {
@@ -72,15 +88,18 @@ export default {
         this.balance.tournament_coins_won;
     },
     getOutcomeId() {
-      return this.outcome.id;
+      return this.betId;
+    },
+    getOutcomeMarketId() {
+      return this.outcomeMarketId;
     },
     getBetCoinSum() {
       // OVER wins
       if (this.userBets.outcome > this.userBets.outcome_value) {
-        if (this.overBetResult - this.matchBetsSum > 0) {
-          return "+" + (this.overBetResult - this.matchBetsSum).toFixed(2);
+        if (this.singleBetResult - this.matchBetsSum > 0) {
+          return "+" + (this.singleBetResult - this.matchBetsSum).toFixed(2);
         } else {
-          return (this.overBetResult - this.matchBetsSum).toFixed(2);
+          return (this.singleBetResult - this.matchBetsSum).toFixed(2);
         }
       }
       // UNDER wins
@@ -109,54 +128,63 @@ export default {
       this.message = msg;
     },
     validateAndEmit() {
-      if (this.overBet === undefined || this.overBet === "") {
-        this.overBet = 0;
-      }
-      if (this.underBet === undefined || this.underBet === "") {
-        this.underBet = 0;
+      if (this.singleBet === undefined || this.singleBet === "") {
+        this.singleBet = 0;
       }
 
       // disable all others save buttons except the one on the bet you're editing
-      this.$emit("disableOtherBetsSaving", this.outcome.id);
+      this.$emit("disableBetsSavingForProps", this.outcomeMarketId);
 
       // this is the most important part, all the save buttons are disabled except current one
       // is this an existing bet?
       if (this.betId) {
-        let oldBetSum = parseInt(this.overBet) + parseInt(this.underBet);
-        let newBetSum = this.userBets.bet_1 + this.userBets.bet_2;
+        let oldBetSum = parseInt(this.singleBet);
+        let newBetSum = this.userBets[this.betId].bet_x;
+
         let balanceAfterBet =
           this.getImmutableCoinsAvailable() - oldBetSum + newBetSum;
         // check if we have enough coins
         if (balanceAfterBet < 0) {
           // if we do not, reset to db values and enable save buttons
-          this.resetBet(this.userBets.bet_1, this.userBets.bet_2);
+          this.resetBet(this.userBets[this.betId].bet_x);
         } else {
           // if we have enough coins, display balance - value and wait for save
           this.coinsAvailable = balanceAfterBet;
         }
       } else {
+        // this is a new bet, update odds value
+        if (this.betOutcomeId) {
+          this.betOdds = this.outcomes[this.betOutcomeId].odds_x;
+        } else {
+          // new bet and no outcome selected? reset the bet and message to pick
+          this.message = "choose outcome";
+          // empty new bet, reset
+          this.resetBet(0);
+          return;
+        }
+
         // if this is not an existing bet in the db
         // check the balance, if we have enough coins (more than the value)
-        let newBetSum = parseInt(this.overBet) + parseInt(this.underBet);
+        let newBetSum = parseInt(this.singleBet);
         if (newBetSum === 0) {
+          this.message = "insert bet";
           // empty new bet, reset
-          this.resetBet(0, 0);
+          this.resetBet(0);
         }
         let balanceAfterBet = this.getImmutableCoinsAvailable() - newBetSum;
         if (balanceAfterBet < 0) {
           // if we do not, reset to 0 and enable save buttons
-          this.resetBet(0, 0);
+          this.resetBet(0);
         } else {
           // if we have enough coins, display balance - value and wait for save
           this.coinsAvailable = balanceAfterBet;
         }
       }
     },
-    resetBet(bet1, bet2) {
-      this.overBet = bet1;
-      this.underBet = bet2;
+    resetBet(bet) {
+      this.singleBet = bet;
       this.resetBalance();
-      this.$emit("enableBetSaving", this.outcome.id);
+      this.$emit("enableBetSaving", this.betId);
     },
     reloadBalance() {
       axios
@@ -176,37 +204,48 @@ export default {
         });
     },
     betHasOutcome() {
-      if (this.userBets !== undefined && this.userBets.outcome !== null) {
-        return true;
-      }
-      return false;
+      return !!(
+        this.userBets !== undefined &&
+        this.userBets[this.outcomeMarketId] &&
+        this.userBets[this.outcomeMarketId].outcome !== null
+      );
+    },
+    updateOdds() {
+      this.validateAndEmit();
     },
     postTournamentBet() {
       const json = JSON.stringify({
         id: this.betId, // same as outcome_id for existing bets
         user_id: this.$store.state.auth.user.user_id,
         tournament_id: parseInt(this.tournamentId),
-        outcome_id: parseInt(this.outcome.id),
-        bet_1: parseInt(this.overBet),
-        bet_x: 0,
-        bet_2: parseInt(this.underBet),
+        outcome_id: parseInt(this.betOutcomeId),
+        bet_x: parseInt(this.singleBet),
+        bet_1: 0,
+        bet_2: 0,
       });
       axios
         .post(
           import.meta.env.VITE_ODDS_API_PROXY_STRING +
             "/tournamentbets/" +
-            this.outcome.id,
+            this.betId,
           json
         )
         .then((res) => {
           this.betId = res.data;
           this.message = "saved";
-          setTimeout(this.setBetMessage, 2000, "bet placed");
           // enable all save buttons
-          this.$emit("enableBetSaving", this.outcome.id);
+          this.$emit("enableBetSaving", this.betId);
 
           // TODO - set bet odds for specific game
           this.$emit("resetBets");
+
+          if (res.data === 0) {
+            // row was deleted, reset outcome id, so we get clear select dropdown
+            this.betId = 0;
+            this.betOutcomeId = 0;
+            this.betOdds = 0;
+            this.message = "removed";
+          }
         })
         .catch((error) => {
           console.log(error.message);
@@ -225,39 +264,48 @@ export default {
       <table class="txtL betTable">
         <tr>
           <td class="smGreenHeader marketNameLabel">
-            {{ this.marketNames[this.futuresOutcomes.id] }}
+            {{ this.marketNames[this.outcomeMarketId] }}
           </td>
-          <td class="smGreenHeader txtC" style="width: 120px">type</td>
-          <td class="txtC smallText smGreenHeader">odds</td>
+          <td class="txtC smallText smGreenHeader" style="width: 100px">
+            odds
+          </td>
           <td>&nbsp;</td>
           <td class="smGreenHeader txtC">your bet</td>
           <td colspan="3">&nbsp;</td>
         </tr>
         <tr>
-          <td rowspan="2" class="vMiddle txtC marketValueFont">
-            {{ this.futuresOutcomes }}
-            <select></select>
+          <td class="vMiddle txtC marketValueFont">
+            <select
+              style="display: table"
+              class="textInput"
+              @change="updateOdds()"
+              v-model="this.betOutcomeId"
+            >
+              <option disabled selected value="">Please select one</option>
+              <template v-for="(oc, index) in this.outcomes.filter(Boolean)">
+                <option :value="oc.id" v-bind:key="oc.id" v-if="oc">
+                  {{ oc.player_name }} (odds: {{ oc.odds_x }})
+                </option>
+              </template>
+            </select>
           </td>
-          <td class="txtC">over</td>
-          <td style="width: 80px" class="txtC">
-            <slot name="oddsOver" />
-          </td>
+          <td class="txtC">{{ this.betOdds }}</td>
           <td class="txtC">
             <i class="fa-solid fa-xmark"></i>
           </td>
-          <td class="pl10 txtC">
+          <td class="txtC">
             <span
               v-if="this.tournamentStarted || this.betHasOutcome()"
               class="txtC"
             >
-              {{ this.overBet }}
+              {{ this.singleBet }}
             </span>
             <input
               v-else
               :disabled="!this.enabledSave"
               type="text"
               class="textInput txtC w40"
-              v-model="this.overBet"
+              v-model="this.singleBet"
               @keypress="this.isNumber($event)"
               @change="this.validateAndEmit()"
             />
@@ -266,7 +314,7 @@ export default {
             <i class="fa-solid fa-equals"></i>
           </td>
           <td class="w60 txtR">
-            {{ this.overBetResult }}
+            {{ this.betResult }}
           </td>
           <td rowspan="2" class="vMiddle">
             <span
@@ -288,39 +336,7 @@ export default {
           </td>
         </tr>
         <tr>
-          <td class="txtC">under</td>
-          <td class="txtC">
-            <slot name="oddsUnder" />
-          </td>
-          <td class="txtC">
-            <i class="fa-solid fa-xmark"></i>
-          </td>
-          <td class="pl10 txtC">
-            <span
-              v-if="this.tournamentStarted || this.betHasOutcome()"
-              class="txtC"
-            >
-              {{ this.underBet }}
-            </span>
-            <input
-              v-else
-              :disabled="!this.enabledSave"
-              type="text"
-              class="textInput txtC w40"
-              v-model="this.underBet"
-              @keypress="this.isNumber($event)"
-              @change="this.validateAndEmit()"
-            />
-          </td>
-          <td class="pl10">
-            <i class="fa-solid fa-equals"></i>
-          </td>
-          <td class="w60 txtR">
-            {{ this.underBetResult }}
-          </td>
-        </tr>
-        <tr>
-          <td colspan="10">
+          <td colspan="7">
             <hr />
           </td>
         </tr>
@@ -348,7 +364,7 @@ export default {
           <td class="smallText pl30 colWhite">
             <span>{{ this.message }}</span>
           </td>
-          <td colspan="3" class="txtR">
+          <td colspan="5" class="txtR">
             <div v-if="this.enabledSave">
               <span class="smallText">coins available: </span>
               <span class="colWhite smallText">{{
@@ -356,7 +372,6 @@ export default {
               }}</span>
             </div>
           </td>
-          <td colspan="3">&nbsp;</td>
         </tr>
       </table>
     </form>

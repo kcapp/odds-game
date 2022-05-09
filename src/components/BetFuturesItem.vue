@@ -39,15 +39,12 @@ export default {
   ],
   computed: {
     betResult() {
-      if (this.userBets.filter(Boolean).length === 0) {
-        return 0;
-      } else {
-        this.userBets.forEach((item) => {
-          if (this.outcomeMarketId === item.market_id) {
-            this.betId = item.id;
-          }
-        });
-      }
+      this.userBets.forEach((item) => {
+        if (this.outcomeMarketId === item.market_id) {
+          this.betId = item.id;
+        }
+      });
+
       return (this.singleBet * this.betOdds).toFixed(this.floatingDigits);
     },
   },
@@ -93,6 +90,9 @@ export default {
     getOutcomeId() {
       return this.betId;
     },
+    getOutcomeMarketId() {
+      return this.outcomeMarketId;
+    },
     getBetCoinSum() {
       // OVER wins
       if (this.userBets.outcome > this.userBets.outcome_value) {
@@ -133,13 +133,14 @@ export default {
       }
 
       // disable all others save buttons except the one on the bet you're editing
-      this.$emit("disableOtherBetsSaving", this.betId);
+      this.$emit("disableBetsSavingForFutures", this.outcomeMarketId);
 
       // this is the most important part, all the save buttons are disabled except current one
       // is this an existing bet?
       if (this.betId) {
         let oldBetSum = parseInt(this.singleBet);
         let newBetSum = this.userBets[this.betId].bet_x;
+
         let balanceAfterBet =
           this.getImmutableCoinsAvailable() - oldBetSum + newBetSum;
         // check if we have enough coins
@@ -151,10 +152,22 @@ export default {
           this.coinsAvailable = balanceAfterBet;
         }
       } else {
+        // this is a new bet, update odds value
+        if (this.betOutcomeId) {
+          this.betOdds = this.outcomes[this.betOutcomeId].odds_x;
+        } else {
+          // new bet and no outcome selected? reset the bet and message to pick
+          this.message = "choose outcome";
+          // empty new bet, reset
+          this.resetBet(0);
+          return;
+        }
+
         // if this is not an existing bet in the db
         // check the balance, if we have enough coins (more than the value)
         let newBetSum = parseInt(this.singleBet);
         if (newBetSum === 0) {
+          this.message = "insert bet";
           // empty new bet, reset
           this.resetBet(0);
         }
@@ -198,9 +211,7 @@ export default {
       );
     },
     updateOdds() {
-      if (this.betOutcomeId) {
-        this.betOdds = this.outcomes[this.betOutcomeId].odds_x;
-      }
+      this.validateAndEmit();
     },
     postTournamentBet() {
       const json = JSON.stringify({
@@ -230,7 +241,10 @@ export default {
 
           if (res.data === 0) {
             // row was deleted, reset outcome id, so we get clear select dropdown
+            this.betId = 0;
             this.betOutcomeId = 0;
+            this.betOdds = 0;
+            this.message = "removed";
           }
         })
         .catch((error) => {
@@ -263,7 +277,7 @@ export default {
           <td class="vMiddle txtC marketValueFont">
             <select
               style="display: table"
-              class="textInput"
+              class="textInput selectName"
               @change="updateOdds()"
               v-model="this.betOutcomeId"
             >
@@ -365,6 +379,9 @@ export default {
 </template>
 
 <style>
+.selectName {
+  background-color: #22232c;
+}
 .betTable {
   min-width: 600px;
 }

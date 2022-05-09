@@ -11,14 +11,14 @@
       <tr v-for="(outcome, index) in this.outcomesTotal" v-bind:key="index">
         <td>
           <BetTotalItem
-            ref="betItem"
+            ref="betTotalItem"
             :outcome="outcome"
             :tournamentId="tournamentId"
             :balance="this.balance"
             :user-bets="this.userBets[outcome.id]"
             @resetBets="resetBets"
             @reloadBalance="reloadBalance"
-            @disableOtherBetsSaving="disableOtherBetsSaving"
+            @disableBetsSavingForTotals="disableBetsSavingForTotals"
             @enableBetSaving="enableBetSaving"
           >
             <template #oddsOver>
@@ -53,16 +53,46 @@
         <tr v-if="futuresOutcomesGroup">
           <td>
             <BetFuturesItem
-              ref="betItem"
+              ref="betFuturesItem"
               :market-names="this.marketNames"
               :outcomeMarketId="futuresOutcomesGroupIndex"
-              :outcomes="getFuturesOutcomesIndexed(futuresOutcomesGroup)"
+              :outcomes="getOutcomesIndexed(futuresOutcomesGroup)"
               :tournamentId="tournamentId"
               :balance="this.balance"
               :user-bets="getFuturesBets()"
               @resetBets="resetBets"
               @reloadBalance="reloadBalance"
-              @disableOtherBetsSaving="disableOtherBetsSaving"
+              @disableBetsSavingForFutures="disableBetsSavingForFutures"
+              @enableBetSaving="enableBetSaving"
+            />
+          </td>
+        </tr>
+      </template>
+      <tr>
+        <td class="colWhite">
+          <div>
+            <h3>Player props</h3>
+          </div>
+        </td>
+      </tr>
+      <template
+        v-for="(propsOutcomesGroup, propsOutcomesGroupIndex) in this
+          .groupsProps"
+        v-bind:key="propsOutcomesGroupIndex"
+      >
+        <tr v-if="propsOutcomesGroup">
+          <td>
+            <BetPropsItem
+              ref="betPropsItem"
+              :market-names="this.marketNames"
+              :outcomeMarketId="propsOutcomesGroupIndex"
+              :outcomes="getOutcomesIndexed(propsOutcomesGroup)"
+              :tournamentId="tournamentId"
+              :balance="this.balance"
+              :user-bets="getPropsBets()"
+              @resetBets="resetBets"
+              @reloadBalance="reloadBalance"
+              @disableBetsSavingForProps="disableBetsSavingForProps"
               @enableBetSaving="enableBetSaving"
             />
           </td>
@@ -75,9 +105,10 @@
 import { Outcome } from "@/models/Outcome.ts";
 import BetTotalItem from "@/components/BetTotalItem.vue";
 import BetFuturesItem from "@/components/BetFuturesItem.vue";
+import BetPropsItem from "@/components/BetPropsItem.vue";
 import axios from "axios";
 export default {
-  components: { BetTotalItem, BetFuturesItem },
+  components: { BetTotalItem, BetFuturesItem, BetPropsItem },
   props: ["outcomes", "requestedTournamentId"],
   data() {
     return {
@@ -87,6 +118,7 @@ export default {
       outcomesFutures: [],
       outcomesProps: [],
       groupsFutures: [],
+      groupsProps: [],
       marketNames: [],
       userBets: [],
       balance: null,
@@ -102,30 +134,88 @@ export default {
       });
       return futuresBets;
     },
-    getFuturesOutcomesIndexed(outcomes) {
-      let futuresOutcomes = [];
-      outcomes.forEach((item) => {
-        futuresOutcomes[item.id] = item;
+    getPropsBets() {
+      let propsBets = [];
+      this.userBets.forEach((item) => {
+        if (item.market_type_id === 3) {
+          propsBets[item.id] = item;
+        }
       });
-      return futuresOutcomes;
+      return propsBets;
+    },
+    getOutcomesIndexed(outcomes) {
+      let oc = [];
+      outcomes.forEach((item) => {
+        oc[item.id] = item;
+      });
+      return oc;
     },
     reloadBalance(newBalance) {
       this.balance = newBalance;
-      this.$refs.betItem.forEach((item) => {
-        item.coinsAvailable =
-          newBalance.start_coins -
-          newBalance.tournament_coins_open -
-          newBalance.tournament_coins_closed +
-          newBalance.tournament_coins_won;
+      let ca =
+        newBalance.start_coins -
+        newBalance.tournament_coins_open -
+        newBalance.tournament_coins_closed +
+        newBalance.tournament_coins_won;
+      this.$refs.betTotalItem.forEach((item) => {
+        item.coinsAvailable = ca;
+      });
+      this.$refs.betFuturesItem.forEach((item) => {
+        item.coinsAvailable = ca;
+      });
+      this.$refs.betPropsItem.forEach((item) => {
+        item.coinsAvailable = ca;
       });
     },
-    disableOtherBetsSaving(outcomeId) {
-      this.$refs.betItem.forEach((item) => {
+    disableBetsSavingForTotals(outcomeId) {
+      this.$refs.betTotalItem.forEach((item) => {
         item.enabledSave = item.getOutcomeId() === outcomeId;
+      });
+      this.$refs.betFuturesItem.forEach((item) => {
+        item.enabledSave = false;
+      });
+      this.$refs.betPropsItem.forEach((item) => {
+        item.enabledSave = false;
+      });
+    },
+    disableBetsSavingForFutures(outcomeMarketId) {
+      this.$refs.betTotalItem.forEach((item) => {
+        item.enabledSave = false;
+      });
+      this.$refs.betFuturesItem.forEach((item) => {
+        if (item.getOutcomeMarketId() === outcomeMarketId) {
+          item.enabledSave = true;
+        } else {
+          item.enabledSave = false;
+        }
+      });
+      this.$refs.betPropsItem.forEach((item) => {
+        item.enabledSave = false;
+      });
+    },
+    disableBetsSavingForProps(outcomeMarketId) {
+      this.$refs.betTotalItem.forEach((item) => {
+        item.enabledSave = false;
+      });
+      this.$refs.betFuturesItem.forEach((item) => {
+        item.enabledSave = false;
+      });
+      this.$refs.betPropsItem.forEach((item) => {
+        if (item.getOutcomeMarketId() === outcomeMarketId) {
+          item.enabledSave = true;
+        } else {
+          item.enabledSave = false;
+        }
       });
     },
     enableBetSaving() {
-      this.$refs.betItem.forEach((item) => {
+      this.$refs.betTotalItem.forEach((item) => {
+        item.enabledSave = true;
+      });
+      this.$refs.betFuturesItem.forEach((item) => {
+        item.enabledSave = true;
+      });
+      this.$refs.betPropsItem.forEach((item) => {
         item.enabledSave = true;
       });
     },
@@ -214,6 +304,16 @@ export default {
         this.groupsFutures[item.getMarketId()].push(item);
       });
       this.groupsFutures.forEach((item) => {
+        item.sort((a, b) => (a.odds_x > b.odds_x ? 1 : -1));
+      });
+
+      this.outcomesProps.forEach((item) => {
+        if (this.groupsProps[item.getMarketId()] === undefined) {
+          this.groupsProps[item.getMarketId()] = [];
+        }
+        this.groupsProps[item.getMarketId()].push(item);
+      });
+      this.groupsProps.forEach((item) => {
         item.sort((a, b) => (a.odds_x > b.odds_x ? 1 : -1));
       });
     },
