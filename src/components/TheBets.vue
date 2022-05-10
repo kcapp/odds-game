@@ -24,7 +24,7 @@ export default {
     };
   },
   components: { BetItem },
-  props: ["games", "players", "requestedTournamentId"],
+  props: ["games", "players", "requestedTournamentId", "results"],
   created() {
     this.loadComponentData();
     // connection to server
@@ -54,6 +54,15 @@ export default {
     });
   },
   methods: {
+    getResultsForGameId(gameId) {
+      let res = null;
+      this.results.forEach((item) => {
+        if (item.match_id === gameId) {
+          res = item;
+        }
+      });
+      return res;
+    },
     loadComponentData() {
       // By default, load current tournament
       let url =
@@ -325,6 +334,7 @@ export default {
             :tournamentId="tournamentId"
             :tournament-finished="tournamentFinished"
             :game="game"
+            :result="this.getResultsForGameId(game.id)"
             :players="game.players"
             :gameBets="gameBets[game.id]"
             :gameMeta="gameMeta[game.id]"

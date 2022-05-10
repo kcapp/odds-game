@@ -48,6 +48,7 @@ export default {
     "tournamentFinished",
     "p1Initials",
     "p2Initials",
+    "result",
   ],
   computed: {
     player1BetResult() {
@@ -332,8 +333,13 @@ export default {
             </div>
             <TheBoardIcon v-else />
           </td>
-          <td class="txtC">
-            <span></span>
+          <td class="txtC scoreTd">
+            <template v-if="this.result.is_finished">
+              <span v-if="this.result.home_player_id === players[0]">
+                {{ this.result.home_score }}</span
+              >
+              <span v-else> {{ this.result.away_score }}</span>
+            </template>
           </td>
           <td style="min-width: 200px">
             <h3 :class="{ winnerColor: game.winner_id === players[0] }">
@@ -412,8 +418,13 @@ export default {
             vMiddle: !this.isOddsChanged,
           }"
         >
-          <td class="txtC" style="min-width: 20px">
-            <span></span>
+          <td class="txtC scoreTd">
+            <template v-if="this.result.is_finished">
+              <span v-if="this.result.home_player_id === players[1]">
+                {{ this.result.home_score }}</span
+              >
+              <span v-else> {{ this.result.away_score }}</span>
+            </template>
           </td>
           <td>
             <h3 :class="{ winnerColor: game.winner_id === players[1] }">
@@ -481,22 +492,9 @@ export default {
           <td class="smallText">
             <div
               v-if="
-                this.live || this.game.is_finished || this.tournamentFinished
+                !this.live && !this.game.is_finished && !this.tournamentFinished
               "
             >
-              <button
-                class="smSaveLabel"
-                @click="
-                  $router.push({
-                    name: 'game',
-                    params: { id: this.game.id },
-                  })
-                "
-              >
-                view
-              </button>
-            </div>
-            <div v-else>
               <button
                 :disabled="!this.enabledSave"
                 type="submit"
@@ -513,9 +511,7 @@ export default {
             </div>
           </td>
           <td class="smallText pl30 colWhite" colspan="2">
-            <span v-if="this.live"
-              ><i class="fa-solid fa-circle-play"></i> live match</span
-            >
+            <span v-if="this.live">live match</span>
             <span v-else>{{ this.message }}</span>
           </td>
           <td colspan="4" class="txtR">
@@ -526,7 +522,21 @@ export default {
               }}</span>
             </div>
           </td>
-          <td colspan="3">&nbsp;</td>
+          <td></td>
+          <td class="txtR">
+            <button
+              class="smViewLabel"
+              @click="
+                $router.push({
+                  name: 'game',
+                  params: { id: this.game.id },
+                })
+              "
+            >
+              view
+            </button>
+          </td>
+          <td></td>
         </tr>
       </table>
     </form>
@@ -573,5 +583,18 @@ h3 {
     width: 0;
     height: 0;
   }
+}
+
+.scoreTd {
+  min-width: 40px;
+  font-size: 17px;
+  color: #00bd7e;
+}
+
+.scoreTd span {
+  background-color: #333445;
+  padding: 3px 5px;
+  border-radius: 5px;
+  color: white;
 }
 </style>

@@ -21,11 +21,15 @@
             border-radius: 5px;
           "
         >
-          <span v-if="this.game.is_finished === true">finished</span>
-          <span v-else-if="this.game.first_throw_time === null"
-            >not started</span
-          >
-          <span v-else>live game</span>
+          <template v-if="this.game.is_finished === true">
+            <span>finished</span>
+          </template>
+          <template v-else-if="this.game.first_throw_time === null">
+            <span>not started</span>
+          </template>
+          <template v-else>
+            <span>{{ this.liveGameLabel }}</span>
+          </template>
         </div>
       </div>
       <div class="pt10">
@@ -183,6 +187,37 @@
               >
             </GameBet>
           </tr>
+          <tr>
+            <td colspan="3">
+              <div style="margin: 0 auto; width: 60%">
+                <hr />
+              </div>
+              <div class="txtC pt20">
+                <template v-if="this.game.is_finished === true">
+                  <a
+                    :href="
+                      'https://darts.sportradar.ag/matches/' +
+                      game.id +
+                      '/result'
+                    "
+                    target="_blank"
+                    >view result in k-capp</a
+                  >
+                </template>
+                <template v-else>
+                  <a
+                    :href="
+                      'https://darts.sportradar.ag/matches/' +
+                      game.id +
+                      '/spectate'
+                    "
+                    target="_blank"
+                    >spectate in k-capp</a
+                  >
+                </template>
+              </div>
+            </td>
+          </tr>
         </table>
       </div>
     </div>
@@ -200,6 +235,7 @@ export default {
   props: ["gameId"],
   data() {
     return {
+      liveGameLabel: "",
       sliderWidth: 500,
       indicatorPosition: 0,
       indicatorPositionString: "left: 0px;",
@@ -221,12 +257,24 @@ export default {
     };
   },
   methods: {
+    sortGameBets() {
+      this.gameBets = this.gameBets.sort((a, b) => {
+        let asum = a.bet_1 + a.bet_x + a.bet_2;
+        let bsum = b.bet_1 + b.bet_x + b.bet_2;
+        if (asum < bsum) {
+          return 1;
+        } else {
+          return -1;
+        }
+      });
+    },
     setIndicator() {
       let unit = this.sliderWidth / (this.totalWinningScore * 2);
+      let movement = Math.abs(this.p1TotalScore - this.p2TotalScore);
       if (this.p1TotalScore >= this.p2TotalScore) {
-        this.indicatorPosition = -(this.p1TotalScore * unit).toFixed(0);
+        this.indicatorPosition = -(movement * unit).toFixed(0);
       } else {
-        this.indicatorPosition = (this.p2TotalScore * unit).toFixed(0);
+        this.indicatorPosition = (movement * unit).toFixed(0);
       }
       this.indicatorPositionString = "left:" + this.indicatorPosition + "px;";
     },
@@ -244,10 +292,10 @@ export default {
               leg.visits = data.leg.visits;
             }
           });
+          this.liveGameLabel = "live game";
           let scores = this.getPlayersTotalScores();
           this.p1TotalScore = scores[this.game.players[0]];
           this.p2TotalScore = scores[this.game.players[1]];
-          console.log(this.p1TotalScore, this.p2TotalScore);
           this.setIndicator();
         })
         .on("leg_finished", () => {
@@ -264,11 +312,14 @@ export default {
       this.game.legs.forEach((leg) => {
         playerLeg[this.game.players[0]] = 0;
         playerLeg[this.game.players[1]] = 0;
+
         leg.visits.forEach((visit) => {
-          playerLeg[visit.player_id] +=
-            visit.first_dart.value * visit.first_dart.multiplier +
-            visit.second_dart.value * visit.second_dart.multiplier +
-            visit.third_dart.value * visit.third_dart.multiplier;
+          if (!visit.is_bust) {
+            playerLeg[visit.player_id] +=
+              visit.first_dart.value * visit.first_dart.multiplier +
+              visit.second_dart.value * visit.second_dart.multiplier +
+              visit.third_dart.value * visit.third_dart.multiplier;
+          }
         });
 
         if (leg.is_finished) {
@@ -320,6 +371,9 @@ export default {
                 this.game = game.data;
                 this.probabilities = probabilities.data;
                 this.gameBets = bets.data;
+
+                this.sortGameBets();
+
                 Object.entries(this.players).forEach((item) => {
                   if (item[1].id === this.game.players[0]) {
                     this.player1 = item[1];
@@ -360,7 +414,6 @@ export default {
                   : 0;
                 this.p1TotalScore = s1;
                 this.p2TotalScore = s2;
-
                 this.setIndicator();
               })
             )

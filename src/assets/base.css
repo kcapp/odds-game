@@ -133,6 +133,15 @@ nav item.router-link-active {
     text-align: center;
 }
 
+.smViewLabel {
+    font-size: 13px;
+    background-color: #2d7f29;
+    color: white;
+    border-radius: 5px;
+    padding: 4px 10px;
+    text-align: center;
+}
+
 .smSpectateLabel {
     font-size: 13px;
     background-color: #3aaa35;
@@ -155,6 +164,7 @@ nav item.router-link-active {
 .profilePictureContent {
     font-size: 50px;
     color: #595959;
+    background-color: white;
 }
 
 .profilePictureCircleWrapperSmall {

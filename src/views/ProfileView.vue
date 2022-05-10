@@ -24,6 +24,7 @@
                             this.profilePictureUrl
                           "
                           v-if="this.profilePictureUrl.startsWith('/')"
+                          @error="$event.target.src = this.placeholderImage"
                         />
                         <img
                           class="profileImg"
@@ -31,6 +32,7 @@
                           v-else-if="
                             this.profilePictureUrl.startsWith('https://')
                           "
+                          @error="$event.target.src = this.placeholderImage"
                         />
                         <i class="fa-solid fa-robot" v-else></i>
                       </div>
@@ -149,7 +151,19 @@
                           '/result'
                         "
                         target="_blank"
-                        >kcapp</a
+                        >result</a
+                      >
+                    </span>
+                    <span v-else>
+                      .
+                      <a
+                        :href="
+                          'https://darts.sportradar.ag/matches/' +
+                          bet.match_id +
+                          '/spectate'
+                        "
+                        target="_blank"
+                        >spectate</a
                       >
                     </span>
                   </td>
@@ -196,14 +210,16 @@
 </template>
 <script>
 import axios from "axios";
-import TheCoin from "@/components/TheCoin.vue";
+import TheCoin from "../components/TheCoin.vue";
 import TheSmallCoin from "../components/TheSmallCoin.vue";
+import image from "../assets/user_placeholder.jpg";
 
 export default {
   name: "UserProfile",
   components: { TheSmallCoin, TheCoin },
   data() {
     return {
+      placeholderImage: image,
       userData: {
         first_name: "",
         last_name: "",

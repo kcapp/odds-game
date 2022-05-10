@@ -8,6 +8,7 @@ export default {
     return {
       tournamentId: 0,
       games: [],
+      results: [],
       players: [],
       bets: [],
     };
@@ -47,11 +48,18 @@ export default {
               this.tournamentId +
               "/probabilities"
           ),
+          axios.get(
+            import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+              "/tournament/" +
+              this.tournamentId +
+              "/matches/result"
+          ),
           axios.get(import.meta.env.VITE_KCAPP_API_PROXY_STRING + "/player"),
         ])
         .then(
-          axios.spread((games, players) => {
+          axios.spread((games, results, players) => {
             this.games = games.data;
+            this.results = results.data;
             this.players = players.data;
           })
         )
@@ -66,6 +74,7 @@ export default {
 <template>
   <TheBets
     :games="this.games"
+    :results="this.results"
     :players="this.players"
     :requested-tournament-id="this.tournamentId"
   />
