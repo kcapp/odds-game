@@ -412,7 +412,7 @@ export default {
             vMiddle: !this.isOddsChanged,
           }"
         >
-          <td class="txtC">
+          <td class="txtC" style="min-width: 20px">
             <span></span>
           </td>
           <td>
@@ -512,13 +512,13 @@ export default {
               </button>
             </div>
           </td>
-          <td class="smallText pl30 colWhite">
+          <td class="smallText pl30 colWhite" colspan="2">
             <span v-if="this.live"
               ><i class="fa-solid fa-circle-play"></i> live match</span
             >
             <span v-else>{{ this.message }}</span>
           </td>
-          <td colspan="5" class="txtR">
+          <td colspan="4" class="txtR">
             <div v-if="this.enabledSave">
               <span class="smallText">coins available: </span>
               <span class="colWhite smallText">{{
