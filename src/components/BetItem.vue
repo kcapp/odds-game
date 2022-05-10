@@ -364,7 +364,12 @@ export default {
           </td>
           <td class="pl10 txtC">
             <span
-              v-if="game.is_finished || this.live || this.tournamentFinished"
+              v-if="
+                game.is_finished ||
+                this.live ||
+                this.tournamentFinished ||
+                this.betsOff
+              "
               class="txtC"
             >
               {{ this.player1Bet }}
@@ -449,7 +454,12 @@ export default {
           </td>
           <td class="pl10 txtC">
             <span
-              v-if="game.is_finished || this.live || this.tournamentFinished"
+              v-if="
+                game.is_finished ||
+                this.live ||
+                this.tournamentFinished ||
+                this.betsOff
+              "
               class="txtC"
             >
               {{ this.player2Bet }}

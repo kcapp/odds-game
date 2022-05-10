@@ -1,5 +1,5 @@
 <template>
-  <div class="m50">
+  <div class="m50" v-if="this.game">
     <div :class="{ gameDivLive: this.live, gameDiv: !this.live }">
       <div class="gameTitle">
         {{
@@ -11,25 +11,17 @@
         }}
       </div>
       <div class="pt20 txtC colWhite" v-if="this.game">
+        <div class="topLabel colFinished" v-if="this.game.is_finished === true">
+          <span>finished</span>
+        </div>
         <div
-          style="
-            margin: 0 auto;
-            width: 125px;
-            font-weight: 500;
-            background-color: #00c178;
-            padding: 5px 10px;
-            border-radius: 5px;
-          "
+          class="topLabel colNotStarted"
+          v-else-if="this.game.first_throw_time === null"
         >
-          <template v-if="this.game.is_finished === true">
-            <span>finished</span>
-          </template>
-          <template v-else-if="this.game.first_throw_time === null">
-            <span>not started</span>
-          </template>
-          <template v-else>
-            <span>{{ this.liveGameLabel }}</span>
-          </template>
+          <span>not started</span>
+        </div>
+        <div class="topLabel colLive" v-else>
+          <span>{{ this.liveGameLabel }}</span>
         </div>
       </div>
       <div class="pt10">
@@ -482,5 +474,21 @@ export default {
 }
 .indicatorStack {
   font-size: 12px;
+}
+.topLabel {
+  margin: 0 auto;
+  width: 125px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+.colFinished {
+  background-color: #00c178;
+}
+.colLive {
+  background-color: #22ae13;
+}
+.colNotStarted {
+  background-color: #575656;
 }
 </style>

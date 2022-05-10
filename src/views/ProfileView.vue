@@ -90,12 +90,13 @@
                   <td class="txtR pr10">home player</td>
                   <td class="txtC" colspan="3">bets</td>
                   <td class="pl10">away player</td>
+                  <td>result</td>
                   <td>status</td>
                   <td>view options</td>
                   <td class="txtC">result</td>
                 </tr>
                 <tr>
-                  <td colspan="8">
+                  <td colspan="9">
                     <hr />
                   </td>
                 </tr>
@@ -120,6 +121,59 @@
                   >
                     {{ this.players[bet.player_2].first_name }}
                     {{ this.players[bet.player_2].last_name }}
+                  </td>
+                  <td class="colWhite">
+                    <template v-if="bet.outcome !== null">
+                      <span
+                        v-if="
+                          this.getGameResultById(bet.match_id).winner_id ===
+                          null
+                        "
+                      >
+                        {{ this.getGameResultById(bet.match_id).home_score }} :
+                        {{ this.getGameResultById(bet.match_id).away_score }}
+                      </span>
+                      <span
+                        v-else-if="
+                          bet.player_1 ===
+                          this.getGameResultById(bet.match_id).winner_id
+                        "
+                      >
+                        {{
+                          Math.max(
+                            this.getGameResultById(bet.match_id).home_score,
+                            this.getGameResultById(bet.match_id).away_score
+                          )
+                        }}
+                        :
+                        {{
+                          Math.min(
+                            this.getGameResultById(bet.match_id).home_score,
+                            this.getGameResultById(bet.match_id).away_score
+                          )
+                        }}
+                      </span>
+                      <span
+                        v-else-if="
+                          bet.player_2 ===
+                          this.getGameResultById(bet.match_id).winner_id
+                        "
+                      >
+                        {{
+                          Math.min(
+                            this.getGameResultById(bet.match_id).home_score,
+                            this.getGameResultById(bet.match_id).away_score
+                          )
+                        }}
+                        :
+                        {{
+                          Math.max(
+                            this.getGameResultById(bet.match_id).home_score,
+                            this.getGameResultById(bet.match_id).away_score
+                          )
+                        }}
+                      </span>
+                    </template>
                   </td>
                   <td v-if="bet.outcome === undefined || bet.outcome === null">
                     scheduled
@@ -264,6 +318,15 @@ export default {
     }
   },
   methods: {
+    getGameResultById(gameId) {
+      let res = null;
+      this.results.forEach((item) => {
+        if (item.match_id === gameId) {
+          res = item;
+        }
+      });
+      return res;
+    },
     isFinished(bet) {
       return (
         bet.outcome === bet.player_1 ||
@@ -305,9 +368,15 @@ export default {
               userId +
               "/bets"
           ),
+          axios.get(
+            import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+              "/tournament/" +
+              this.currentTournamentId +
+              "/matches/result"
+          ),
         ])
         .then(
-          axios.spread((userData, kcappPlayer, players, bets) => {
+          axios.spread((userData, kcappPlayer, players, bets, results) => {
             this.coins =
               userData.data.start_coins -
               userData.data.coins_bets_open -
@@ -323,6 +392,7 @@ export default {
             this.profilePictureUrl = kcappPlayer.data.profile_pic_url;
             this.players = players.data;
             this.bets = bets.data;
+            this.results = results.data;
           })
         )
         .catch((error) => {

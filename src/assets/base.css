@@ -274,7 +274,7 @@ a {
     vertical-align: top;
 }
 
-input:disabled {
+input:disabled, select:disabled {
     background-color: #383838;
 }
 

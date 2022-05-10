@@ -285,6 +285,7 @@ export default {
               class="textInput selectName"
               @change="updateOdds()"
               v-model="this.betOutcomeId"
+              :disabled="!this.enabledSave"
             >
               <option disabled selected value="">Please select one</option>
               <template v-for="(oc, index) in this.outcomes.filter(Boolean)">
