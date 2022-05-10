@@ -132,6 +132,11 @@ export default {
         this.singleBet = 0;
       }
 
+      // if there is no user bet with given bet id, the bet id was removed, and it's 0
+      if (this.userBets[this.betId] === undefined) {
+        this.betId = 0;
+      }
+
       // disable all others save buttons except the one on the bet you're editing
       this.$emit("disableBetsSavingForFutures", this.outcomeMarketId);
 
@@ -236,9 +241,6 @@ export default {
           // enable all save buttons
           this.$emit("enableBetSaving", this.betId);
 
-          // TODO - set bet odds for specific game
-          this.$emit("resetBets");
-
           if (res.data === 0) {
             // row was deleted, reset outcome id, so we get clear select dropdown
             this.betId = 0;
@@ -246,6 +248,9 @@ export default {
             this.betOdds = 0;
             this.message = "removed";
           }
+
+          // TODO - set bet odds for specific game
+          this.$emit("resetBets");
         })
         .catch((error) => {
           console.log(error.message);

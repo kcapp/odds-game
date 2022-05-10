@@ -215,7 +215,7 @@ export default {
     },
     getPropsBets() {
       let propsBets = [];
-      this.userBets.forEach((item) => {
+      this.userBets.filter(Boolean).forEach((item) => {
         if (item.market_type_id === 3) {
           propsBets[item.id] = item;
         }
@@ -342,6 +342,7 @@ export default {
             ])
             .then(
               axios.spread((bets, balance) => {
+                this.userBets = [];
                 for (const [index, value] of bets.data.entries()) {
                   this.userBets[value.outcome_id] = value;
                 }
