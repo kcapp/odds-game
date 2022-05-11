@@ -4,6 +4,7 @@ import LoginView from "@/views/LoginView.vue";
 import BetsView from "@/views/BetsView.vue";
 import TournamentBetsView from "@/views/TournamentBetsView.vue";
 import TournamentsView from "@/views/TournamentsView.vue";
+import TournamentGameRankingView from "@/views/TournamentGameRankingView.vue";
 import TournamentRankingView from "@/views/TournamentRankingView.vue";
 import PassChange from "@/views/PassChange.vue";
 import GameView from "@/views/GameView.vue";
@@ -46,6 +47,11 @@ const router = createRouter({
       path: "/tournaments",
       name: "tournaments",
       component: TournamentsView,
+    },
+    {
+      path: "/tournament/:id/gameranking",
+      name: "tournamentGameRanking",
+      component: TournamentGameRankingView,
     },
     {
       path: "/tournament/:id/ranking",

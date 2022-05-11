@@ -11,13 +11,10 @@
         }}
       </div>
       <div class="pt20 txtC colWhite" v-if="this.game">
-        <div class="topLabel colFinished" v-if="this.game.is_finished === true">
+        <div class="topLabel colFinished" v-if="this.game.is_finished">
           <span>finished</span>
         </div>
-        <div
-          class="topLabel colNotStarted"
-          v-else-if="this.game.first_throw_time === null"
-        >
+        <div class="topLabel colNotStarted" v-else-if="!this.live">
           <span>not started</span>
         </div>
         <div class="topLabel colLive" v-else>
@@ -26,6 +23,25 @@
       </div>
       <div class="pt10">
         <table class="gameTable">
+          <tr v-if="this.result">
+            <td class="txtR scoreFont">
+              <span v-if="this.result.home_player_id === this.player1.id">
+                {{ this.result.home_score }}
+              </span>
+              <span v-else>
+                {{ this.result.away_score }}
+              </span>
+            </td>
+            <td class="txtC">score</td>
+            <td class="txtL scoreFont">
+              <span v-if="this.result.home_player_id === this.player2.id">
+                {{ this.result.home_score }}
+              </span>
+              <span v-else>
+                {{ this.result.away_score }}
+              </span>
+            </td>
+          </tr>
           <tr>
             <td class="playerColumn txtR colWhite">
               <span class="gamePlayerName" v-if="this.player1">
@@ -106,79 +122,99 @@
               }}</span>
             </td>
           </tr>
-          <tr v-if="this.game && !this.game.is_finished">
-            <td colspan="3" class="txtC">
-              <div class="sliderBar"></div>
-              <div
-                style="
-                  margin: -38px auto 0 auto;
-                  width: 30px;
-                  height: 30px;
-                  position: relative;
-                "
-              >
-                <span class="indicator" :style="this.indicatorPositionString">
-                  <span class="fa-stack fa-2x indicatorStack">
-                    <i class="fa-solid fa-circle-up fa-stack-2x"></i>
-                    <i
-                      class="fa-solid fa-circle fa-stack-1x fa-inverse"
-                      style="z-index: -1; font-size: 20px"
-                    ></i>
+          <template v-if="this.live">
+            <tr v-if="this.game && !this.game.is_finished">
+              <td colspan="3" class="txtC">
+                <div class="sliderBar"></div>
+                <div
+                  style="
+                    margin: -38px auto 0 auto;
+                    width: 30px;
+                    height: 30px;
+                    position: relative;
+                  "
+                >
+                  <span class="indicator" :style="this.indicatorPositionString">
+                    <span class="fa-stack fa-2x indicatorStack">
+                      <i class="fa-solid fa-circle-up fa-stack-2x"></i>
+                      <i
+                        class="fa-solid fa-circle fa-stack-1x fa-inverse"
+                        style="z-index: -1; font-size: 20px"
+                      ></i>
+                    </span>
                   </span>
-                </span>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="this.game && !this.game.is_finished">
-            <td class="txtC" colspan="3">
-              <div class="midIndicator"></div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3" class="pt20">
-              <div class="gameTitle">Bets</div>
-            </td>
-          </tr>
-          <tr v-if="this.gameBets.length > 0">
-            <td class="playerColumn txtR">
-              {{ this.player1SumBets }}
-            </td>
-            <td class="txtC midColumn">total bets</td>
-            <td class="playerColumn txtL">
-              {{ this.player2SumBets }}
-            </td>
-          </tr>
-          <tr v-if="this.gameBets.length > 0">
-            <td colspan="3">
-              <div style="margin: 0 auto; width: 60%">
-                <hr />
-              </div>
-            </td>
-          </tr>
-          <tr v-if="this.gameBets.length === 0">
-            <td colspan="3" class="txtC pt20 colWhite">
-              No bets placed for this game
-            </td>
-          </tr>
-          <tr v-for="(bet, index) in this.gameBets" v-bind:key="index">
-            <GameBet
-              :player1="this.player1"
-              :player2="this.player2"
-              :bet="bet"
-              :better="this.players[bet.user_id]"
-            >
-              <template #payout1 v-if="bet.bet_1"
-                >(+
-                {{ (bet.bet_1 * bet.odds_1 - bet.bet_1).toFixed(0) }})</template
+                </div>
+              </td>
+            </tr>
+            <tr v-if="this.game && !this.game.is_finished">
+              <td class="txtC" colspan="3">
+                <div class="midIndicator"></div>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" class="pt20">
+                <div class="gameTitle">Bets</div>
+              </td>
+            </tr>
+            <tr v-if="this.gameBets.length > 0">
+              <td class="playerColumn txtR">
+                {{ this.player1SumBets }}
+              </td>
+              <td class="txtC midColumn">total bets</td>
+              <td class="playerColumn txtL">
+                {{ this.player2SumBets }}
+              </td>
+            </tr>
+            <tr v-if="this.gameBets.length > 0">
+              <td colspan="3">
+                <div style="margin: 0 auto; width: 60%">
+                  <hr />
+                </div>
+              </td>
+            </tr>
+            <tr v-if="this.gameBets.length === 0">
+              <td colspan="3" class="txtC pt20 colWhite">
+                No bets placed for this game
+              </td>
+            </tr>
+            <tr v-for="(bet, index) in this.gameBets" v-bind:key="index">
+              <GameBet
+                :player1="this.player1"
+                :player2="this.player2"
+                :bet="bet"
+                :better="this.players[bet.user_id]"
               >
-              <template #bet1>{{ bet.bet_1 }}</template>
-              <template #bet2>{{ bet.bet_2 }}</template>
-              <template #payout2 v-if="bet.bet_2"
-                >(+
-                {{ (bet.bet_2 * bet.odds_2 - bet.bet_2).toFixed(0) }})</template
-              >
-            </GameBet>
-          </tr>
+                <template #payout1 v-if="bet.bet_1"
+                  >(+
+                  {{
+                    (bet.bet_1 * bet.odds_1 - bet.bet_1).toFixed(0)
+                  }})</template
+                >
+                <template #bet1>{{ bet.bet_1 }}</template>
+                <template #bet2>{{ bet.bet_2 }}</template>
+                <template #payout2 v-if="bet.bet_2"
+                  >(+
+                  {{
+                    (bet.bet_2 * bet.odds_2 - bet.bet_2).toFixed(0)
+                  }})</template
+                >
+              </GameBet>
+            </tr>
+          </template>
+          <template v-else>
+            <tr>
+              <td colspan="3">
+                <div style="margin: 0 auto; width: 60%">
+                  <hr />
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" class="txtC">
+                Bets visible after the game starts
+              </td>
+            </tr>
+          </template>
           <tr>
             <td colspan="3">
               <div style="margin: 0 auto; width: 60%">
@@ -243,9 +279,10 @@ export default {
       player2: null,
       player1SumBets: 0,
       player2SumBets: 0,
-      live: true,
+      live: false,
       player1Elo: 0,
       player2Elo: 0,
+      result: null,
     };
   },
   methods: {
@@ -285,6 +322,7 @@ export default {
             }
           });
           this.liveGameLabel = "live game";
+          this.live = true;
           let scores = this.getPlayersTotalScores();
           this.p1TotalScore = scores[this.game.players[0]];
           this.p2TotalScore = scores[this.game.players[1]];
@@ -330,6 +368,27 @@ export default {
       });
       return playerScores;
     },
+    loadTournamentGameResults(tournamentId, gameId) {
+      let res = null;
+      axios
+        .get(
+          import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+            "/tournament/" +
+            tournamentId +
+            "/matches/result"
+        )
+        .then((results) => {
+          results.data.forEach((item) => {
+            if (item.match_id === gameId) {
+              res = item;
+            }
+          });
+          this.result = res;
+        })
+        .catch((error) => {
+          console.log("Error when getting data for game " + error);
+        });
+    },
     loadGame() {
       this.gameBets = [];
       this.player1SumBets = 0;
@@ -363,7 +422,6 @@ export default {
                 this.game = game.data;
                 this.probabilities = probabilities.data;
                 this.gameBets = bets.data;
-
                 this.sortGameBets();
 
                 Object.entries(this.players).forEach((item) => {
@@ -407,6 +465,11 @@ export default {
                 this.p1TotalScore = s1;
                 this.p2TotalScore = s2;
                 this.setIndicator();
+
+                this.loadTournamentGameResults(
+                  this.game.tournament.tournament_id,
+                  this.game.id
+                );
               })
             )
             .catch((error) => {
@@ -490,5 +553,8 @@ export default {
 }
 .colNotStarted {
   background-color: #575656;
+}
+.scoreFont {
+  font-size: 25px;
 }
 </style>

@@ -27,7 +27,7 @@
                 {{ item.coins_available.toFixed(2) }}
               </template>
               <template #coinsInActiveBets>
-                {{ item.tournament_coins_open }}
+                {{ item.coins_bets_open }}
               </template>
               <template #betsPlaced>
                 {{ item.bets_placed }}
@@ -36,7 +36,7 @@
                 {{
                   (
                     item.coins_available +
-                    item.tournament_coins_open +
+                    item.coins_bets_open +
                     item.potential_winnings
                   ).toFixed(2)
                 }}
@@ -44,18 +44,13 @@
               <template #avgWin v-if="item.bets_closed > 0">
                 <span
                   :class="{
-                    colPlus:
-                      item.tournament_coins_won - item.tournament_coins_closed >
-                      0,
-                    colMinus:
-                      item.tournament_coins_won - item.tournament_coins_closed <
-                      0,
+                    colPlus: item.coins_won - item.coins_bets_closed > 0,
+                    colMinus: item.coins_won - item.coins_bets_closed < 0,
                   }"
                 >
                   {{
                     (
-                      (item.tournament_coins_won -
-                        item.tournament_coins_closed) /
+                      (item.coins_won - item.coins_bets_closed) /
                       item.bets_closed
                     ).toFixed(2)
                   }}

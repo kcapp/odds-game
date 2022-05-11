@@ -13,9 +13,21 @@
     >
     .
     <RouterLink
-      :to="{ name: 'tournamentRanking', params: { id: this.tournament.id } }"
+      :to="{
+        name: 'tournamentGameRanking',
+        params: { id: this.tournament.id },
+      }"
     >
-      ranking
+      match ranking
+    </RouterLink>
+    .
+    <RouterLink
+      :to="{
+        name: 'tournamentRanking',
+        params: { id: this.tournament.id },
+      }"
+    >
+      tournament ranking
     </RouterLink>
     <span v-if="tournament.is_playoffs">
       .
