@@ -282,7 +282,7 @@ export default {
           <td class="vMiddle txtC marketValueFont">
             <select
               style="display: table"
-              class="textInput"
+              class="textInput selectName"
               @change="updateOdds()"
               v-model="this.betOutcomeId"
               :disabled="!this.enabledSave"
@@ -402,5 +402,8 @@ export default {
 .marketValueFont {
   font-size: 35px;
   color: white;
+}
+.selectName {
+  background-color: #22232c;
 }
 </style>
