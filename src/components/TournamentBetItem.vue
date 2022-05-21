@@ -1,6 +1,8 @@
 <template>
   <td>
-    <span class="colWhite">{{ this.tournament.name }}</span>
+    <span :class="{ colWhite: !this.tournament.is_finished }">{{
+      this.tournament.name
+    }}</span>
     <span v-if="!this.tournament.is_finished" class="smGreenLabel ml20"
       >active</span
     >
