@@ -6,23 +6,19 @@
     >
   </td>
   <td>
-    <RouterLink
-      :to="{
-        name: 'tournamentGameRanking',
-        params: { id: this.tournament.id },
-      }"
+    <RouterLink :to="{ name: 'betsId', params: { id: this.tournament.id } }"
+      >match bets</RouterLink
     >
-      match ranking
-    </RouterLink>
     .
     <RouterLink
       :to="{
-        name: 'tournamentRanking',
+        name: 'tournamentBetsId',
         params: { id: this.tournament.id },
       }"
     >
-      tournament ranking
+      tournament bets
     </RouterLink>
+
     <span v-if="tournament.is_playoffs">
       .
       <RouterLink :to="{ name: 'ladder', params: { id: this.tournament.id } }">

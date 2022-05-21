@@ -9,6 +9,7 @@ import TournamentRankingView from "@/views/TournamentRankingView.vue";
 import PassChange from "@/views/PassChange.vue";
 import GameView from "@/views/GameView.vue";
 import LadderView from "@/views/LadderView.vue";
+import BetsListView from "@/views/BetsListView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,11 +30,6 @@ const router = createRouter({
       component: () => import("../views/ProfileView.vue"),
     },
     {
-      path: "/tournamentbets",
-      name: "tournamentbets",
-      component: TournamentBetsView,
-    },
-    {
       path: "/gamebets",
       name: "bets",
       component: BetsView,
@@ -44,9 +40,19 @@ const router = createRouter({
       component: BetsView,
     },
     {
+      path: "/tournamentbets/:id",
+      name: "tournamentBetsId",
+      component: TournamentBetsView,
+    },
+    {
       path: "/tournaments",
       name: "tournaments",
       component: TournamentsView,
+    },
+    {
+      path: "/bets",
+      name: "betslist",
+      component: BetsListView,
     },
     {
       path: "/tournament/:id/gameranking",

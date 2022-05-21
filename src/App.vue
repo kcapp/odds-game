@@ -32,15 +32,9 @@
         </div></RouterLink
       >
 
-      <RouterLink to="/gamebets">
+      <RouterLink to="/bets">
         <div class="item">
-          <i class="fa-solid fa-coins"></i> Match bets
-        </div></RouterLink
-      >
-
-      <RouterLink to="/tournamentbets">
-        <div class="item">
-          <i class="fa-solid fa-coins"></i> Tournament bets
+          <i class="fa-solid fa-coins"></i> Bets
         </div></RouterLink
       >
 
