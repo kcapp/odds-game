@@ -12,7 +12,7 @@
         <td style="width: 100%">
           <table>
             <tr>
-              <td style="padding-left: 20px">
+              <td class="pl20">
                 <div>
                   <div>
                     <div class="profilePictureCircleWrapper">
@@ -52,6 +52,37 @@
                 </div>
               </td>
               <td style="padding-left: 50px">
+                <div style="padding-bottom: 10px; color: white">
+                  Select tournament
+                </div>
+                <div style="padding-bottom: 10px">
+                  <select
+                    style="display: table"
+                    class="textInput selectName"
+                    @change="updateBetsData(this.currentUser.user_id)"
+                    v-model="this.selectedTournamentId"
+                  >
+                    <option disabled selected value="">
+                      Please select one
+                    </option>
+                    <template
+                      v-for="(tournament, index) in this.tournaments.filter(
+                        Boolean
+                      )"
+                    >
+                      <option
+                        :value="tournament.id"
+                        v-bind:key="tournament.id"
+                        v-if="tournament"
+                      >
+                        {{ tournament.name }}
+                      </option>
+                    </template>
+                  </select>
+                </div>
+                <div>
+                  <hr />
+                </div>
                 <div style="color: white; font-weight: 500">
                   Match k-Coins balance
                 </div>
@@ -283,8 +314,9 @@ export default {
       requires_change: true,
       coins: 0,
       tournamentCoins: 0,
-      currentTournamentId: 0,
+      selectedTournamentId: 0,
       profilePictureUrl: "",
+      tournaments: [],
     };
   },
   computed: {
@@ -301,23 +333,36 @@ export default {
     } else {
       this.requires_change = this.currentUser.requires_change;
       axios
-        .get(
-          import.meta.env.VITE_KCAPP_API_PROXY_STRING +
-            "/tournament/current/" +
-            import.meta.env.VITE_OFFICE_ID
-        )
-        .then((tournament) => {
-          this.currentTournamentId = tournament.data.id;
+        .all([
+          axios.get(
+            import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+              "/tournament/office/" +
+              import.meta.env.VITE_OFFICE_ID
+          ),
+          axios.get(
+            import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+              "/tournament/current/" +
+              import.meta.env.VITE_OFFICE_ID
+          ),
+        ])
+        .then(
+          axios.spread((tournaments, currentTournament) => {
+            this.tournaments = tournaments.data;
+            this.selectedTournamentId = currentTournament.data.id;
 
-          // Get the rest of the data after we fetch current tournament id
-          this.getUserData(this.currentUser.user_id);
-        })
+            // Get the rest of the data after we fetch current tournament id
+            this.getUserData(this.currentUser.user_id);
+          })
+        )
         .catch((error) => {
-          console.log("Error when getting current tournament " + error);
+          console.log("Error when getting data for tournaments " + error);
         });
     }
   },
   methods: {
+    updateBetsData(userId) {
+      this.getUserData(userId);
+    },
     getGameResultById(gameId) {
       let res = null;
       this.results.forEach((item) => {
@@ -355,7 +400,7 @@ export default {
               "/user/" +
               userId +
               "/tournament/" +
-              this.currentTournamentId +
+              this.selectedTournamentId +
               "/balance"
           ),
           axios.get(
@@ -371,7 +416,7 @@ export default {
           axios.get(
             import.meta.env.VITE_KCAPP_API_PROXY_STRING +
               "/tournament/" +
-              this.currentTournamentId +
+              this.selectedTournamentId +
               "/matches/result"
           ),
         ])
@@ -391,7 +436,16 @@ export default {
             this.userData.last_name = userData.data.last_name;
             this.profilePictureUrl = kcappPlayer.data.profile_pic_url;
             this.players = players.data;
-            this.bets = bets.data;
+
+            // Filter bets by tournament
+            this.bets = [];
+            bets.data.filter(Boolean).forEach((item) => {
+              if (item.tournament_id === this.selectedTournamentId) {
+                this.bets.push(item);
+              }
+            });
+            console.log(this.bets);
+
             this.results = results.data;
           })
         )
