@@ -356,7 +356,7 @@ export default {
               v-if="isP1OddsChanged() && !this.game.is_finished && !this.live"
               ><br />
               <TheOddsDiffLabel :oddsValue="getP1OddsDiff()" class="mr5" />
-              {{ player1CurrentOdds }}
+              {{ player1CurrentOdds.toFixed(this.floatingOddsDigits) }}
             </span>
           </td>
           <td class="txtC">
@@ -446,7 +446,7 @@ export default {
               v-if="isP2OddsChanged() && !this.game.is_finished && !this.live"
               ><br />
               <TheOddsDiffLabel :oddsValue="getP2OddsDiff()" class="mr5" />
-              {{ player2CurrentOdds }}
+              {{ player2CurrentOdds.toFixed(this.floatingOddsDigits) }}
             </span>
           </td>
           <td class="txtC">
