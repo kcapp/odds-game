@@ -14,7 +14,7 @@ export default {
       <div class="pt20">
         <table class="rankingTable">
           <tr>
-            <td class="juicyGreen">name</td>
+            <td class="juicyGreen">tournament name</td>
             <td>&nbsp;</td>
           </tr>
           <tr v-for="(item, index) in this.tournaments" v-bind:key="index">

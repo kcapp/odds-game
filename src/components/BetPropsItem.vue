@@ -309,7 +309,7 @@ export default {
             <input
               v-else
               :disabled="!this.enabledSave"
-              type="text"
+              type="number"
               class="textInput txtC w40"
               v-model="this.singleBet"
               @keypress="this.isNumber($event)"

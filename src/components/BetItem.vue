@@ -379,7 +379,7 @@ export default {
               :disabled="
                 !this.enabledSave || this.currentUserId === this.players[1]
               "
-              type="text"
+              type="number"
               class="textInput txtC w40"
               v-model="this.player1Bet"
               @keypress="this.isNumber($event)"
@@ -469,7 +469,7 @@ export default {
               :disabled="
                 !this.enabledSave || this.currentUserId === this.players[0]
               "
-              type="text"
+              type="number"
               class="textInput txtC w40"
               v-model="this.player2Bet"
               @keypress="this.isNumber($event)"

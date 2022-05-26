@@ -15,7 +15,7 @@
             class="colPlus"
             style="cursor: pointer"
             @click="this.jumpTo('jumpBetFutures')"
-            >Outcomes (futures)</span
+            >Outrights (futures)</span
           >
           |
           <span
