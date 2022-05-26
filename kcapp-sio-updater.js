@@ -11,7 +11,9 @@ debug(`Running in ${MODE} mode`);
 
 const VITE_KCAPP_SOCKET = process.env.VITE_KCAPP_SOCKET;
 const VITE_KCAPP_SOCKET_PORT = process.env.VITE_KCAPP_SOCKET_PORT;
+const VITE_KCAPP_API = process.env.VITE_KCAPP_API;
 const VITE_ODDS_API = process.env.VITE_ODDS_API;
+const VITE_OFFICE_ID = process.env.VITE_OFFICE_ID;
 debug(`Connecting to ${VITE_KCAPP_SOCKET}`);
 
 const kcapp = kcappLib(
@@ -20,12 +22,62 @@ const kcapp = kcappLib(
   "kcapp-announcer",
   "http"
 );
+
+debug(`Requesting finished matches for office ${VITE_OFFICE_ID}`);
+axios.
+get(`${VITE_KCAPP_API}/tournament/current/${VITE_OFFICE_ID}`).then((response) => {
+  const tournament = response.data;
+  axios
+  .get(`${VITE_ODDS_API}/bets/tournament/${tournament.id}`).then((response) => {
+    const matches = response.data;
+    const finished = new Set();
+    for (let idx in matches) {
+      const match = matches[idx];
+      if (match.outcome !== null) {
+        finished.add(match.match_id);
+      }
+    }
+    axios
+    .get(`${VITE_KCAPP_API}/tournament/${tournament.id}/matches/result`).then((response) => {
+      const results = response.data;
+      for (let idx in results) {
+        const match = results[idx];
+        if (match.is_finished && !finished.includes(match.id)) {
+          const winner = match.winner_id ? match.winner_id : 0;
+          debug(`Updating finished match ${match.id} with winner ${winner}`);
+
+          axios
+          .post(`${VITE_ODDS_API}/games/${match.id}/finish`, { match_id: match.id, winner_id: winner })
+          .then((response) => {
+            debug(`Updated Odds-API with match finish`);
+          })
+          .catch((error) => {
+            debug(error);
+          });
+        }
+      }
+    })
+    .catch((error) => {
+      debug(error);
+    });
+  })
+  .catch((error) => {
+    debug(error);
+  });
+})
+.catch((error) => {
+  debug(error);
+});
+
 kcapp.connect(() => {
   kcapp.on("warmup_started", (data) => {
     const match = data.match;
     debug(`warmup_started for match ${match.id}`);
     axios.post(`${VITE_ODDS_API}/games/${match.id}/start`).then((response) => {
       debug(`Updated Odds-API with match started`);
+    })
+    .catch((error) => {
+      debug(error);
     });
   });
 
