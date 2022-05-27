@@ -28,12 +28,12 @@ axios.
 get(`${VITE_KCAPP_API}/tournament/current/${VITE_OFFICE_ID}`).then((response) => {
   const tournament = response.data;
   axios
-  .get(`${VITE_ODDS_API}/bets/tournament/${tournament.id}`).then((response) => {
+  .get(`${VITE_ODDS_API}/games/meta`).then((response) => {
     const matches = response.data;
     const finished = new Set();
     for (let idx in matches) {
       const match = matches[idx];
-      if (match.outcome !== null) {
+      if (match.bets_off === 1) {
         finished.add(match.match_id);
       }
     }
@@ -42,14 +42,14 @@ get(`${VITE_KCAPP_API}/tournament/current/${VITE_OFFICE_ID}`).then((response) =>
       const results = response.data;
       for (let idx in results) {
         const match = results[idx];
-        if (match.is_finished && !finished.includes(match.id)) {
+        if (match.is_finished && !finished.has(match.match_id)) {
           const winner = match.winner_id ? match.winner_id : 0;
-          debug(`Updating finished match ${match.id} with winner ${winner}`);
+          debug(`Updating finished match ${match.match_id} with winner ${winner}`);
 
           axios
-          .post(`${VITE_ODDS_API}/games/${match.id}/finish`, { match_id: match.id, winner_id: winner })
+          .post(`${VITE_ODDS_API}/games/${match.id}/finish`, { match_id: match.match_id, winner_id: winner })
           .then((response) => {
-            debug(`Updated Odds-API with match finish`);
+            debug(`Updated Odds-API with match ${match.match_id} finished`);
           })
           .catch((error) => {
             debug(error);
