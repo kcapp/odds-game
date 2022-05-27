@@ -23,7 +23,24 @@ const kcapp = kcappLib(
   "http"
 );
 
-debug(`Requesting finished matches for office ${VITE_OFFICE_ID}`);
+const finishedTournaments = new Set();
+debug(`Updating all finished tournaments`);
+axios
+.get(`${VITE_ODDS_API}/tournament/meta`).then((response) => {
+  const tournaments = response.data;
+  for (let idx in tournaments) {
+    const tournament = tournaments[idx];
+    if (tournament.bets_off === 1) {
+      finishedTournaments.add(tournament.tournament_id);
+    }
+  }
+})
+.catch((error) => {
+  debug(error);
+});
+
+
+debug(`Updating all finished matches for office ${VITE_OFFICE_ID}`);
 axios.
 get(`${VITE_KCAPP_API}/tournament/current/${VITE_OFFICE_ID}`).then((response) => {
   const tournament = response.data;
@@ -73,8 +90,20 @@ kcapp.connect(() => {
   kcapp.on("warmup_started", (data) => {
     const match = data.match;
     debug(`warmup_started for match ${match.id}`);
+
+    if (!finishedTournaments.has(match.tournament_id)) {
+      debug(`Marking tournament ${match.tournament_id} as started`);
+      axios.post(`${VITE_ODDS_API}/tournament/${match.tournament_id}/start`).then((response) => {
+          debug(`Updated Odds-API with tournament ${match.tournament_id} started`);
+          finishedTournaments.add(match.tournament_id);
+        })
+        .catch((error) => {
+          debug(error);
+        });
+    }
+
     axios.post(`${VITE_ODDS_API}/games/${match.id}/start`).then((response) => {
-      debug(`Updated Odds-API with match started`);
+      debug(`Updated Odds-API with match ${match.id} started`);
     })
     .catch((error) => {
       debug(error);
