@@ -453,7 +453,9 @@ export default {
                   this.game.legs[0].starting_score *
                   this.game.match_mode.wins_required;
                 this.currentLegId = this.game.current_leg_id;
-                this.connectSocket(this.currentLegId);
+                if (this.game.is_finished === false) {
+                  this.connectSocket(this.currentLegId);
+                }
 
                 let scores = this.getPlayersTotalScores();
                 let s1 = scores[this.game.players[0]]
