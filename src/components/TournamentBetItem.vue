@@ -11,15 +11,17 @@
     <RouterLink :to="{ name: 'betsId', params: { id: this.tournament.id } }"
       >match bets</RouterLink
     >
-    .
-    <RouterLink
-      :to="{
-        name: 'tournamentBetsId',
-        params: { id: this.tournament.id },
-      }"
-    >
-      tournament bets
-    </RouterLink>
+    <span v-if="tournament.is_playoffs">
+      .
+      <RouterLink
+        :to="{
+          name: 'tournamentBetsId',
+          params: { id: this.tournament.id },
+        }"
+      >
+        tournament bets
+      </RouterLink>
+    </span>
 
     <span v-if="tournament.is_playoffs">
       .

@@ -229,7 +229,7 @@
                       '/result'
                     "
                     target="_blank"
-                    >view result in k-capp</a
+                    >view result in kcapp</a
                   >
                 </template>
                 <template v-else>
