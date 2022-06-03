@@ -26,15 +26,15 @@
         </div></RouterLink
       >
 
-      <RouterLink to="/tournaments">
-        <div class="item">
-          <i class="fa-solid fa-trophy"></i> Tournaments
-        </div></RouterLink
-      >
-
       <RouterLink to="/bets">
         <div class="item">
           <i class="fa-solid fa-coins"></i> Bets
+        </div></RouterLink
+      >
+
+      <RouterLink to="/tournaments">
+        <div class="item">
+          <i class="fa-solid fa-trophy"></i> Standings
         </div></RouterLink
       >
 
@@ -47,7 +47,7 @@
       </a>
     </nav>
     <nav v-else>
-      <div style="margin-bottom: 50px">
+      <div>
         <img src="@/assets/logo128VC.png" width="60" />
       </div>
 

@@ -297,14 +297,14 @@ export default {
             href="#"
             @click="toggleFinished"
             :class="{ juicyGreen: this.finishedOnly }"
-            >finished only</a
+            >finished</a
           >
           |
           <a
             href="#"
             @click="toggleUnfinished()"
             :class="{ juicyGreen: this.unfinishedOnly }"
-            >unfinished only</a
+            >upcoming</a
           >
           |
           <a

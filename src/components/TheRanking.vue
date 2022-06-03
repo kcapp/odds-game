@@ -2,7 +2,7 @@
   <div class="m10">
     <div class="gameDiv">
       <div class="tournamentTitle">
-        Tournament match bets ranking:
+        Tournament Bets Ranking:
         {{ this.tournament ? this.tournament.name : "Unknown" }}
       </div>
       <div class="pt20">

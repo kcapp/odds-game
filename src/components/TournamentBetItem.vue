@@ -3,7 +3,7 @@
     <span :class="{ colWhite: !this.tournament.is_finished }">{{
       this.tournament.name
     }}</span>
-    <span v-if="!this.tournament.is_finished" class="smGreenLabel ml20"
+    <span v-if="!this.tournament.is_finished" class="smGreenLabel ml1em"
       >active</span
     >
   </td>
