@@ -5,6 +5,7 @@ export default {
   components: { TheCoin },
   data() {
     return {
+      betsOff: 0,
       currentUserId: null,
       coinsAvailable: 0,
       overBet: this.userBets ? this.userBets.bet_1 : 0,
@@ -33,6 +34,7 @@ export default {
     "tournamentId",
     "tournamentStarted",
     "tournamentFinished",
+    "tournamentMeta",
   ],
   computed: {
     overBetResult() {
@@ -46,6 +48,7 @@ export default {
   },
   mounted() {
     this.resetBalance();
+    this.betsOff = this.tournamentMeta ? this.tournamentMeta.bets_off : 0;
 
     this.betId = this.userBets ? this.userBets.outcome_id : 0;
     this.live = this.tournamentStarted;
@@ -252,7 +255,7 @@ export default {
             </span>
             <input
               v-else
-              :disabled="!this.enabledSave"
+              :disabled="!this.enabledSave || this.betsOff"
               type="number"
               class="textInput txtC w40"
               v-model="this.overBet"
@@ -302,7 +305,7 @@ export default {
             </span>
             <input
               v-else
-              :disabled="!this.enabledSave"
+              :disabled="!this.enabledSave || this.betsOff"
               type="number"
               class="textInput txtC w40"
               v-model="this.underBet"
@@ -334,7 +337,7 @@ export default {
             </div>
             <div v-else>
               <button
-                :disabled="!this.enabledSave"
+                :disabled="!this.enabledSave || this.betsOff"
                 type="submit"
                 class="smSaveLabel"
                 v-if="!this.tournamentFinished && !this.tournamentStarted"

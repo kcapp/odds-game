@@ -105,7 +105,8 @@ export default {
       return this.player2CurrentOdds !== this.player2BetOdds;
     },
     isOddsChanged() {
-      return this.isP1OddsChanged() || this.isP2OddsChanged();
+      return true;
+      //return this.isP1OddsChanged() || this.isP2OddsChanged();
     },
     getImmutableCoinsAvailable() {
       return (

@@ -35,10 +35,10 @@ export default {
   padding: 10px;
   border-radius: 5px;
 
-  width: 340px;
+  width: 500px;
   bottom: 100%;
   left: 50%;
-  margin-left: -170px;
+  margin-left: -260px;
 
   opacity: 0;
   transition: opacity 1s;

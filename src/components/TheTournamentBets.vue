@@ -60,6 +60,7 @@
             :tournamentId="tournamentId"
             :balance="this.balance"
             :user-bets="this.userBets[outcome.id]"
+            :tournamentMeta="tournamentMeta[tournamentId]"
             @resetBets="resetBets"
             @reloadBalance="reloadBalance"
             @disableBetsSavingForTotals="disableBetsSavingForTotals"
@@ -118,6 +119,7 @@
               :tournamentId="tournamentId"
               :balance="this.balance"
               :user-bets="getFuturesBets()"
+              :tournamentMeta="tournamentMeta[tournamentId]"
               @resetBets="resetBets"
               @reloadBalance="reloadBalance"
               @disableBetsSavingForFutures="disableBetsSavingForFutures"
@@ -162,6 +164,7 @@
               :tournamentId="tournamentId"
               :balance="this.balance"
               :user-bets="getPropsBets()"
+              :tournamentMeta="tournamentMeta[tournamentId]"
               @resetBets="resetBets"
               @reloadBalance="reloadBalance"
               @disableBetsSavingForProps="disableBetsSavingForProps"
@@ -194,6 +197,7 @@ export default {
       marketNames: [],
       userBets: [],
       balance: null,
+      tournamentMeta: [],
     };
   },
   methods: {
@@ -339,12 +343,20 @@ export default {
                   this.tournamentId +
                   "/balance"
               ),
+              axios.get(
+                import.meta.env.VITE_ODDS_API_PROXY_STRING + "/tournament/meta"
+              ),
             ])
             .then(
-              axios.spread((bets, balance) => {
+              axios.spread((bets, balance, meta) => {
                 this.userBets = [];
                 for (const [index, value] of bets.data.entries()) {
                   this.userBets[value.outcome_id] = value;
+                }
+
+                // set metadata indexed by tournament id
+                for (const [index, value] of meta.data.entries()) {
+                  this.tournamentMeta[value.tournament_id] = value;
                 }
 
                 this.balance = balance.data;

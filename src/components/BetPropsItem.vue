@@ -5,6 +5,7 @@ export default {
   components: { TheCoin },
   data() {
     return {
+      betsOff: 0,
       currentUserId: null,
       coinsAvailable: 0,
       singleBet: 0,
@@ -36,6 +37,7 @@ export default {
     "tournamentId",
     "tournamentStarted",
     "tournamentFinished",
+    "tournamentMeta",
   ],
   computed: {
     betResult() {
@@ -50,6 +52,7 @@ export default {
   },
   mounted() {
     this.resetBalance();
+    this.betsOff = this.tournamentMeta ? this.tournamentMeta.bets_off : 0;
 
     if (this.userBets.filter(Boolean).length === 0) {
       this.betId = 0;
@@ -285,7 +288,7 @@ export default {
               class="textInput selectName"
               @change="updateOdds()"
               v-model="this.betOutcomeId"
-              :disabled="!this.enabledSave"
+              :disabled="!this.enabledSave || this.betsOff"
             >
               <option disabled selected value="">Please select one</option>
               <template v-for="(oc, index) in this.outcomes.filter(Boolean)">
@@ -308,7 +311,7 @@ export default {
             </span>
             <input
               v-else
-              :disabled="!this.enabledSave"
+              :disabled="!this.enabledSave || this.betsOff"
               type="number"
               class="textInput txtC w40"
               v-model="this.singleBet"
@@ -358,7 +361,7 @@ export default {
             </div>
             <div v-else>
               <button
-                :disabled="!this.enabledSave"
+                :disabled="!this.enabledSave || this.betsOff"
                 type="submit"
                 class="smSaveLabel"
                 v-if="!this.tournamentFinished && !this.tournamentStarted"
