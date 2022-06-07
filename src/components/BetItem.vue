@@ -63,6 +63,9 @@ export default {
         : this.game.player_odds[[this.game.players[1]]];
       return (this.player2Bet * b2).toFixed(this.floatingDigits);
     },
+    isPlayersDecided() {
+      return this.game.is_players_decided ? this.game.is_players_decided : true;
+    },
   },
   mounted() {
     this.resetBalance();

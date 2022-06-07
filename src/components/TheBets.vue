@@ -321,68 +321,66 @@ export default {
   </div>
   <div>
     <table v-if="loaded" class="gameBetsTable">
-      <tr
-        v-for="(game, index) in this.games"
-        v-bind:key="index"
-        :class="{ hideItem: isShown(game) }"
-      >
-        <td>
-          <BetItem
-            ref="betItem"
-            :balance="this.balance"
-            :coinsAvailable="this.coinsAvailable"
-            :tournamentId="tournamentId"
-            :tournament-finished="tournamentFinished"
-            :game="game"
-            :result="this.getResultsForGameId(game.id)"
-            :players="game.players"
-            :gameBets="gameBets[game.id]"
-            :gameMeta="gameMeta[game.id]"
-            :p1Initials="this.getPlayer1Initials(game)"
-            :p2Initials="this.getPlayer2Initials(game)"
-            @recalculateCoins="recalculateCoins"
-            @disableOtherBetsSaving="disableOtherBetsSaving"
-            @enableBetSaving="enableBetSaving"
-            @reloadBalance="reloadBalance"
-            @resetGameBets="resetGameBets"
-          >
-            <template #playerOneName>
-              {{ this.players[game.players[0]].name }}
-            </template>
-            <template #playerTwoName>
-              {{ this.players[game.players[1]].name }}
-            </template>
-            <template #probsPlayerOne>
-              {{
-                (
-                  game.player_winning_probabilities[[game.players[0]]] * 100
-                ).toFixed(2)
-              }}%
-            </template>
-            <template #probsPlayerTwo>
-              {{
-                (
-                  game.player_winning_probabilities[[game.players[1]]] * 100
-                ).toFixed(2)
-              }}%
-            </template>
-            <template #oddsPlayerOne>
-              {{
-                gameBets[game.id]
-                  ? gameBets[game.id].odds_1
-                  : game.player_odds[[game.players[0]]]
-              }}
-            </template>
-            <template #oddsPlayerTwo>
-              {{
-                gameBets[game.id]
-                  ? gameBets[game.id].odds_2
-                  : game.player_odds[[game.players[1]]]
-              }}
-            </template>
-          </BetItem>
-        </td>
-      </tr>
+      <template v-for="(game, index) in this.games" v-bind:key="index">
+        <tr :class="{ hideItem: isShown(game) }" v-if="game.is_players_decided">
+          <td>
+            <BetItem
+              ref="betItem"
+              :balance="this.balance"
+              :coinsAvailable="this.coinsAvailable"
+              :tournamentId="tournamentId"
+              :tournament-finished="tournamentFinished"
+              :game="game"
+              :result="this.getResultsForGameId(game.id)"
+              :players="game.players"
+              :gameBets="gameBets[game.id]"
+              :gameMeta="gameMeta[game.id]"
+              :p1Initials="this.getPlayer1Initials(game)"
+              :p2Initials="this.getPlayer2Initials(game)"
+              @recalculateCoins="recalculateCoins"
+              @disableOtherBetsSaving="disableOtherBetsSaving"
+              @enableBetSaving="enableBetSaving"
+              @reloadBalance="reloadBalance"
+              @resetGameBets="resetGameBets"
+            >
+              <template #playerOneName>
+                {{ this.players[game.players[0]].name }}
+              </template>
+              <template #playerTwoName>
+                {{ this.players[game.players[1]].name }}
+              </template>
+              <template #probsPlayerOne>
+                {{
+                  (
+                    game.player_winning_probabilities[[game.players[0]]] * 100
+                  ).toFixed(2)
+                }}%
+              </template>
+              <template #probsPlayerTwo>
+                {{
+                  (
+                    game.player_winning_probabilities[[game.players[1]]] * 100
+                  ).toFixed(2)
+                }}%
+              </template>
+              <template #oddsPlayerOne>
+                {{
+                  gameBets[game.id]
+                    ? gameBets[game.id].odds_1
+                    : game.player_odds[[game.players[0]]]
+                }}
+              </template>
+              <template #oddsPlayerTwo>
+                {{
+                  gameBets[game.id]
+                    ? gameBets[game.id].odds_2
+                    : game.player_odds[[game.players[1]]]
+                }}
+              </template>
+            </BetItem>
+          </td>
+        </tr>
+      </template>
     </table>
   </div>
 </template>
