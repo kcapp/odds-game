@@ -38,11 +38,11 @@ export default {
   ],
   computed: {
     overBetResult() {
-      let b1 = this.userBets ? this.userBets.odds_1 : 0;
+      let b1 = this.userBets ? this.userBets.odds_1 : this.outcome.getOdds1()
       return (this.overBet * b1).toFixed(this.floatingDigits);
     },
     underBetResult() {
-      let b2 = this.userBets ? this.userBets.odds_2 : 0;
+      let b2 = this.userBets ? this.userBets.odds_2 : this.outcome.getOdds2();
       return (this.underBet * b2).toFixed(this.floatingDigits);
     },
   },
