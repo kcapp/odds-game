@@ -294,7 +294,17 @@ export default {
               :disabled="!this.enabledSave || this.betsOff"
             >
               <option disabled selected value="">Please select one</option>
-              <template v-for="(oc, index) in this.outcomes.filter(Boolean)">
+              <template
+                v-for="(oc, index) in this.outcomes
+                  .filter(Boolean)
+                  .sort((a, b) => {
+                    if (a.odds_x < b.odds_x) {
+                      return 1;
+                    } else {
+                      return -1;
+                    }
+                  })"
+              >
                 <option :value="oc.id" v-bind:key="oc.id" v-if="oc">
                   {{ oc.player_name }} (odds: {{ oc.odds_x }})
                 </option>
