@@ -50,7 +50,7 @@ export default {
     this.resetBalance();
     this.betsOff = this.tournamentMeta ? this.tournamentMeta.bets_off : 0;
 
-    this.betId = this.userBets ? this.userBets.outcome_id : 0;
+    this.betId = this.userBets ? this.userBets.id : 0;
     this.live = this.tournamentStarted;
     this.currentUserId = this.$store.state.auth.user.user_id;
 
