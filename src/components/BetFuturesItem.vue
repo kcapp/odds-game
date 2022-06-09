@@ -142,9 +142,9 @@ export default {
 
       // disable all others save buttons except the one on the bet you're editing
       this.$emit("disableBetsSavingForFutures", this.outcomeMarketId);
-
       // this is the most important part, all the save buttons are disabled except current one
       // is this an existing bet?
+
       if (this.betId) {
         let oldBetSum = parseInt(this.singleBet);
         let newBetSum = this.userBets[this.betId].bet_x;
@@ -158,6 +158,9 @@ export default {
         } else {
           // if we have enough coins, display balance - value and wait for save
           this.coinsAvailable = balanceAfterBet;
+          if (this.betOutcomeId) {
+            this.betOdds = this.outcomes[this.betOutcomeId].odds_x;
+          }
         }
       } else {
         // this is a new bet, update odds value
