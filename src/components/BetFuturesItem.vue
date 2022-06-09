@@ -131,7 +131,7 @@ export default {
       this.message = msg;
     },
     validateAndEmit() {
-      if (this.singleBet === undefined || this.singleBet === "") {
+      if (this.singleBet === undefined || this.singleBet === "" || this.singleBet < 0) {
         this.singleBet = 0;
       }
 

@@ -162,10 +162,10 @@ export default {
       this.message = msg;
     },
     validateAndEmit() {
-      if (this.player1Bet === undefined || this.player1Bet === "") {
+      if (this.player1Bet === undefined || this.player1Bet === "" || this.player1Bet < 0) {
         this.player1Bet = 0;
       }
-      if (this.player2Bet === undefined || this.player2Bet === "") {
+      if (this.player2Bet === undefined || this.player2Bet === "" || this.player2Bet < 0) {
         this.player2Bet = 0;
       }
 

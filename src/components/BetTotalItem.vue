@@ -111,10 +111,10 @@ export default {
       this.message = msg;
     },
     validateAndEmit() {
-      if (this.overBet === undefined || this.overBet === "") {
+      if (this.overBet === undefined || this.overBet === "" || this.overBet < 0) {
         this.overBet = 0;
       }
-      if (this.underBet === undefined || this.underBet === "") {
+      if (this.underBet === undefined || this.underBet === "" || this.underBet < 0) {
         this.underBet = 0;
       }
 
