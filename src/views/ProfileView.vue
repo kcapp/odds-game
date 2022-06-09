@@ -6,7 +6,7 @@
     </div>
     <table
       class="profileTable profileBlockFill"
-      v-if="this.userData && this.coins"
+      v-if="this.userData && (this.coins || this.coins >= 0)"
     >
       <tr>
         <td style="width: 100%">
