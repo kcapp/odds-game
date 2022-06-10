@@ -23,14 +23,14 @@
                             'https://darts.sportradar.ag' +
                             this.profilePictureUrl
                           "
-                          v-if="this.profilePictureUrl.startsWith('/')"
+                          v-if="this.profilePictureUrl && this.profilePictureUrl.startsWith('/')"
                           @error="$event.target.src = this.placeholderImage"
                         />
                         <img
                           class="profileImg"
                           v-bind:src="this.profilePictureUrl"
                           v-else-if="
-                            this.profilePictureUrl.startsWith('https://')
+                            this.profilePictureUrl && this.profilePictureUrl.startsWith('https://')
                           "
                           @error="$event.target.src = this.placeholderImage"
                         />
