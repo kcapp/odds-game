@@ -17,9 +17,9 @@
             <td class="juicyGreen txtR">total potential</td>
             <td class="juicyGreen txtR">avg coins / bet</td>
           </tr>
-          <tr v-for="(item, index) in this.ranking" v-bind:key="index">
+          <tr v-for="(item, index1) in this.ranking" v-bind:key="index1">
             <RankingItem v-if="!item.is_cheater">
-              <template #index>{{ index + 1 }}.</template>
+              <template #index>{{ index1 + 1 }}.</template>
               <template #playerName>
                 {{ item.first_name }} {{ item.last_name }}
                 <span v-if="item.is_cheater">
@@ -70,8 +70,8 @@
             </td>
           </tr>
           <tr
-            v-for="(item, index) in this.ranking"
-            v-bind:key="index"
+            v-for="(item, index2) in this.ranking"
+            v-bind:key="index2"
             style="overflow: hidden"
           >
             <RankingItem v-if="item.is_cheater">
