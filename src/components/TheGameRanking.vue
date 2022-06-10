@@ -18,8 +18,64 @@
             <td class="juicyGreen txtR">avg coins / bet</td>
           </tr>
           <tr v-for="(item, index) in this.ranking" v-bind:key="index">
-            <RankingItem>
+            <RankingItem v-if="!item.is_cheater">
               <template #index>{{ index + 1 }}.</template>
+              <template #playerName>
+                {{ item.first_name }} {{ item.last_name }}
+                <span v-if="item.is_cheater">
+                  <i class="fa-solid fa-poo"></i>
+                </span>
+              </template>
+              <template #coins>
+                {{ item.coins_available.toFixed(2) }}
+              </template>
+              <template #coinsInActiveBets>
+                {{ item.coins_bets_open }}
+              </template>
+              <template #betsPlaced>
+                {{ item.bets_placed }}
+              </template>
+              <template #totalPotential>
+                {{
+                  (
+                    item.coins_available +
+                    item.coins_bets_open +
+                    item.potential_winnings
+                  ).toFixed(2)
+                }}
+              </template>
+              <template #avgWin v-if="item.bets_closed > 0">
+                <span
+                  :class="{
+                    colPlus: item.coins_won - item.coins_bets_closed > 0,
+                    colMinus: item.coins_won - item.coins_bets_closed < 0,
+                  }"
+                >
+                  {{
+                    (
+                      (item.coins_won - item.coins_bets_closed) /
+                      item.bets_closed
+                    ).toFixed(2)
+                  }}
+                </span>
+              </template>
+              <template #avgWin v-else>
+                {{ (0).toFixed(2) }}
+              </template>
+            </RankingItem>
+          </tr>
+          <tr v-if="this.hasCheaters()">
+            <td colspan="8" style="padding-top: 20px; color: white">
+              CHEATERS
+            </td>
+          </tr>
+          <tr
+            v-for="(item, index) in this.ranking"
+            v-bind:key="index"
+            style="overflow: hidden"
+          >
+            <RankingItem v-if="item.is_cheater">
+              <template #index><i class="fa-solid fa-poo"></i></template>
               <template #playerName>
                 {{ item.first_name }} {{ item.last_name }}
               </template>
@@ -76,6 +132,15 @@ export default {
     return {};
   },
   methods: {
+    hasCheaters() {
+      let numCheaters = 0;
+      this.ranking.forEach((item) => {
+        if (item.is_cheater === 1) {
+          numCheaters++;
+        }
+      });
+      return numCheaters;
+    },
     //getUserData(gameId) {},
   },
   mounted() {},
