@@ -5,6 +5,7 @@ import BetsView from "@/views/BetsView.vue";
 import TournamentBetsView from "@/views/TournamentBetsView.vue";
 import StandingsView from "@/views/StandingsView.vue";
 import TournamentGameRankingView from "@/views/TournamentGameRankingView.vue";
+import TournamentTotalRankingView from "@/views/TournamentTotalRankingView.vue";
 import TournamentRankingView from "@/views/TournamentRankingView.vue";
 import PassChange from "@/views/PassChange.vue";
 import GameView from "@/views/GameView.vue";
@@ -55,14 +56,19 @@ const router = createRouter({
       component: BetsListView,
     },
     {
-      path: "/tournament/:id/gameranking",
-      name: "tournamentGameRanking",
+      path: "/tournament/:id/ranking/game",
+      name: "gameRanking",
       component: TournamentGameRankingView,
     },
     {
-      path: "/tournament/:id/ranking",
+      path: "/tournament/:id/ranking/tournament",
       name: "tournamentRanking",
       component: TournamentRankingView,
+    },
+    {
+      path: "/tournament/:id/ranking/total",
+      name: "totalRanking",
+      component: TournamentTotalRankingView,
     },
     {
       path: "/changepass",

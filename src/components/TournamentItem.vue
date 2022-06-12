@@ -10,7 +10,7 @@
   <td>
     <RouterLink
       :to="{
-        name: 'tournamentGameRanking',
+        name: 'gameRanking',
         params: { id: this.tournament.id },
       }"
     >
@@ -24,6 +24,15 @@
       }"
     >
       tournament
+    </RouterLink>
+    .
+    <RouterLink
+      :to="{
+        name: 'totalRanking',
+        params: { id: this.tournament.id },
+      }"
+    >
+      total
     </RouterLink>
     <span v-if="tournament.is_playoffs && false">
       .

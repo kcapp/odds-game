@@ -1,9 +1,13 @@
 <template>
-  <TheGameRanking :tournament="tournament" :ranking="ranking" />
+  <TheGameRanking
+    :tournament="tournament"
+    :ranking="ranking"
+    :cheaters-ranking="cheatersRanking"
+    :non-cheaters-ranking="nonCheatersRanking"
+  />
 </template>
 
 <script>
-import TheGame from "@/components/TheGame.vue";
 import axios from "axios";
 import TheGameRanking from "@/components/TheGameRanking.vue";
 export default {
@@ -13,7 +17,20 @@ export default {
       tournamentId: 0,
       tournament: null,
       ranking: [],
+      cheatersRanking: [],
+      nonCheatersRanking: [],
     };
+  },
+  methods: {
+    splitRankings(ranking) {
+      ranking.forEach((item) => {
+        if (item.is_cheater === 1) {
+          this.cheatersRanking.push(item);
+        } else {
+          this.nonCheatersRanking.push(item);
+        }
+      });
+    },
   },
   created() {
     if (this.$route.params.id !== undefined && this.$route.params.id) {
@@ -37,6 +54,7 @@ export default {
         axios.spread((tournament, ranking) => {
           this.tournament = tournament.data;
           this.ranking = ranking.data;
+          this.splitRankings(ranking.data);
         })
       )
       .catch((error) => {

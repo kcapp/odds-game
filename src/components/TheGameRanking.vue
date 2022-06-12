@@ -17,9 +17,12 @@
             <td class="juicyGreen txtR">total potential</td>
             <td class="juicyGreen txtR">avg coins / bet</td>
           </tr>
-          <tr v-for="(item, index1) in this.ranking" v-bind:key="index1">
-            <RankingItem v-if="!item.is_cheater">
-              <template #index>{{ index1 + 1 }}.</template>
+          <tr
+            v-for="(item, index) in this.nonCheatersRanking"
+            v-bind:key="index"
+          >
+            <RankingItem>
+              <template #index>{{ index + 1 }}.</template>
               <template #playerName>
                 {{ item.first_name }} {{ item.last_name }}
                 <span v-if="item.is_cheater">
@@ -70,11 +73,11 @@
             </td>
           </tr>
           <tr
-            v-for="(item, index2) in this.ranking"
-            v-bind:key="index2"
+            v-for="(item, index) in this.cheatersRanking"
+            v-bind:key="index"
             style="overflow: hidden"
           >
-            <RankingItem v-if="item.is_cheater">
+            <RankingItem>
               <template #index><i class="fa-solid fa-poo"></i></template>
               <template #playerName>
                 {{ item.first_name }} {{ item.last_name }}
@@ -127,10 +130,7 @@
 import RankingItem from "@/components/RankingItem.vue";
 export default {
   components: { RankingItem },
-  props: ["tournament", "ranking"],
-  data() {
-    return {};
-  },
+  props: ["tournament", "ranking", "cheatersRanking", "nonCheatersRanking"],
   methods: {
     hasCheaters() {
       let numCheaters = 0;
@@ -141,9 +141,7 @@ export default {
       });
       return numCheaters;
     },
-    //getUserData(gameId) {},
   },
-  mounted() {},
 };
 </script>
 
