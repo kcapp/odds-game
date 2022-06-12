@@ -12,9 +12,9 @@
     /></span>
   </td>
   <td class="txtC colWhite">
-    {{ this.better.first_name }}
+    {{ this.bettor.first_name }}
 
-    {{ this.better.last_name }}
+    {{ this.bettor.last_name }}
   </td>
   <td class="txtL">
     <span
@@ -31,7 +31,7 @@
 </template>
 <script>
 export default {
-  props: ["player1", "player2", "bet", "better"],
+  props: ["player1", "player2", "bet", "bettor"],
 };
 </script>
 <style>

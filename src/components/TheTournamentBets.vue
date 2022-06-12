@@ -113,6 +113,7 @@
           <td>
             <BetFuturesItem
               ref="betFuturesItem"
+              :players="this.players"
               :market-names="this.marketNames"
               :outcomeMarketId="futuresOutcomesGroupIndex"
               :outcomes="getOutcomesIndexed(futuresOutcomesGroup)"
@@ -187,6 +188,7 @@ export default {
   props: ["outcomes", "requestedTournamentId"],
   data() {
     return {
+      players: [],
       tournamentId: 0,
       outcomesAll: [],
       outcomesTotal: [],
@@ -346,9 +348,12 @@ export default {
               axios.get(
                 import.meta.env.VITE_ODDS_API_PROXY_STRING + "/tournament/meta"
               ),
+              axios.get(
+                import.meta.env.VITE_KCAPP_API_PROXY_STRING + "/players"
+              ),
             ])
             .then(
-              axios.spread((bets, balance, meta) => {
+              axios.spread((bets, balance, meta, players) => {
                 this.userBets = [];
                 for (const [index, value] of bets.data.entries()) {
                   this.userBets[value.outcome_id] = value;
@@ -361,6 +366,9 @@ export default {
 
                 this.balance = balance.data;
                 this.loaded = true;
+                players.data.filter(Boolean).forEach((item) => {
+                  this.players[item.id] = item.name;
+                });
 
                 this.immutableCoins = 0;
               })

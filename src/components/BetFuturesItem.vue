@@ -16,9 +16,7 @@ export default {
       betId: 0,
       betOutcomeId: 0,
       messages: [],
-      matchBetsSum: this.userBets
-        ? this.userBets.bet_1 + this.userBets.bet_2
-        : 0,
+      matchBetsSum: this.userBets ? this.userBets.bet_x : 0,
       live: false,
       message: "",
       enabledSave: true,
@@ -97,24 +95,17 @@ export default {
       return this.outcomeMarketId;
     },
     getBetCoinSum() {
-      // OVER wins
-      if (this.userBets.outcome > this.userBets.outcome_value) {
-        if (this.singleBetResult - this.matchBetsSum > 0) {
-          return "+" + (this.singleBetResult - this.matchBetsSum).toFixed(2);
-        } else {
-          return (this.singleBetResult - this.matchBetsSum).toFixed(2);
-        }
+      if (
+        this.userBets[this.betId].outcome ===
+        this.userBets[this.betId].outcome_value
+      ) {
+        return "+" + (this.singleBetResult - this.singleBet).toFixed(2);
       }
-      // UNDER wins
-      if (this.userBets.outcome < this.userBets.outcome_value) {
-        if (this.underBetResult - this.matchBetsSum > 0) {
-          return "+" + (this.underBetResult - this.matchBetsSum).toFixed(2);
-        } else {
-          return (this.underBetResult - this.matchBetsSum).toFixed(2);
-        }
-      }
-      if (this.userBets.outcome === this.userBets.outcome_value) {
-        return (0).toFixed(2);
+      if (
+        this.userBets[this.betId].outcome !==
+        this.userBets[this.betId].outcome_value
+      ) {
+        return "-" + this.singleBet.toFixed(2);
       }
       return 0;
     },
@@ -131,7 +122,11 @@ export default {
       this.message = msg;
     },
     validateAndEmit() {
-      if (this.singleBet === undefined || this.singleBet === "" || this.singleBet < 0) {
+      if (
+        this.singleBet === undefined ||
+        this.singleBet === "" ||
+        this.singleBet < 0
+      ) {
         this.singleBet = 0;
       }
 
@@ -217,9 +212,12 @@ export default {
     betHasOutcome() {
       return !!(
         this.userBets !== undefined &&
-        this.userBets[this.outcomeMarketId] &&
-        this.userBets[this.outcomeMarketId].outcome !== null
+        this.userBets[this.betId] &&
+        this.userBets[this.betId].outcome !== null
       );
+    },
+    getFinalOutcome() {
+      return this.players[this.userBets[this.betId].outcome];
     },
     updateOdds() {
       this.validateAndEmit();
@@ -272,7 +270,7 @@ export default {
 <template>
   <div class="gameDiv">
     <form @submit.prevent="postTournamentBet()">
-      <table class="txtL betTable">
+      <table class="txtL betTableFutures">
         <tr>
           <td class="smGreenHeader marketNameLabel">
             {{ this.marketNames[this.outcomeMarketId] }}
@@ -338,10 +336,11 @@ export default {
           <td class="w60 txtR">
             {{ this.betResult }}
           </td>
-          <td rowspan="2" class="vMiddle">
+          <td class="vMiddle">
+            {{ this.matchBetsSum }}
             <span
               v-if="
-                this.matchBetsSum > 0 &&
+                this.singleBet > 0 &&
                 (this.betHasOutcome() || tournamentFinished)
               "
               ><span
@@ -367,8 +366,8 @@ export default {
             <div v-if="this.tournamentFinished || this.betHasOutcome()">
               <span class="pl10"
                 >final value:
-                <span class="greenOCLabel">
-                  {{ this.userBets.outcome }}
+                <span class="greenOCLabel" v-if="this.players">
+                  {{ this.getFinalOutcome() }}
                 </span>
               </span>
             </div>
@@ -404,10 +403,10 @@ export default {
 .selectName {
   background-color: #22232c;
 }
-.betTable {
+.betTableFutures {
   min-width: 600px;
 }
-.betTable td {
+.betTableFutures td {
   border: 0px solid white;
 }
 .marketNameLabel {

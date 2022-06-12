@@ -122,7 +122,7 @@
               }}</span>
             </td>
           </tr>
-          <template v-if="this.live">
+          <template v-if="this.live || this.game.is_finished">
             <tr v-if="this.game && !this.game.is_finished">
               <td colspan="3" class="txtC">
                 <div class="sliderBar"></div>
@@ -182,7 +182,7 @@
                 :player1="this.player1"
                 :player2="this.player2"
                 :bet="bet"
-                :better="this.players[bet.user_id]"
+                :bettor="this.players[bet.user_id]"
               >
                 <template #payout1 v-if="bet.bet_1"
                   >(+

@@ -54,20 +54,6 @@ export default {
           coins_won_game: coinsGame,
           coins_won_tournament: coinsTournament,
           coins_won_total: coinsTotal,
-          // bets_closed: 10
-          // bets_placed: 10
-          // coins_available: 0.39990234
-          // coins_bets_closed: 7262
-          // coins_bets_open: 0
-          // coins_won: 6262.4
-          // is_cheater: 0
-          // potential_winnings: 0
-          // start_coins: 1000
-          // tournament_coins_closed: 1000
-          // tournament_coins_open: 1000
-          // tournament_coins_won: 0
-          // tournament_id: 37
-          // user_id: 60
         };
       });
 
