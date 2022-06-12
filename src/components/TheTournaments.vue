@@ -10,7 +10,7 @@ export default {
 <template>
   <div style="margin: 10px">
     <div class="gameDiv">
-      <div class="tournamentTitle">Tournament list</div>
+      <div class="tournamentTitle">Standings: tournament list</div>
       <div class="pt20">
         <table class="rankingTable">
           <tr>

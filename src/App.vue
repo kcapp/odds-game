@@ -32,7 +32,7 @@
         </div></RouterLink
       >
 
-      <RouterLink to="/tournaments">
+      <RouterLink to="/standings">
         <div class="item">
           <i class="fa-solid fa-trophy"></i> Standings
         </div></RouterLink

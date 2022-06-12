@@ -25,7 +25,7 @@
     >
       tournament
     </RouterLink>
-    <span v-if="tournament.is_playoffs">
+    <span v-if="tournament.is_playoffs && false">
       .
       <RouterLink :to="{ name: 'ladder', params: { id: this.tournament.id } }">
         ladder

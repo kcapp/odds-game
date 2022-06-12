@@ -17,8 +17,16 @@ export default {
     return {
       currentUserId: null,
       coinsAvailable: 0,
-      player1Bet: this.gameBets ? this.gameBets.bet_1 : 0,
-      player2Bet: this.gameBets ? this.gameBets.bet_2 : 0,
+      player1Bet: this.gameBets
+        ? this.players[0] === this.gameBets.player_1
+          ? this.gameBets.bet_1
+          : this.gameBets.bet_2
+        : 0,
+      player2Bet: this.gameBets
+        ? this.players[0] === this.gameBets.player_1
+          ? this.gameBets.bet_2
+          : this.gameBets.bet_1
+        : 0,
       player1CurrentOdds: 0,
       player2CurrentOdds: 0,
       player1BetOdds: 0,
@@ -54,13 +62,13 @@ export default {
     player1BetResult() {
       let b1 = this.gameBets
         ? this.gameBets.odds_1
-        : this.game.player_odds[[this.game.players[0]]];
+        : this.game.player_odds[this.game.players[0]];
       return (this.player1Bet * b1).toFixed(this.floatingDigits);
     },
     player2BetResult() {
       let b2 = this.gameBets
         ? this.gameBets.odds_2
-        : this.game.player_odds[[this.game.players[1]]];
+        : this.game.player_odds[this.game.players[1]];
       return (this.player2Bet * b2).toFixed(this.floatingDigits);
     },
     isPlayersDecided() {
@@ -162,10 +170,18 @@ export default {
       this.message = msg;
     },
     validateAndEmit() {
-      if (this.player1Bet === undefined || this.player1Bet === "" || this.player1Bet < 0) {
+      if (
+        this.player1Bet === undefined ||
+        this.player1Bet === "" ||
+        this.player1Bet < 0
+      ) {
         this.player1Bet = 0;
       }
-      if (this.player2Bet === undefined || this.player2Bet === "" || this.player2Bet < 0) {
+      if (
+        this.player2Bet === undefined ||
+        this.player2Bet === "" ||
+        this.player2Bet < 0
+      ) {
         this.player2Bet = 0;
       }
 

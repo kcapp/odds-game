@@ -118,6 +118,7 @@ export default {
                 this.loaded = true;
 
                 this.immutableCoins = 0;
+                console.log(this.players, this.games);
               })
             )
             .catch((error) => {
@@ -352,14 +353,14 @@ export default {
               <template #probsPlayerOne>
                 {{
                   (
-                    game.player_winning_probabilities[[game.players[0]]] * 100
+                    game.player_winning_probabilities[game.players[0]] * 100
                   ).toFixed(2)
                 }}%
               </template>
               <template #probsPlayerTwo>
                 {{
                   (
-                    game.player_winning_probabilities[[game.players[1]]] * 100
+                    game.player_winning_probabilities[game.players[1]] * 100
                   ).toFixed(2)
                 }}%
               </template>
@@ -367,14 +368,14 @@ export default {
                 {{
                   gameBets[game.id]
                     ? gameBets[game.id].odds_1
-                    : game.player_odds[[game.players[0]]]
+                    : game.player_odds[game.players[0]]
                 }}
               </template>
               <template #oddsPlayerTwo>
                 {{
                   gameBets[game.id]
                     ? gameBets[game.id].odds_2
-                    : game.player_odds[[game.players[1]]]
+                    : game.player_odds[game.players[1]]
                 }}
               </template>
             </BetItem>
