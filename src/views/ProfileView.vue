@@ -23,14 +23,18 @@
                             'https://darts.sportradar.ag' +
                             this.profilePictureUrl
                           "
-                          v-if="this.profilePictureUrl && this.profilePictureUrl.startsWith('/')"
+                          v-if="
+                            this.profilePictureUrl &&
+                            this.profilePictureUrl.startsWith('/')
+                          "
                           @error="$event.target.src = this.placeholderImage"
                         />
                         <img
                           class="profileImg"
                           v-bind:src="this.profilePictureUrl"
                           v-else-if="
-                            this.profilePictureUrl && this.profilePictureUrl.startsWith('https://')
+                            this.profilePictureUrl &&
+                            this.profilePictureUrl.startsWith('https://')
                           "
                           @error="$event.target.src = this.placeholderImage"
                         />
@@ -279,8 +283,12 @@
                     <span class="pl20"><TheSmallCoin /></span>
                   </td>
                   <td class="txtR colWhite" v-else-if="bet.outcome === 0">
-                    <span class="colMinus"
-                      >-{{ (bet.bet_1 + bet.bet_2).toFixed(2) }}</span
+                    <span
+                      :class="{
+                        colPlus: this.getBetDrawCoins(bet) > 0,
+                        colMinus: this.getBetDrawCoins(bet) < 0,
+                      }"
+                      >{{ this.getBetDrawCoins(bet).toFixed(2) }}</span
                     >
                     <span class="pl20"><TheSmallCoin /></span>
                   </td>
@@ -380,10 +388,13 @@ export default {
       );
     },
     getBet1Coins(bet) {
-      return bet.bet_1 * bet.odds_1 - (bet.bet_1 + bet.bet_2);
+      return bet.bet_1 * bet.odds_1 - (bet.bet_1 + bet.bet_2 + bet.bet_x);
     },
     getBet2Coins(bet) {
-      return bet.bet_2 * bet.odds_2 - (bet.bet_1 + bet.bet_2);
+      return bet.bet_2 * bet.odds_2 - (bet.bet_1 + bet.bet_2 + bet.bet_x);
+    },
+    getBetDrawCoins(bet) {
+      return bet.bet_x * bet.odds_x - (bet.bet_1 + bet.bet_2 + bet.bet_x);
     },
     setProfilePictureUrl(s) {
       if (s.startsWith("/")) {
