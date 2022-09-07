@@ -27,16 +27,19 @@ export default {
           ? this.gameBets.bet_2
           : this.gameBets.bet_1
         : 0,
+      drawBet: this.gameBets && this.gameBets.bet_x ? this.gameBets.bet_x : 0,
       player1CurrentOdds: 0,
       player2CurrentOdds: 0,
+      drawCurrentOdds: 0,
       player1BetOdds: 0,
       player2BetOdds: 0,
+      drawBetOdds: 0,
       floatingDigits: 2,
       floatingOddsDigits: 3,
       betId: 0,
       messages: [],
       matchBetsSum: this.gameBets
-        ? this.gameBets.bet_1 + this.gameBets.bet_2
+        ? this.gameBets.bet_1 + this.gameBets.bet_2 + this.gameBets.bet_x
         : 0,
       live: false,
       message: "",
@@ -71,6 +74,10 @@ export default {
         : this.game.player_odds[this.game.players[1]];
       return (this.player2Bet * b2).toFixed(this.floatingDigits);
     },
+    drawBetResult() {
+      let bx = this.gameBets ? this.gameBets.odds_x : this.game.player_odds[0];
+      return (this.drawBet * bx).toFixed(this.floatingDigits);
+    },
     isPlayersDecided() {
       return this.game.is_players_decided ? this.game.is_players_decided : true;
     },
@@ -91,12 +98,16 @@ export default {
 
     this.player1CurrentOdds = this.game.player_odds[this.players[0]];
     this.player2CurrentOdds = this.game.player_odds[this.players[1]];
+    this.drawCurrentOdds = this.game.player_odds[0];
     this.player1BetOdds = this.gameBets
       ? this.gameBets.odds_1
       : this.player1CurrentOdds;
     this.player2BetOdds = this.gameBets
       ? this.gameBets.odds_2
       : this.player2CurrentOdds;
+    this.drawBetOdds = this.gameBets
+      ? this.gameBets.odds_x
+      : this.drawCurrentOdds;
   },
   methods: {
     getP1OddsDiff() {
@@ -109,15 +120,22 @@ export default {
         this.floatingOddsDigits
       );
     },
+    getDrawOddsDiff() {
+      return (this.drawCurrentOdds - this.drawBetOdds).toFixed(
+        this.floatingOddsDigits
+      );
+    },
     isP1OddsChanged() {
       return this.player1CurrentOdds !== this.player1BetOdds;
     },
     isP2OddsChanged() {
       return this.player2CurrentOdds !== this.player2BetOdds;
     },
+    isDrawOddsChanged() {
+      return this.drawCurrentOdds !== this.drawBetOdds;
+    },
     isOddsChanged() {
       return true;
-      //return this.isP1OddsChanged() || this.isP2OddsChanged();
     },
     getImmutableCoinsAvailable() {
       return (
@@ -153,7 +171,12 @@ export default {
         }
       }
       if (this.game.winner_id === null) {
-        return (-1 * this.matchBetsSum).toFixed(2);
+        //return (-1 * this.matchBetsSum).toFixed(2);
+        if (this.drawBetResult - this.matchBetsSum > 0) {
+          return "+" + (this.drawBetResult - this.matchBetsSum).toFixed(2);
+        } else {
+          return (this.drawBetResult - this.matchBetsSum).toFixed(2);
+        }
       }
       return 0;
     },
@@ -184,6 +207,13 @@ export default {
       ) {
         this.player2Bet = 0;
       }
+      if (
+        this.drawBet === undefined ||
+        this.drawBet === "" ||
+        this.drawBet < 0
+      ) {
+        this.drawBet = 0;
+      }
 
       // disable all others save buttons except the one on the bet you're editing
       this.$emit("disableOtherBetsSaving", this.game.id);
@@ -191,14 +221,22 @@ export default {
       // this is the most important part, all the save buttons are disabled except current one
       // is this an existing bet?
       if (this.betId) {
-        let oldBetSum = parseInt(this.player1Bet) + parseInt(this.player2Bet);
-        let newBetSum = this.gameBets.bet_1 + this.gameBets.bet_2;
+        let oldBetSum =
+          parseInt(this.player1Bet) +
+          parseInt(this.player2Bet) +
+          parseInt(this.drawBet);
+        let newBetSum =
+          this.gameBets.bet_1 + this.gameBets.bet_2 + this.gameBets.bet_x;
         let balanceAfterBet =
           this.getImmutableCoinsAvailable() - oldBetSum + newBetSum;
         // check if we have enough coins
         if (balanceAfterBet < 0) {
           // if we do not, reset to db values and enable save buttons
-          this.resetBet(this.gameBets.bet_1, this.gameBets.bet_2);
+          this.resetBet(
+            this.gameBets.bet_1,
+            this.gameBets.bet_2,
+            this.gameBets.bet_x
+          );
         } else {
           // if we have enough coins, display balance - value and wait for save
           this.coinsAvailable = balanceAfterBet;
@@ -206,24 +244,28 @@ export default {
       } else {
         // if this is not an existing bet in the db
         // check the balance, if we have enough coins (more than the value)
-        let newBetSum = parseInt(this.player1Bet) + parseInt(this.player2Bet);
+        let newBetSum =
+          parseInt(this.player1Bet) +
+          parseInt(this.player2Bet) +
+          parseInt(this.drawBet);
         if (newBetSum === 0) {
           // empty new bet, reset
-          this.resetBet(0, 0);
+          this.resetBet(0, 0, 0);
         }
         let balanceAfterBet = this.getImmutableCoinsAvailable() - newBetSum;
         if (balanceAfterBet < 0) {
           // if we do not, reset to 0 and enable save buttons
-          this.resetBet(0, 0);
+          this.resetBet(0, 0, 0);
         } else {
           // if we have enough coins, display balance - value and wait for save
           this.coinsAvailable = balanceAfterBet;
         }
       }
     },
-    resetBet(bet1, bet2) {
+    resetBet(bet1, bet2, betX) {
       this.player1Bet = bet1;
       this.player2Bet = bet2;
+      this.drawBet = betX;
       this.resetBalance();
       this.$emit("enableBetSaving", this.game.id);
     },
@@ -253,12 +295,12 @@ export default {
         player_1: this.game.players[0],
         player_2: this.game.players[1],
         bet_1: parseInt(this.player1Bet),
-        bet_x: 0,
+        bet_x: parseInt(this.drawBet),
         bet_2: parseInt(this.player2Bet),
         odds_1: parseFloat(
           this.game.player_odds[[this.game.players[0]]].toFixed(3)
         ),
-        odds_x: parseFloat("0"),
+        odds_x: parseFloat(this.game.player_odds[0].toFixed(3)),
         odds_2: parseFloat(
           this.game.player_odds[[this.game.players[1]]].toFixed(3)
         ),
@@ -277,6 +319,7 @@ export default {
 
           this.player1BetOdds = this.player1CurrentOdds;
           this.player2BetOdds = this.player2CurrentOdds;
+          this.drawBetOdds = this.drawCurrentOdds;
           // TODO - set bet odds for specific game
           this.$emit("resetGameBets");
         })
@@ -337,7 +380,7 @@ export default {
             vMiddle: !this.isOddsChanged,
           }"
         >
-          <td rowspan="2" class="vMiddle">
+          <td rowspan="3" class="vMiddle">
             <div
               class="icon"
               v-if="game.is_finished && game.winner_id === null"
@@ -422,7 +465,7 @@ export default {
               }}
             </span>
           </td>
-          <td rowspan="2" class="vMiddle">
+          <td rowspan="3" class="vMiddle">
             <span v-if="game.is_finished && this.matchBetsSum > 0"
               ><span
                 :class="{
@@ -435,6 +478,72 @@ export default {
               >
               <span><TheCoin /></span
             ></span>
+          </td>
+        </tr>
+        <tr v-if="this.game.player_winning_probabilities[0]">
+          <td>&nbsp;</td>
+          <td>
+            <h3
+              :class="{
+                winnerColor: game.is_finished && game.winner_id === null,
+              }"
+            >
+              draw
+            </h3>
+          </td>
+          <td style="width: 80px">
+            <slot name="probsDraw" />
+          </td>
+          <td style="width: 120px" class="txtC">
+            <slot name="oddsDraw" />
+            <span
+              class="colWhite font11"
+              v-if="isDrawOddsChanged() && !this.game.is_finished && !this.live"
+              ><br />
+              <TheOddsDiffLabel :oddsValue="getDrawOddsDiff()" class="mr5" />
+              {{ drawCurrentOdds.toFixed(this.floatingOddsDigits) }}
+            </span>
+          </td>
+          <td class="txtC">
+            <i class="fa-solid fa-xmark"></i>
+          </td>
+          <td class="pl10 txtC">
+            <span
+              v-if="
+                game.is_finished ||
+                this.live ||
+                this.tournamentFinished ||
+                this.betsOff
+              "
+              class="txtC"
+            >
+              {{ this.drawBet }}
+            </span>
+            <input
+              v-else
+              :disabled="
+                !this.enabledSave // || this.currentUserId === this.players[1]
+              "
+              type="number"
+              class="textInput txtC w40"
+              v-model="this.drawBet"
+              @keypress="this.isNumber($event)"
+              @change="this.validateAndEmit()"
+            />
+          </td>
+          <td style="padding-left: 10px">
+            <i class="fa-solid fa-equals"></i>
+          </td>
+          <td class="w60 txtR">
+            {{ this.drawBetResult }}
+            <span
+              class="colWhite font11"
+              v-if="isDrawOddsChanged() && !this.game.is_finished && !this.live"
+              ><br />
+              {{
+                (drawCurrentOdds * this.drawBet).toFixed(this.floatingDigits)
+              }}
+            </span>
           </td>
         </tr>
         <tr

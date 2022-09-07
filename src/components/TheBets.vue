@@ -118,7 +118,6 @@ export default {
                 this.loaded = true;
 
                 this.immutableCoins = 0;
-                console.log(this.players, this.games);
               })
             )
             .catch((error) => {
@@ -156,13 +155,14 @@ export default {
         }
       });
     },
-    recalculateCoins(matchId, oldBet1, oldBet2) {
+    recalculateCoins(matchId, oldBet1, oldBet2, oldBetX) {
       let sumNewBets = 0;
       let sumOldBets = 0;
 
       if (this.gameBets !== undefined) {
         this.gameBets.forEach((bet) => {
-          sumOldBets += parseInt(bet.bet_1) + parseInt(bet.bet_2);
+          sumOldBets +=
+            parseInt(bet.bet_1) + parseInt(bet.bet_2) + parseInt(bet.bet_x);
         });
       }
 
@@ -173,7 +173,13 @@ export default {
         if (item.player2Bet === "") {
           item.player2Bet = 0;
         }
-        sumNewBets += parseInt(item.player1Bet) + parseInt(item.player2Bet);
+        if (item.drawBet === "") {
+          item.drawBet = 0;
+        }
+        sumNewBets +=
+          parseInt(item.player1Bet) +
+          parseInt(item.player2Bet) +
+          parseInt(item.drawBet);
       });
 
       this.coins = this.immutableCoins + sumOldBets - sumNewBets;
@@ -182,6 +188,7 @@ export default {
           if (item.game.id === matchId) {
             item.player1Bet = parseInt(oldBet1);
             item.player2Bet = parseInt(oldBet2);
+            item.drawBet = parseInt(oldBetX);
             this.coins = this.immutableCoins;
           }
         });
@@ -357,6 +364,9 @@ export default {
                   ).toFixed(2)
                 }}%
               </template>
+              <template #probsDraw>
+                {{ (game.player_winning_probabilities[0] * 100).toFixed(2) }}%
+              </template>
               <template #probsPlayerTwo>
                 {{
                   (
@@ -369,6 +379,13 @@ export default {
                   gameBets[game.id]
                     ? gameBets[game.id].odds_1
                     : game.player_odds[game.players[0]]
+                }}
+              </template>
+              <template #oddsDraw>
+                {{
+                  gameBets[game.id] && gameBets[game.id].odds_x
+                    ? gameBets[game.id].odds_x
+                    : game.player_odds[0]
                 }}
               </template>
               <template #oddsPlayerTwo>
