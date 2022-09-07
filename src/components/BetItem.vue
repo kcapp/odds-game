@@ -522,7 +522,9 @@ export default {
             <input
               v-else
               :disabled="
-                !this.enabledSave // || this.currentUserId === this.players[1]
+                !this.enabledSave ||
+                this.currentUserId === this.players[0] ||
+                this.currentUserId === this.players[1]
               "
               type="number"
               class="textInput txtC w40"
