@@ -240,7 +240,7 @@
                       '/spectate'
                     "
                     target="_blank"
-                    >spectate in k-capp</a
+                    >spectate in kcapp</a
                   >
                 </template>
               </div>

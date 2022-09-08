@@ -81,6 +81,12 @@ export default {
     isPlayersDecided() {
       return this.game.is_players_decided ? this.game.is_players_decided : true;
     },
+    currentUser() {
+      if (this.$store.state.auth.user) {
+        return JSON.parse(localStorage.getItem("user"));
+      }
+      return {};
+    },
   },
   mounted() {
     this.resetBalance();
@@ -304,6 +310,7 @@ export default {
         odds_2: parseFloat(
           this.game.player_odds[[this.game.players[1]]].toFixed(3)
         ),
+        token: this.currentUser.token,
       });
       axios
         .post(
