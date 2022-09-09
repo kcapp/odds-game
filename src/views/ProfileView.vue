@@ -148,7 +148,7 @@
                     {{ this.players[bet.player_1].last_name }}
                   </td>
                   <td class="txtR colWhite">{{ bet.bet_1 }}</td>
-                  <td class="txtC">:</td>
+                  <td class="txtC colWhite">{{ bet.bet_x }}</td>
                   <td class="txtL colWhite">{{ bet.bet_2 }}</td>
                   <td
                     class="pl10"
