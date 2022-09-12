@@ -64,13 +64,17 @@ export default {
   computed: {
     player1BetResult() {
       let b1 = this.gameBets
+      ? this.gameBets.player_1 === this.players[0]
         ? this.gameBets.odds_1
-        : this.game.player_odds[this.game.players[0]];
+        : this.gameBets.odds_2
+      : this.game.player_odds[this.game.players[0]];
       return (this.player1Bet * b1).toFixed(this.floatingDigits);
     },
     player2BetResult() {
       let b2 = this.gameBets
-        ? this.gameBets.odds_2
+        ? this.gameBets.player_2 === this.players[1]
+          ? this.gameBets.odds_2
+          : this.gameBets.odds_1
         : this.game.player_odds[this.game.players[1]];
       return (this.player2Bet * b2).toFixed(this.floatingDigits);
     },
@@ -104,6 +108,7 @@ export default {
 
     this.player1CurrentOdds = this.game.player_odds[this.players[0]];
     this.player2CurrentOdds = this.game.player_odds[this.players[1]];
+
     this.drawCurrentOdds = this.game.player_odds[0];
     this.player1BetOdds = this.gameBets
       ? this.gameBets.odds_1
@@ -111,6 +116,7 @@ export default {
     this.player2BetOdds = this.gameBets
       ? this.gameBets.odds_2
       : this.player2CurrentOdds;
+
     this.drawBetOdds = this.gameBets
       ? this.gameBets.odds_x
       : this.drawCurrentOdds;

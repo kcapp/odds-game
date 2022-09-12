@@ -377,7 +377,9 @@ export default {
               <template #oddsPlayerOne>
                 {{
                   gameBets[game.id]
-                    ? gameBets[game.id].odds_1
+                    ? gameBets[game.id].player_1 === game.players[0]
+                      ? gameBets[game.id].odds_1
+                      : gameBets[game.id].odds_2
                     : game.player_odds[game.players[0]]
                 }}
               </template>
@@ -391,8 +393,10 @@ export default {
               <template #oddsPlayerTwo>
                 {{
                   gameBets[game.id]
+                  ? gameBets[game.id].player_2 === game.players[1]
                     ? gameBets[game.id].odds_2
-                    : game.player_odds[game.players[1]]
+                    : gameBets[game.id].odds_1
+                  : game.player_odds[game.players[1]]
                 }}
               </template>
             </BetItem>
