@@ -306,7 +306,7 @@ export default {
         odds_1: parseFloat(
           this.game.player_odds[[this.game.players[0]]].toFixed(3)
         ),
-        odds_x: parseFloat(this.game.player_odds[0].toFixed(3)),
+        odds_x: this.game.player_odds[0] ? parseFloat(this.game.player_odds[0].toFixed(3)) : null,
         odds_2: parseFloat(
           this.game.player_odds[[this.game.players[1]]].toFixed(3)
         ),
