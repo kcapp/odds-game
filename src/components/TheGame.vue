@@ -157,10 +157,15 @@
               </td>
             </tr>
             <tr v-if="this.gameBets.length > 0">
+              <td class="txtR colWhite">home</td>
+              <td class="txtC colWhite">draw</td>
+              <td class="txtL colWhite">away</td>
+            </tr>
+            <tr v-if="this.gameBets.length > 0">
               <td class="playerColumn txtR">
                 {{ this.player1SumBets }}
               </td>
-              <td class="txtC midColumn">total bets</td>
+              <td class="midColumn txtC">{{ this.playerDrawSumBets }}</td>
               <td class="playerColumn txtL">
                 {{ this.player2SumBets }}
               </td>
@@ -191,6 +196,13 @@
                   }})</template
                 >
                 <template #bet1>{{ bet.bet_1 }}</template>
+                <template #betDraw>{{ bet.bet_x }}</template>
+                <template #payoutDraw v-if="bet.bet_x"
+                  >(+
+                  {{
+                    (bet.bet_x * bet.odds_x - bet.bet_x).toFixed(0)
+                  }})</template
+                >
                 <template #bet2>{{ bet.bet_2 }}</template>
                 <template #payout2 v-if="bet.bet_2"
                   >(+
@@ -278,6 +290,7 @@ export default {
       player1: null,
       player2: null,
       player1SumBets: 0,
+      playerDrawSumBets: 0,
       player2SumBets: 0,
       live: false,
       player1Elo: 0,
@@ -392,6 +405,7 @@ export default {
     loadGame() {
       this.gameBets = [];
       this.player1SumBets = 0;
+      this.playerDrawSumBets = 0;
       this.player2SumBets = 0;
       // Get the rest of the data after we fetch current tournament id
       axios
@@ -447,6 +461,7 @@ export default {
                     this.player2SumBets += item[1].bet_1;
                     this.player1SumBets += item[1].bet_2;
                   }
+                  this.playerDrawSumBets += item[1].bet_x;
                 });
 
                 this.totalWinningScore =

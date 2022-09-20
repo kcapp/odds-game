@@ -111,6 +111,10 @@ nav item.router-link-active {
     text-align: right;
 }
 
+.txtB {
+    vertical-align: bottom;
+}
+
 .smGreenHeader {
     font-size: 13px;
     color: #3aaa35;
