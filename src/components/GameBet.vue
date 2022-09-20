@@ -19,7 +19,7 @@
     </span>
     <br/>
     <span
-      :class="{ strike: bet.outcome !== 0 }">
+      :class="{ strike: bet.outcome && bet.outcome !== 0 }">
       <slot name="betDraw" /> <slot name="payoutDraw"
     /></span>
   </td>

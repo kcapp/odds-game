@@ -92,6 +92,13 @@ export default {
       return {};
     },
   },
+  updated() {
+    const hash = this.$route.hash;
+    if(hash){
+      let matchId = hash.substring(1, hash.length);
+      document.getElementById(`form-match-${matchId}`).scrollIntoView();
+    }
+  },
   mounted() {
     this.resetBalance();
 
@@ -357,7 +364,7 @@ export default {
 </script>
 
 <template>
-  <div :class="{ gameDivLive: this.live, gameDiv: !this.live }">
+  <div :class="{ gameDivLive: this.live, gameDiv: !this.live }" v-bind:id="`form-match-${this.game.id}`">
     <form @submit.prevent="postBet()">
       <table class="txtL">
         <tr>
