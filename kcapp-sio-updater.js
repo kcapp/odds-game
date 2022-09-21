@@ -39,7 +39,6 @@ axios
   debug(error);
 });
 
-
 debug(`Updating all finished matches for office ${VITE_OFFICE_ID}`);
 axios.
 get(`${VITE_KCAPP_API}/tournament/current/${VITE_OFFICE_ID}`).then((response) => {
@@ -86,28 +85,55 @@ get(`${VITE_KCAPP_API}/tournament/current/${VITE_OFFICE_ID}`).then((response) =>
   debug(error);
 });
 
+
+function markMatchStart(match) {
+  if (!finishedTournaments.has(match.tournament_id)) {
+    debug(`Marking tournament ${match.tournament_id} as started`);
+    axios.post(`${VITE_ODDS_API}/tournament/${match.tournament_id}/start`).then((response) => {
+        debug(`Updated Odds-API with tournament ${match.tournament_id} started`);
+        finishedTournaments.add(match.tournament_id);
+      })
+      .catch((error) => {
+        debug(error);
+      });
+  }
+
+  axios.post(`${VITE_ODDS_API}/games/${match.id}/start`).then((response) => {
+    debug(`Updated Odds-API with match ${match.id} started`);
+  })
+  .catch((error) => {
+    debug(error);
+  });
+}
+
+const warmupMatches = new Set();
 kcapp.connect(() => {
   kcapp.on("warmup_started", (data) => {
     const match = data.match;
-    debug(`warmup_started for match ${match.id}`);
-
-    if (!finishedTournaments.has(match.tournament_id)) {
-      debug(`Marking tournament ${match.tournament_id} as started`);
-      axios.post(`${VITE_ODDS_API}/tournament/${match.tournament_id}/start`).then((response) => {
-          debug(`Updated Odds-API with tournament ${match.tournament_id} started`);
-          finishedTournaments.add(match.tournament_id);
-        })
-        .catch((error) => {
-          debug(error);
-        });
+    if (!match.tournament) {
+      return; // We don't care about unofficial matches
     }
 
-    axios.post(`${VITE_ODDS_API}/games/${match.id}/start`).then((response) => {
-      debug(`Updated Odds-API with match ${match.id} started`);
-    })
-    .catch((error) => {
-      debug(error);
-    });
+    if (!warmupMatches.has(match.id)) {
+      warmupMatches.add(match.id);
+
+      if (match.tournament.is_playoffs) {
+        markMatchStart(match);
+      } else {
+        debug(`warmup_started for match ${match.id}`);
+        kcapp.connectLegNamespace(match.current_leg_id, (leg) => {
+          leg.on("score_update", (data) => {
+            const players = data.players;
+            if (players[0].current_score < 171 || players[1].current_score < 171) {
+              debug("Scores are below 171, disabling betting for match");
+              leg.disconnect(); // We don't care about further scores
+              markMatchStart(match);
+            }
+          });
+        });
+      }
+
+    }
   });
 
   kcapp.on("leg_finished", (data) => {

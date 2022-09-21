@@ -449,7 +449,6 @@ export default {
             <span
               v-if="
                 game.is_finished ||
-                this.live ||
                 this.tournamentFinished ||
                 this.betsOff
               "
@@ -531,7 +530,6 @@ export default {
             <span
               v-if="
                 game.is_finished ||
-                this.live ||
                 this.tournamentFinished ||
                 this.betsOff
               "
@@ -607,7 +605,6 @@ export default {
             <span
               v-if="
                 game.is_finished ||
-                this.live ||
                 this.tournamentFinished ||
                 this.betsOff
               "
@@ -653,7 +650,7 @@ export default {
           <td class="smallText">
             <div
               v-if="
-                !this.live && !this.game.is_finished && !this.tournamentFinished
+                !this.game.is_finished && !this.tournamentFinished
               "
             >
               <button
@@ -662,7 +659,6 @@ export default {
                 class="smSaveLabel"
                 v-if="
                   !this.game.is_finished &&
-                  !this.live &&
                   !this.betsOff &&
                   !this.tournamentFinished
                 "
