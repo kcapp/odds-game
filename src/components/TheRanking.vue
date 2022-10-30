@@ -45,19 +45,15 @@
                 <span
                   :class="{
                     colPlus:
-                      item.tournament_coins_won - item.tournament_coins_closed >
-                      0,
+                      (item.coins_available - 1000) / item.bets_closed > 0,
                     colMinus:
-                      item.tournament_coins_won - item.tournament_coins_closed <
-                      0,
+                      (item.coins_available - 1000) / item.bets_closed < 0,
                   }"
                 >
                   {{
-                    (
-                      (item.tournament_coins_won -
-                        item.tournament_coins_closed) /
-                      item.bets_closed
-                    ).toFixed(2)
+                    ((item.coins_available - 1000) / item.bets_closed).toFixed(
+                      2
+                    )
                   }}
                 </span>
               </template>

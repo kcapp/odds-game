@@ -2,8 +2,20 @@
   <div class="m10">
     <div class="gameDiv">
       <div class="tournamentTitle">
-        Tournament Match Bets Ranking:
-        {{ this.tournament ? this.tournament.name : "Unknown" }}
+        <table class="w100pc">
+          <tr>
+            <td>
+              Tournament Match Bets Ranking:
+              {{ this.tournament ? this.tournament.name : "Unknown" }}
+            </td>
+            <td class="txtR w60">
+              <select style="display: inline" class="textInput selectName">
+                <option value="0">public</option>
+                <option value="1">my standings one</option>
+              </select>
+            </td>
+          </tr>
+        </table>
       </div>
       <div class="pt20">
         <table class="rankingTable">
@@ -55,10 +67,9 @@
                   }"
                 >
                   {{
-                    (
-                      (item.coins_won - item.coins_bets_closed) /
-                      item.bets_closed
-                    ).toFixed(2)
+                    ((item.coins_available - 1000) / item.bets_closed).toFixed(
+                      2
+                    )
                   }}
                 </span>
               </template>
