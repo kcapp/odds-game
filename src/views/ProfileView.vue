@@ -357,6 +357,9 @@ export default {
           axios.spread((tournaments, currentTournament) => {
             this.tournaments = tournaments.data;
             this.selectedTournamentId = currentTournament.data.id;
+            if (!this.selectedTournamentId) {
+              this.selectedTournamentId = this.tournaments[0].id;
+            }
 
             // Get the rest of the data after we fetch current tournament id
             this.getUserData(this.currentUser.user_id);
@@ -455,7 +458,6 @@ export default {
                 this.bets.push(item);
               }
             });
-            console.log(this.bets);
 
             this.results = results.data;
           })
