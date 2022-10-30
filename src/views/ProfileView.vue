@@ -504,14 +504,6 @@ export default {
   color: #6d6d6d;
 }
 
-.colPlus {
-  color: #3aaa35;
-}
-
-.colMinus {
-  color: #6d6d6d;
-}
-
 h1 {
   font-size: 40px;
   font-weight: 300;
