@@ -2,14 +2,13 @@
 import axios from "axios";
 import TheBoardIcon from "@/components/TheBoardIcon.vue";
 import TheCoin from "@/components/TheCoin.vue";
-import TheTooltip from "@/components/TheTooltip.vue";
+//import TheTooltip from "@/components/TheTooltip.vue";
 import TheOddsDiffLabel from "@/components/TheOddsDiffLabel.vue";
 import TheInitials from "@/components/TheInitials.vue";
 export default {
   components: {
     TheInitials,
     TheOddsDiffLabel,
-    TheTooltip,
     TheCoin,
     TheBoardIcon,
   },
@@ -64,10 +63,10 @@ export default {
   computed: {
     player1BetResult() {
       let b1 = this.gameBets
-      ? this.gameBets.player_1 === this.players[0]
-        ? this.gameBets.odds_1
-        : this.gameBets.odds_2
-      : this.game.player_odds[this.game.players[0]];
+        ? this.gameBets.player_1 === this.players[0]
+          ? this.gameBets.odds_1
+          : this.gameBets.odds_2
+        : this.game.player_odds[this.game.players[0]];
       return (this.player1Bet * b1).toFixed(this.floatingDigits);
     },
     player2BetResult() {
@@ -94,7 +93,7 @@ export default {
   },
   updated() {
     const hash = this.$route.hash;
-    if(hash){
+    if (hash) {
       let matchId = hash.substring(1, hash.length);
       document.getElementById(`form-match-${matchId}`).scrollIntoView();
     }
@@ -319,7 +318,9 @@ export default {
         odds_1: parseFloat(
           this.game.player_odds[[this.game.players[0]]].toFixed(3)
         ),
-        odds_x: this.game.player_odds[0] ? parseFloat(this.game.player_odds[0].toFixed(3)) : null,
+        odds_x: this.game.player_odds[0]
+          ? parseFloat(this.game.player_odds[0].toFixed(3))
+          : null,
         odds_2: parseFloat(
           this.game.player_odds[[this.game.players[1]]].toFixed(3)
         ),
@@ -364,7 +365,10 @@ export default {
 </script>
 
 <template>
-  <div :class="{ gameDivLive: this.live, gameDiv: !this.live }" v-bind:id="`form-match-${this.game.id}`">
+  <div
+    :class="{ gameDivLive: this.live, gameDiv: !this.live }"
+    v-bind:id="`form-match-${this.game.id}`"
+  >
     <form @submit.prevent="postBet()">
       <table class="txtL">
         <tr>
@@ -381,13 +385,7 @@ export default {
             <span
               v-if="isOddsChanged() && !this.game.is_finished && !this.live"
             >
-              <TheTooltip
-                text="Odds for this match have changed (new odds below).
-                  If you choose to use new odds, adjust your bet and click save button.
-                  Both odds are updated."
-              >
-                <i class="fa-solid fa-circle-info"></i></TheTooltip
-            ></span>
+            </span>
           </td>
           <td class="smallText">&nbsp;</td>
           <td class="pl10 smallText smGreenHeader">your bet</td>
@@ -447,11 +445,7 @@ export default {
           </td>
           <td class="pl10 txtC">
             <span
-              v-if="
-                game.is_finished ||
-                this.tournamentFinished ||
-                this.betsOff
-              "
+              v-if="game.is_finished || this.tournamentFinished || this.betsOff"
               class="txtC"
             >
               {{ this.player1Bet }}
@@ -528,11 +522,7 @@ export default {
           </td>
           <td class="pl10 txtC">
             <span
-              v-if="
-                game.is_finished ||
-                this.tournamentFinished ||
-                this.betsOff
-              "
+              v-if="game.is_finished || this.tournamentFinished || this.betsOff"
               class="txtC"
             >
               {{ this.drawBet }}
@@ -603,11 +593,7 @@ export default {
           </td>
           <td class="pl10 txtC">
             <span
-              v-if="
-                game.is_finished ||
-                this.tournamentFinished ||
-                this.betsOff
-              "
+              v-if="game.is_finished || this.tournamentFinished || this.betsOff"
               class="txtC"
             >
               {{ this.player2Bet }}
@@ -648,11 +634,7 @@ export default {
         </tr>
         <tr>
           <td class="smallText">
-            <div
-              v-if="
-                !this.game.is_finished && !this.tournamentFinished
-              "
-            >
+            <div v-if="!this.game.is_finished && !this.tournamentFinished">
               <button
                 :disabled="!this.enabledSave"
                 type="submit"
