@@ -340,6 +340,7 @@ export default {
       this.$router.push("/login");
     } else {
       this.requires_change = this.currentUser.requires_change;
+      let res;
       axios
         .all([
           axios.get(
@@ -367,6 +368,21 @@ export default {
         )
         .catch((error) => {
           console.log("Error when getting data for tournaments " + error);
+        })
+        .finally(() => {
+          axios
+            .get(
+              import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+                "/tournament/office/" +
+                import.meta.env.VITE_OFFICE_ID
+            )
+            .then((tournaments) => {
+              this.tournaments = tournaments.data;
+              this.selectedTournamentId = this.tournaments[0].id;
+
+              // Get the rest of the data after we fetch current tournament id
+              this.getUserData(this.currentUser.user_id);
+            });
         });
     }
   },
