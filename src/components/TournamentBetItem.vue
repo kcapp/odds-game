@@ -11,7 +11,7 @@
     <RouterLink :to="{ name: 'betsId', params: { id: this.tournament.id } }"
       >match bets</RouterLink
     >
-    <span v-if="tournament.is_playoffs">
+    <span>
       .
       <RouterLink
         :to="{
