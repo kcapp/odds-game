@@ -9,9 +9,22 @@
               {{ this.tournament ? this.tournament.name : "Unknown" }}
             </td>
             <td class="txtR w60">
-              <select style="display: inline" class="textInput selectName">
-                <option value="0">public</option>
-                <option value="1">my standings one</option>
+              <select
+                style="display: table"
+                class="textInput selectName"
+                @change="getCustomRanking()"
+                v-model="this.selectedLeaderboardId"
+              >
+                <option selected value="0">Public</option>
+                <template v-for="(leaderboard, index) in this.leaderboards">
+                  <option
+                    :value="leaderboard.id"
+                    v-bind:key="leaderboard.id"
+                    v-if="leaderboard"
+                  >
+                    {{ leaderboard.name }}
+                  </option>
+                </template>
               </select>
             </td>
           </tr>
@@ -29,10 +42,7 @@
             <td class="juicyGreen txtR">total potential</td>
             <td class="juicyGreen txtR">avg coins / bet</td>
           </tr>
-          <tr
-            v-for="(item, index) in this.nonCheatersRanking"
-            v-bind:key="index"
-          >
+          <tr v-for="(item, index) in this.customRanking" v-bind:key="index">
             <RankingItem>
               <template #index>{{ index + 1 }}.</template>
               <template #playerName>
@@ -139,10 +149,39 @@
 
 <script>
 import RankingItem from "@/components/RankingItem.vue";
+import axios from "axios";
 export default {
+  data() {
+    return {
+      selectedLeaderboardId: 0,
+      leaderboards: [],
+      tournamentId: 0,
+      customRanking: null,
+    };
+  },
   components: { RankingItem },
   props: ["tournament", "ranking", "cheatersRanking", "nonCheatersRanking"],
   methods: {
+    getCustomRanking() {
+      if (parseInt(this.selectedLeaderboardId) === 0) {
+        this.customRanking = this.ranking;
+      } else {
+        axios
+          .get(
+            import.meta.env.VITE_ODDS_API_PROXY_STRING +
+              "/tournament/" +
+              this.tournamentId +
+              "/gameranking/" +
+              this.selectedLeaderboardId
+          )
+          .then((customRanking) => {
+            this.customRanking = customRanking.data;
+          })
+          .catch((error) => {
+            console.log("Error when getting data for leaderboards " + error);
+          });
+      }
+    },
     hasCheaters() {
       let numCheaters = 0;
       this.ranking.forEach((item) => {
@@ -152,6 +191,45 @@ export default {
       });
       return numCheaters;
     },
+  },
+  computed: {
+    currentUser() {
+      if (this.$store.state.auth.user) {
+        return JSON.parse(localStorage.getItem("user"));
+      }
+      return {};
+    },
+  },
+  mounted() {
+    if (!this.currentUser) {
+      this.$router.push("/login");
+    } else {
+      this.customRanking = this.nonCheatersRanking;
+      axios
+        .get(
+          import.meta.env.VITE_KCAPP_API_PROXY_STRING +
+            "/tournament/current/" +
+            import.meta.env.VITE_OFFICE_ID
+        )
+        .then((tournament) => {
+          this.tournamentId = tournament.data.id;
+          const currentUser = JSON.parse(localStorage.getItem("user"));
+          axios
+            .get(
+              import.meta.env.VITE_ODDS_API_PROXY_STRING +
+                "/leaderboards/games/" +
+                tournament.data.id +
+                "/" +
+                currentUser.user_id
+            )
+            .then((leaderboards) => {
+              this.leaderboards = leaderboards.data;
+            });
+        })
+        .catch((error) => {
+          console.log("Error when getting data for leaderboards " + error);
+        });
+    }
   },
 };
 </script>
