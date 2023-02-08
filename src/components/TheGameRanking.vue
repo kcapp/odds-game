@@ -77,9 +77,7 @@
                   }"
                 >
                   {{
-                    ((item.coins_available - 1000) / item.bets_closed).toFixed(
-                      2
-                    )
+                    ((item.coins_won - item.coins_bets_closed) / item.bets_closed).toFixed(2)
                   }}
                 </span>
               </template>
