@@ -117,22 +117,23 @@ kcapp.connect(() => {
     if (!warmupMatches.has(match.id)) {
       warmupMatches.add(match.id);
 
-      if (match.tournament.is_playoffs) {
-        markMatchStart(match);
-      } else {
-        debug(`warmup_started for match ${match.id}`);
-        kcapp.connectLegNamespace(match.current_leg_id, (leg) => {
-          leg.on("score_update", (data) => {
+      debug(`warmup_started for match ${match.id}`);
+      kcapp.connectLegNamespace(match.current_leg_id, (leg) => {
+        leg.on("score_update", (data) => {
+          if (match.tournament.is_playoffs) {
+            debug("First darts thrown, disabling betting for match");
+            markMatchStart(match);
+            leg.disconnect(); // We don't care about further scores
+          } else {
             const players = data.players;
             if (players[0].current_score < 171 || players[1].current_score < 171) {
               debug("Scores are below 171, disabling betting for match");
               leg.disconnect(); // We don't care about further scores
               markMatchStart(match);
             }
-          });
+          }
         });
-      }
-
+      });
     }
   });
 
