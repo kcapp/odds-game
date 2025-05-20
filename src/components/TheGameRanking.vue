@@ -1,185 +1,70 @@
 <template>
-  <div class="m10">
-    <div class="gameDiv">
-      <div class="tournamentTitle">
-        <table class="w100pc">
-          <tr>
-            <td>
-              Tournament Match Bets Ranking:
-              {{ this.tournament ? this.tournament.name : "Unknown" }}
-            </td>
-            <td class="txtR w60">
-              <select
-                style="display: table"
-                class="textInput selectName"
-                @change="getCustomRanking()"
-                v-model="this.selectedLeaderboardId"
-              >
-                <option selected value="0">Public</option>
-                <template v-for="(leaderboard, index) in this.leaderboards">
-                  <option
-                    :value="leaderboard.id"
-                    v-bind:key="leaderboard.id"
-                    v-if="leaderboard"
-                  >
-                    {{ leaderboard.name }}
-                  </option>
-                </template>
-              </select>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="pt20">
-        <table class="rankingTable">
-          <tr>
-            <td class="juicyGreen pr10">#</td>
-            <td class="juicyGreen">user</td>
-            <td class="juicyGreen txtC" colspan="3">
-              coins available (open bets)
-            </td>
-            <td class="juicyGreen txtC">bets placed</td>
-            <td class="juicyGreen txtR">total potential</td>
-            <td class="juicyGreen txtR">avg coins / bet</td>
-          </tr>
-          <tr v-for="(item, index) in this.customRanking" v-bind:key="index">
-            <RankingItem>
-              <template #index>{{ index + 1 }}.</template>
-              <template #playerName>
-                {{ item.first_name }} {{ item.last_name }}
-                <span v-if="item.is_cheater">
-                  <i class="fa-solid fa-poo"></i>
-                </span>
-              </template>
-              <template #coins>
-                {{ item.coins_available.toFixed(2) }}
-              </template>
-              <template #coinsInActiveBets>
-                {{ item.coins_bets_open }}
-              </template>
-              <template #betsPlaced>
-                {{ item.bets_placed }}
-              </template>
-              <template #totalPotential>
-                {{
-                  (
-                    item.coins_available +
-                    item.coins_bets_open +
-                    item.potential_winnings
-                  ).toFixed(2)
-                }}
-              </template>
-              <template #avgWin v-if="item.bets_closed > 0">
-                <span
-                  :class="{
-                    colPlus: item.coins_won - item.coins_bets_closed > 0,
-                    colMinus: item.coins_won - item.coins_bets_closed < 0,
-                  }"
-                >
-                  {{
-                    ((item.coins_won - item.coins_bets_closed) / item.bets_closed).toFixed(2)
-                  }}
-                </span>
-              </template>
-              <template #avgWin v-else>
-                {{ (0).toFixed(2) }}
-              </template>
-            </RankingItem>
-          </tr>
-          <tr v-if="this.hasCheaters()">
-            <td colspan="8" style="padding-top: 20px; color: white">
-              CHEATERS
-            </td>
-          </tr>
-          <tr
-            v-for="(item, index) in this.cheatersRanking"
-            v-bind:key="index"
-            style="overflow: hidden"
-          >
-            <RankingItem>
-              <template #index><i class="fa-solid fa-poo"></i></template>
-              <template #playerName>
-                {{ item.first_name }} {{ item.last_name }}
-              </template>
-              <template #coins>
-                {{ item.coins_available.toFixed(2) }}
-              </template>
-              <template #coinsInActiveBets>
-                {{ item.coins_bets_open }}
-              </template>
-              <template #betsPlaced>
-                {{ item.bets_placed }}
-              </template>
-              <template #totalPotential>
-                {{
-                  (
-                    item.coins_available +
-                    item.coins_bets_open +
-                    item.potential_winnings
-                  ).toFixed(2)
-                }}
-              </template>
-              <template #avgWin v-if="item.bets_closed > 0">
-                <span
-                  :class="{
-                    colPlus: item.coins_won - item.coins_bets_closed > 0,
-                    colMinus: item.coins_won - item.coins_bets_closed < 0,
-                  }"
-                >
-                  {{
-                    (
-                      (item.coins_won - item.coins_bets_closed) /
-                      item.bets_closed
-                    ).toFixed(2)
-                  }}
-                </span>
-              </template>
-              <template #avgWin v-else>
-                {{ (0).toFixed(2) }}
-              </template>
-            </RankingItem>
-          </tr>
-        </table>
+  <div class="mt-8 px-4">
+    <div class="w-full max-w-7xl mx-auto">
+      <div class="bg-gray-800 rounded-lg shadow-xl p-6">
+        <div class="flex flex-col mb-4">
+          <h2 class="text-lg font-semibold text-white bg-gray-700 px-4 py-2 rounded w-full">
+            Tournament Match Bets Ranking: {{ this.tournament ? this.tournament.name : "Unknown" }}
+          </h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="text-white">
+                <th class="py-1 text-left">#</th>
+                <th class="py-1 text-left">User</th>
+                <th class="py-1 text-right">Coins Available</th>
+                <th class="py-1 text-center">Open Bets</th>
+                <th class="py-1 text-center">Bets Placed</th>
+                <th class="py-1 text-right">Total Potential</th>
+                <th class="py-1 text-right">Avg Coins/Bet</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in this.customRanking" :key="index" class="border-t border-gray-700">
+                <td class="py-1 text-gray-400">{{ index + 1 }}.</td>
+                <td class="py-1 text-gray-400">
+                  {{ item.first_name }} {{ item.last_name }}
+                </td>
+                <td class="py-1 text-right" :class="{
+                  'text-red-500': item.coins_available < 0,
+                  'text-green-500': item.coins_available > 0,
+                  'text-gray-400': item.coins_available === 0
+                }">
+                  {{ item.coins_available.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,/g, ' ') }}
+                </td>
+                <td class="py-1 text-center text-gray-400">{{ item.coins_bets_open.toLocaleString('en-US', { maximumFractionDigits: 0 }).replace(/,/g, ' ') }}</td>
+                <td class="py-1 text-center text-gray-400">{{ item.bets_placed }}</td>
+                <td class="py-1 text-right text-gray-400">
+                  {{ (item.coins_available + item.tournament_coins_open + item.potential_winnings).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,/g, ' ') }}
+                </td>
+                <td class="py-1 text-right" :class="{
+                  'text-red-500': item.bets_closed > 0 && (item.coins_won - item.coins_bets_closed) < 0,
+                  'text-green-500': item.bets_closed > 0 && (item.coins_won - item.coins_bets_closed) > 0,
+                  'text-gray-400': item.bets_closed === 0
+                }">
+                  {{ item.bets_closed > 0 ? ((item.coins_won - item.coins_bets_closed) / item.bets_closed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,/g, ' ') : "0.00" }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import RankingItem from "@/components/RankingItem.vue";
 import axios from "axios";
 export default {
   data() {
     return {
-      selectedLeaderboardId: 0,
-      leaderboards: [],
       tournamentId: 0,
       customRanking: null,
     };
   },
-  components: { RankingItem },
   props: ["tournament", "ranking", "cheatersRanking", "nonCheatersRanking"],
   methods: {
-    getCustomRanking() {
-      if (parseInt(this.selectedLeaderboardId) === 0) {
-        this.customRanking = this.ranking;
-      } else {
-        axios
-          .get(
-            import.meta.env.VITE_ODDS_API_PROXY_STRING +
-              "/tournament/" +
-              this.tournamentId +
-              "/gameranking/" +
-              this.selectedLeaderboardId
-          )
-          .then((customRanking) => {
-            this.customRanking = customRanking.data;
-          })
-          .catch((error) => {
-            console.log("Error when getting data for leaderboards " + error);
-          });
-      }
-    },
     hasCheaters() {
       let numCheaters = 0;
       this.ranking.forEach((item) => {
@@ -211,18 +96,6 @@ export default {
         )
         .then((tournament) => {
           this.tournamentId = tournament.data.id;
-          const currentUser = JSON.parse(localStorage.getItem("user"));
-          axios
-            .get(
-              import.meta.env.VITE_ODDS_API_PROXY_STRING +
-                "/leaderboards/games/" +
-                tournament.data.id +
-                "/" +
-                currentUser.user_id
-            )
-            .then((leaderboards) => {
-              this.leaderboards = leaderboards.data;
-            });
         })
         .catch((error) => {
           console.log("Error when getting data for leaderboards " + error);
@@ -231,10 +104,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.rankingTable {
-  width: 100%;
-  padding: 10px 20px;
-}
-</style>
