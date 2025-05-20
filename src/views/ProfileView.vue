@@ -1,345 +1,183 @@
 <template>
-  <div class="m10">
-    <div class="passwordWarning" v-if="currentUser.requires_change">
-      You are using starter password. Please change it
-      <RouterLink style="color: black" to="/changepass">here</RouterLink>.
-    </div>
-    <table
-      class="profileTable profileBlockFill"
-      v-if="this.userData && (this.coins || this.coins >= 0)"
-    >
-      <tr>
-        <td style="width: 100%">
-          <table>
-            <tr>
-              <td class="pl20">
-                <div>
-                  <div>
-                    <div class="profilePictureCircleWrapper">
-                      <div class="profilePictureContent">
-                        <img
-                          class="profileImg"
-                          v-bind:src="
-                            'https://darts.sportradar.ag' +
-                            this.profilePictureUrl
-                          "
-                          v-if="
-                            this.profilePictureUrl &&
-                            this.profilePictureUrl.startsWith('/')
-                          "
-                          @error="$event.target.src = this.placeholderImage"
-                        />
-                        <img
-                          class="profileImg"
-                          v-bind:src="this.profilePictureUrl"
-                          v-else-if="
-                            this.profilePictureUrl &&
-                            this.profilePictureUrl.startsWith('https://')
-                          "
-                          @error="$event.target.src = this.placeholderImage"
-                        />
-                        <i class="fa-solid fa-robot" v-else></i>
-                      </div>
-                    </div>
-                    <div class="profileName pt20 txtC">
-                      <h3 class="colWhite noMargin">
-                        {{ this.userData.first_name }}
-                      </h3>
-                      <h2 class="colWhite noMargin">
-                        {{ this.userData.last_name }}
-                      </h2>
-                    </div>
-                    <div class="pt20 txtC" v-if="!currentUser.requires_change">
-                      <RouterLink to="/changepass">change password</RouterLink>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td style="padding-left: 50px">
-                <div style="padding-bottom: 10px; color: white">
-                  Select tournament
-                </div>
-                <div style="padding-bottom: 10px">
-                  <select
-                    style="display: table"
-                    class="textInput selectName"
-                    @change="updateBetsData(this.currentUser.user_id)"
-                    v-model="this.selectedTournamentId"
-                  >
-                    <option disabled selected value="">
-                      Please select one
-                    </option>
-                    <template
-                      v-for="(tournament, index) in this.tournaments.filter(
-                        Boolean
-                      )"
-                    >
-                      <option
-                        :value="tournament.id"
-                        v-bind:key="tournament.id"
-                        v-if="tournament"
-                      >
-                        {{ tournament.name }}
-                      </option>
-                    </template>
-                  </select>
-                </div>
-                <div>
-                  <hr />
-                </div>
-                <div style="color: white; font-weight: 500">
-                  Match k-Coins balance
-                </div>
-                <div style="color: #575656">
-                  Coins earned by betting on match results.
-                </div>
-                <div style="padding: 10px 0px">
-                  <span class="ibDisplay"
-                    ><h1 class="noMargin">{{ this.coins.toFixed(2) }}</h1></span
-                  >
-                  <TheCoin></TheCoin>
-                </div>
-                <div style="color: white; font-weight: 500">
-                  Tournament k-Coins balance
-                </div>
-                <div style="color: #575656">
-                  Coins earned by betting on tournament outcomes and special
-                  bets.
-                </div>
-                <div style="padding: 10px 0px">
-                  <span class="ibDisplay"
-                    ><h1 class="noMargin">
-                      {{ this.tournamentCoins.toFixed(2) }}
-                    </h1></span
-                  >
-                  <TheCoin></TheCoin>
-                </div>
-              </td>
-            </tr>
-          </table>
-          <div class="profileBlockFill">
-            <div><hr /></div>
-            <div v-if="this.players && this.bets">
-              <table style="width: 100%">
-                <tr class="colWhite">
-                  <td class="txtR pr10">home player</td>
-                  <td class="txtC" colspan="3">bets</td>
-                  <td class="pl10">away player</td>
-                  <td>result</td>
-                  <td>status</td>
-                  <td>view options</td>
-                  <td class="txtC">result</td>
+  <div class="mt-8 px-4">
+    <div class="w-full max-w-7xl mx-auto">
+      <div class="bg-gray-800 rounded-lg shadow-xl p-6">
+        <div v-if="currentUser.requires_change" class="mb-4 p-3 bg-red-900/50 border border-red-800 rounded-md text-red-200 text-sm">
+          You are using starter password. Please change it
+          <RouterLink class="text-red-200 hover:text-red-100 underline" to="/changepass">here</RouterLink>.
+        </div>
+
+        <!-- Player Name Section -->
+        <div class="text-center mb-4">
+          <h1 class="text-2xl font-bold text-white">{{ userData.first_name }} {{ userData.last_name }}</h1>
+          <div v-if="!currentUser.requires_change" class="mt-2">
+            <RouterLink to="/changepass" class="text-sm text-blue-400 hover:text-blue-300">Change password</RouterLink>
+          </div>
+        </div>
+
+        <div class="border-b border-gray-700 mb-6"></div>
+
+        <!-- Tournament Selection -->
+        <div class="mb-6">
+          <p class="text-sm text-gray-300 mb-2">Select tournament</p>
+          <select
+            class="w-full px-3 py-1.5 bg-gray-700 border border-gray-600 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            @change="updateBetsData(currentUser.user_id)"
+            v-model="selectedTournamentId"
+          >
+            <option disabled selected value="">Please select one</option>
+            <template v-for="tournament in tournaments.filter(Boolean)">
+              <option :value="tournament.id" :key="tournament.id" v-if="tournament">
+                {{ tournament.name }}
+              </option>
+            </template>
+          </select>
+        </div>
+
+        <!-- Coin Balances -->
+        <div class="bg-gray-700/50 rounded-lg p-4 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm font-medium text-white">Match k-Coins balance</p>
+              <p class="text-sm text-gray-400">Coins earned by betting on match results.</p>
+              <div class="flex items-center mt-2">
+                <span class="text-2xl text-white">{{ coins.toFixed(2) }}</span>
+                <TheCoin class="ml-2" />
+              </div>
+            </div>
+
+            <div>
+              <p class="text-sm font-medium text-white">Tournament k-Coins balance</p>
+              <p class="text-sm text-gray-400">Coins earned by betting on tournament outcomes and special bets.</p>
+              <div class="flex items-center mt-2">
+                <span class="text-2xl text-white">{{ tournamentCoins.toFixed(2) }}</span>
+                <TheCoin class="ml-2" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Your Bets Section -->
+        <div class="bg-gray-800 rounded-lg p-4 mb-6">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="text-white">
+                  <th class="py-2 text-right">Home Player</th>
+                  <th class="py-2 text-center">Bets</th>
+                  <th class="py-2 text-left">Away Player</th>
+                  <th class="py-2 text-center">Score</th>
+                  <th class="py-2 text-center">Status</th>
+                  <th class="py-2 text-center">View Options</th>
+                  <th class="py-2 text-center">Bet Result</th>
                 </tr>
-                <tr>
-                  <td colspan="9">
-                    <hr />
+              </thead>
+              <tbody>
+                <tr v-for="bet in bets" :key="bet.id" class="border-t border-gray-700">
+                  <td class="py-2 text-gray-300 text-right" :class="{ 'text-green-400': bet.outcome === bet.player_1 }">
+                    {{ players[bet.player_1].first_name }} {{ players[bet.player_1].last_name }}
                   </td>
-                </tr>
-                <tr
-                  v-for="(bet, index) in this.bets"
-                  v-bind:key="index"
-                  class="colGray"
-                >
-                  <td
-                    class="txtR pr10"
-                    :class="{ juicyGreen: bet.outcome === bet.player_1 }"
-                  >
-                    {{ this.players[bet.player_1].first_name }}
-                    {{ this.players[bet.player_1].last_name }}
+                  <td class="py-2 text-gray-300 text-center">
+                    <div class="flex justify-center space-x-2">
+                      <span>{{ bet.bet_1 }}</span>
+                      <span>{{ bet.bet_x }}</span>
+                      <span>{{ bet.bet_2 }}</span>
+                    </div>
                   </td>
-                  <td class="txtR colWhite">{{ bet.bet_1 }}</td>
-                  <td class="txtC colWhite">{{ bet.bet_x }}</td>
-                  <td class="txtL colWhite">{{ bet.bet_2 }}</td>
-                  <td
-                    class="pl10"
-                    :class="{ juicyGreen: bet.outcome === bet.player_2 }"
-                  >
-                    {{ this.players[bet.player_2].first_name }}
-                    {{ this.players[bet.player_2].last_name }}
+                  <td class="py-2 text-gray-300 text-left" :class="{ 'text-green-400': bet.outcome === bet.player_2 }">
+                    {{ players[bet.player_2].first_name }} {{ players[bet.player_2].last_name }}
                   </td>
-                  <td class="colWhite">
+                  <td class="py-2 text-gray-300 text-center">
                     <template v-if="bet.outcome !== null">
-                      <span
-                        v-if="
-                          this.getGameResultById(bet.match_id).winner_id ===
-                          null
-                        "
-                      >
-                        {{ this.getGameResultById(bet.match_id).home_score }} :
-                        {{ this.getGameResultById(bet.match_id).away_score }}
+                      <span v-if="getGameResultById(bet.match_id).winner_id === null">
+                        {{ getGameResultById(bet.match_id).home_score }} : {{ getGameResultById(bet.match_id).away_score }}
                       </span>
-                      <span
-                        v-else-if="
-                          bet.player_1 ===
-                          this.getGameResultById(bet.match_id).winner_id
-                        "
-                      >
-                        {{
-                          Math.max(
-                            this.getGameResultById(bet.match_id).home_score,
-                            this.getGameResultById(bet.match_id).away_score
-                          )
-                        }}
-                        :
-                        {{
-                          Math.min(
-                            this.getGameResultById(bet.match_id).home_score,
-                            this.getGameResultById(bet.match_id).away_score
-                          )
-                        }}
+                      <span v-else-if="bet.player_1 === getGameResultById(bet.match_id).winner_id">
+                        {{ Math.max(getGameResultById(bet.match_id).home_score, getGameResultById(bet.match_id).away_score) }} :
+                        {{ Math.min(getGameResultById(bet.match_id).home_score, getGameResultById(bet.match_id).away_score) }}
                       </span>
-                      <span
-                        v-else-if="
-                          bet.player_2 ===
-                          this.getGameResultById(bet.match_id).winner_id
-                        "
-                      >
-                        {{
-                          Math.min(
-                            this.getGameResultById(bet.match_id).home_score,
-                            this.getGameResultById(bet.match_id).away_score
-                          )
-                        }}
-                        :
-                        {{
-                          Math.max(
-                            this.getGameResultById(bet.match_id).home_score,
-                            this.getGameResultById(bet.match_id).away_score
-                          )
-                        }}
+                      <span v-else-if="bet.player_2 === getGameResultById(bet.match_id).winner_id">
+                        {{ Math.min(getGameResultById(bet.match_id).home_score, getGameResultById(bet.match_id).away_score) }} :
+                        {{ Math.max(getGameResultById(bet.match_id).home_score, getGameResultById(bet.match_id).away_score) }}
                       </span>
                     </template>
                   </td>
-                  <td v-if="bet.outcome === undefined || bet.outcome === null">
-                    scheduled
+                  <td class="py-2 text-gray-300 text-center">
+                    <span v-if="bet.outcome === undefined || bet.outcome === null">scheduled</span>
+                    <span v-else-if="bet.outcome === bet.player_1 || bet.outcome === bet.player_2">finished</span>
+                    <span v-else-if="bet.outcome === 0">finished (draw)</span>
+                    <span v-else>unknown</span>
                   </td>
-                  <td
-                    class="colWhite"
-                    v-else-if="
-                      bet.outcome === bet.player_1 ||
-                      bet.outcome === bet.player_2
-                    "
-                  >
-                    finished
-                  </td>
-                  <td class="colWhite" v-else-if="bet.outcome === 0">
-                    finished (draw)
-                  </td>
-                  <td v-else>unknown</td>
-                  <td>
-                    <RouterLink
-                      :to="{ name: 'game', params: { id: bet.match_id } }"
-                      >odds</RouterLink
-                    >
-                    <span v-if="this.isFinished(bet)">
+                  <td class="py-2 text-center">
+                    <RouterLink :to="{ name: 'game', params: { id: bet.match_id } }" class="text-blue-400 hover:text-blue-300">odds</RouterLink>
+                    <span v-if="isFinished(bet)">
                       .
-                      <a
-                        :href="
-                          'https://darts.sportradar.ag/matches/' +
-                          bet.match_id +
-                          '/result'
-                        "
-                        target="_blank"
-                        >result</a
-                      >
+                      <a :href="'https://darts.sportradar.ag/matches/' + bet.match_id + '/result'" target="_blank" class="text-blue-400 hover:text-blue-300">result</a>
                     </span>
                     <span v-else>
                       .
-                      <a
-                        :href="
-                          'https://darts.sportradar.ag/matches/' +
-                          bet.match_id +
-                          '/spectate'
-                        "
-                        target="_blank"
-                        >spectate</a
-                      >
+                      <a :href="'https://darts.sportradar.ag/matches/' + bet.match_id + '/spectate'" target="_blank" class="text-blue-400 hover:text-blue-300">spectate</a>
                     </span>
                   </td>
-                  <td
-                    class="txtR colWhite"
-                    v-if="bet.outcome && bet.outcome === bet.player_1"
-                  >
-                    <span
-                      :class="{
-                        colPlus: this.getBet1Coins(bet) > 0,
-                        colMinus: this.getBet1Coins(bet) < 0,
-                      }"
-                      >{{ this.getBet1Coins(bet).toFixed(2) }}</span
-                    >
-                    <span class="pl20"><TheSmallCoin /></span>
-                  </td>
-                  <td
-                    class="txtR colWhite"
-                    v-else-if="bet.outcome && bet.outcome === bet.player_2"
-                  >
-                    <span
-                      :class="{
-                        colPlus: this.getBet2Coins(bet) > 0,
-                        colMinus: this.getBet2Coins(bet) < 0,
-                      }"
-                      >{{ this.getBet2Coins(bet).toFixed(2) }}</span
-                    >
-                    <span class="pl20"><TheSmallCoin /></span>
-                  </td>
-                  <td class="txtR colWhite" v-else-if="bet.outcome === 0">
-                    <span
-                      :class="{
-                        colPlus: this.getBetDrawCoins(bet) > 0,
-                        colMinus: this.getBetDrawCoins(bet) < 0,
-                      }"
-                      >{{ this.getBetDrawCoins(bet).toFixed(2) }}</span
-                    >
-                    <span class="pl20"><TheSmallCoin /></span>
+                  <td class="py-2 text-center">
+                    <template v-if="bet.outcome && bet.outcome === bet.player_1">
+                      <span :class="{ 'text-green-400': getBet1Coins(bet) > 0, 'text-red-400': getBet1Coins(bet) < 0 }">
+                        {{ getBet1Coins(bet).toFixed(2) }}
+                      </span>
+                      <TheSmallCoin class="ml-2" />
+                    </template>
+                    <template v-else-if="bet.outcome && bet.outcome === bet.player_2">
+                      <span :class="{ 'text-green-400': getBet2Coins(bet) > 0, 'text-red-400': getBet2Coins(bet) < 0 }">
+                        {{ getBet2Coins(bet).toFixed(2) }}
+                      </span>
+                      <TheSmallCoin class="ml-2" />
+                    </template>
+                    <template v-else-if="bet.outcome === 0">
+                      <span :class="{ 'text-green-400': getBetDrawCoins(bet) > 0, 'text-red-400': getBetDrawCoins(bet) < 0 }">
+                        {{ getBetDrawCoins(bet).toFixed(2) }}
+                      </span>
+                      <TheSmallCoin class="ml-2" />
+                    </template>
                   </td>
                 </tr>
-              </table>
-            </div>
+              </tbody>
+            </table>
           </div>
-        </td>
-      </tr>
-    </table>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 <script>
 import axios from "axios";
 import TheCoin from "../components/TheCoin.vue";
 import TheSmallCoin from "../components/TheSmallCoin.vue";
-import image from "../assets/user_placeholder.jpg";
+import User from "../models/user";
 
 export default {
   name: "UserProfile",
   components: { TheSmallCoin, TheCoin },
   data() {
     return {
-      placeholderImage: image,
+      currentUser: JSON.parse(localStorage.getItem("user")),
       userData: {
         first_name: "",
         last_name: "",
       },
       bets: [],
       players: [],
-      requires_change: true,
       coins: 0,
       tournamentCoins: 0,
       selectedTournamentId: 0,
-      profilePictureUrl: "",
       tournaments: [],
+      results: [],
     };
-  },
-  computed: {
-    currentUser() {
-      if (this.$store.state.auth.user) {
-        return JSON.parse(localStorage.getItem("user"));
-      }
-      return {};
-    },
   },
   mounted() {
     if (!this.currentUser) {
       this.$router.push("/login");
     } else {
-      this.requires_change = this.currentUser.requires_change;
       let res;
       axios
         .all([
@@ -415,13 +253,6 @@ export default {
     getBetDrawCoins(bet) {
       return bet.bet_x * bet.odds_x - (bet.bet_1 + bet.bet_2 + bet.bet_x);
     },
-    setProfilePictureUrl(s) {
-      if (s.startsWith("/")) {
-        this.profilePictureUrl = "https://darts.sportradar.ag" + s;
-      } else {
-        this.profilePictureUrl = s;
-      }
-    },
     getUserData(userId) {
       axios
         .all([
@@ -464,7 +295,7 @@ export default {
               userData.data.tournament_coins_won;
             this.userData.first_name = userData.data.first_name;
             this.userData.last_name = userData.data.last_name;
-            this.profilePictureUrl = kcappPlayer.data.profile_pic_url;
+
             this.players = players.data;
 
             // Filter bets by tournament
@@ -481,6 +312,10 @@ export default {
         .catch((error) => {
           console.log("Error when getting data for user " + error);
         });
+    },
+    getPlayerName(playerId) {
+      const player = this.players.find(p => p.id === playerId);
+      return player ? `${player.first_name} ${player.last_name}` : "Unknown Player";
     },
   },
 };

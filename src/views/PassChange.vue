@@ -1,35 +1,45 @@
 <template>
-  <div class="txtC">
-    <div class="loginFormDiv">
-      <h3>Password change</h3>
-      <form @submit.prevent="handlePassChange">
-        <input
-          v-model="p1"
-          placeholder="new password"
-          type="password"
-          class="textInput"
-        />
-        <br />
-        <br />
-        <input
-          v-model="p2"
-          placeholder="repeat new password"
-          type="password"
-          class="textInput"
-        />
-        <br />
-        <br />
-        <button type="submit" class="buttonGreen">change</button>
-        <div v-if="message" class="success" role="alert">
-          {{ message }}
-        </div>
-        <div v-if="errorMessage" class="error">
-          {{ message }}
-        </div>
-      </form>
+  <div class="mt-8 px-4">
+    <div class="w-full max-w-md mx-auto">
+      <div class="bg-gray-800 rounded-lg shadow-xl p-6">
+        <h2 class="text-base font-bold text-white mb-4 text-center">Change Password</h2>
+        <form @submit.prevent="handlePassChange" class="space-y-3">
+          <div>
+            <input
+              v-model="p1"
+              placeholder="new password"
+              type="password"
+              class="w-full px-3 py-1.5 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              required
+            />
+          </div>
+          <div>
+            <input
+              v-model="p2"
+              placeholder="repeat new password"
+              type="password"
+              class="w-full px-3 py-1.5 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded-md text-sm transition-colors"
+          >
+            change
+          </button>
+          <div v-if="message" class="mt-3 p-3 bg-green-900/50 border border-green-800 rounded-md text-green-200 text-xs">
+            {{ message }}
+          </div>
+          <div v-if="errorMessage" class="mt-3 p-3 bg-red-900/50 border border-red-800 rounded-md text-red-200 text-xs">
+            {{ errorMessage }}
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
+
 <script>
 import axios from "axios";
 import User from "@/models/user.js";
@@ -122,4 +132,4 @@ export default {
   padding: 20px 0px;
   color: #3aaa35;
 }
-</style>
+</style> 

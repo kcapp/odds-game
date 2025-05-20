@@ -1,6 +1,8 @@
 import { fileURLToPath, URL } from "url";
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
+import tailwindcss from 'tailwindcss'
+import autoprefixer from 'autoprefixer'
 
 export default defineConfig(({ command, mode }) => {
   // Load env file based on `mode` in the current working directory
@@ -10,6 +12,14 @@ export default defineConfig(({ command, mode }) => {
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
+      },
+    },
+    css: {
+      postcss: {
+        plugins: [
+          tailwindcss,
+          autoprefixer,
+        ],
       },
     },
     server: {
