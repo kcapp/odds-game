@@ -17,3 +17,11 @@ export async function getTournaments(sport: SportType = 'all'): Promise<AllTourn
 export async function getMatches(sport: 'table_tennis' | 'darts', tournamentId: number): Promise<MatchResponse> {
   return fetchWithAuth<MatchResponse>(`/matches?sport=${sport}&tournament_id=${tournamentId}`)
 }
+
+export async function getProbabilities(sport: 'table_tennis' | 'darts', tournamentId: number): Promise<any[]> {
+  return fetchWithAuth<any[]>(`/probabilities?sport=${sport}&tournament_id=${tournamentId}`)
+}
+
+export async function getPlayers(sport: 'table_tennis' | 'darts'): Promise<any[]> {
+  return fetchWithAuth<any[]>(`/players?sport=${sport}`)
+}
