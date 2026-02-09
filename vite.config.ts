@@ -3,6 +3,12 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  server: {
+    allowedHosts: [
+      'oddsgame.sportradar.ag',
+      'localhost'
+    ]
+  },
   plugins: [vue()],
   resolve: {
     alias: {
