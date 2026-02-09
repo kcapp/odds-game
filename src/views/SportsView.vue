@@ -7,6 +7,7 @@ import type { TableTennisTournament, DartsTournament } from '@/types/sports'
 const sportsStore = useSportsStore()
 const fetchedPlayoffTournaments = ref<DartsTournament[]>([])
 const selectedTournament = ref<{sport: 'table_tennis' | 'darts', tournament: TableTennisTournament | DartsTournament} | null>(null)
+const showInactiveTournaments = ref(false)
 
 onMounted(async () => {
   await sportsStore.fetchTournaments('all')
@@ -96,6 +97,23 @@ const sortedDartsTournaments = computed(() => {
   })
 })
 
+// Active and inactive tournaments
+const activeTableTennisTournaments = computed(() => 
+  sortedTableTennisTournaments.value.filter(t => !t.is_finished)
+)
+
+const inactiveTableTennisTournaments = computed(() => 
+  sortedTableTennisTournaments.value.filter(t => t.is_finished)
+)
+
+const activeDartsTournaments = computed(() => 
+  sortedDartsTournaments.value.filter(t => !t.is_finished)
+)
+
+const inactiveDartsTournaments = computed(() => 
+  sortedDartsTournaments.value.filter(t => t.is_finished)
+)
+
 // Helper to get playoff tournament for table tennis using parent_tournament_id
 function getTableTennisPlayoffTournament(tournament: TableTennisTournament): TableTennisTournament | null {
   if (tournament.is_playoffs) return null
@@ -124,7 +142,7 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
 </script>
 
 <template>
-  <div class="sports">
+  <div class="sports py-8 px-4 max-w-7xl mx-auto">
     <!-- Tournament Matches View -->
     <TournamentMatches 
       v-if="selectedTournament"
@@ -163,31 +181,27 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-700">
+          <!-- Active Tournaments -->
           <tr 
-            v-for="(_, index) in Math.max(sortedTableTennisTournaments.length, sortedDartsTournaments.length)"
-            :key="index"
+            v-for="(_, index) in Math.max(activeTableTennisTournaments.length, activeDartsTournaments.length)"
+            :key="`active-${index}`"
             class="hover:bg-gray-750 transition-colors"
           >
             <!-- Table Tennis Column -->
             <td class="px-6 py-4 align-top w-1/2">
               <div 
-                v-if="sortedTableTennisTournaments[index]" 
+                v-if="activeTableTennisTournaments[index]" 
                 class="space-y-1.5 cursor-pointer hover:bg-gray-700 p-3 rounded transition-colors"
-                @click="selectTournament('table_tennis', sortedTableTennisTournaments[index])"
+                @click="selectTournament('table_tennis', activeTableTennisTournaments[index])"
               >
                 <div class="flex items-start justify-between gap-2">
                   <h3 class="font-semibold text-base flex-1 text-white">
-                    {{ sortedTableTennisTournaments[index].name }}
+                    {{ activeTableTennisTournaments[index].name }}
                   </h3>
                   <span 
-                    :class="[
-                      'px-2 py-0.5 text-xs font-medium rounded flex-shrink-0',
-                      sortedTableTennisTournaments[index].is_finished 
-                        ? 'bg-gray-700 text-gray-300' 
-                        : 'bg-green-900 text-green-300'
-                    ]"
+                    class="px-2 py-0.5 text-xs font-medium rounded flex-shrink-0 bg-green-900 text-green-300"
                   >
-                    {{ sortedTableTennisTournaments[index].is_finished ? 'Finished' : 'Active' }}
+                    Active
                   </span>
                 </div>
                 
@@ -195,28 +209,28 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
                   <span 
                     :class="[
                       'px-2 py-0.5 rounded text-xs font-medium',
-                      sortedTableTennisTournaments[index].is_playoffs 
+                      activeTableTennisTournaments[index].is_playoffs 
                         ? 'bg-orange-900 text-orange-300' 
                         : 'bg-blue-900 text-blue-300'
                     ]"
                   >
-                    {{ sortedTableTennisTournaments[index].is_playoffs ? 'Playoffs' : 'Regular Season' }}
+                    {{ activeTableTennisTournaments[index].is_playoffs ? 'Playoffs' : 'Regular Season' }}
                   </span>
                   <span 
-                    v-if="!sortedTableTennisTournaments[index].is_playoffs && getTableTennisPlayoffTournament(sortedTableTennisTournaments[index])"
+                    v-if="!activeTableTennisTournaments[index].is_playoffs && getTableTennisPlayoffTournament(activeTableTennisTournaments[index])"
                     class="ml-2 text-xs text-gray-400"
                   >
-                    → Playoffs: {{ getTableTennisPlayoffTournament(sortedTableTennisTournaments[index])!.name }}
+                    → Playoffs: {{ getTableTennisPlayoffTournament(activeTableTennisTournaments[index])!.name }}
                   </span>
                 </div>
 
                 <div class="text-sm text-gray-400">
                   <span class="font-medium text-gray-300">Start:</span> 
-                  {{ formatDate(sortedTableTennisTournaments[index].start_time) }}
+                  {{ formatDate(activeTableTennisTournaments[index].start_time) }}
                   <span class="mx-2">•</span>
                   <span class="font-medium text-gray-300">End: </span>
-                  <span v-if="tableTennisEndDates[sortedTableTennisTournaments[index].id]">
-                    {{ formatDate(tableTennisEndDates[sortedTableTennisTournaments[index].id]) }}
+                  <span v-if="tableTennisEndDates[activeTableTennisTournaments[index].id]">
+                    {{ formatDate(tableTennisEndDates[activeTableTennisTournaments[index].id]) }}
                   </span>
                   <span v-else>-</span>
                 </div>
@@ -226,23 +240,18 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
             <!-- Darts Column -->
             <td class="px-6 py-4 align-top w-1/2">
               <div 
-                v-if="sortedDartsTournaments[index]" 
+                v-if="activeDartsTournaments[index]" 
                 class="space-y-1.5 cursor-pointer hover:bg-gray-700 p-3 rounded transition-colors"
-                @click="selectTournament('darts', sortedDartsTournaments[index])"
+                @click="selectTournament('darts', activeDartsTournaments[index])"
               >
                 <div class="flex items-start justify-between gap-2">
                   <h3 class="font-semibold text-base flex-1 text-white">
-                    {{ sortedDartsTournaments[index].name }}
+                    {{ activeDartsTournaments[index].name }}
                   </h3>
                   <span 
-                    :class="[
-                      'px-2 py-0.5 text-xs font-medium rounded flex-shrink-0',
-                      sortedDartsTournaments[index].is_finished 
-                        ? 'bg-gray-700 text-gray-300' 
-                        : 'bg-green-900 text-green-300'
-                    ]"
+                    class="px-2 py-0.5 text-xs font-medium rounded flex-shrink-0 bg-green-900 text-green-300"
                   >
-                    {{ sortedDartsTournaments[index].is_finished ? 'Finished' : 'Active' }}
+                    Active
                   </span>
                 </div>
                 
@@ -250,31 +259,163 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
                   <span 
                     :class="[
                       'px-2 py-0.5 rounded text-xs font-medium',
-                      sortedDartsTournaments[index].is_playoffs 
+                      activeDartsTournaments[index].is_playoffs 
                         ? 'bg-orange-900 text-orange-300' 
                         : 'bg-blue-900 text-blue-300'
                     ]"
                   >
-                    {{ sortedDartsTournaments[index].is_playoffs ? 'Playoffs' : 'Regular Season' }}
+                    {{ activeDartsTournaments[index].is_playoffs ? 'Playoffs' : 'Regular Season' }}
                   </span>
                   <span 
-                    v-if="sortedDartsTournaments[index].playoffs_tournament_id"
+                    v-if="activeDartsTournaments[index].playoffs_tournament_id"
                     class="ml-2 text-xs text-gray-400"
                   >
-                    → Playoffs: {{ getPlayoffTournamentName(sortedDartsTournaments[index].playoffs_tournament_id) }}
+                    → Playoffs: {{ getPlayoffTournamentName(activeDartsTournaments[index].playoffs_tournament_id) }}
                   </span>
                 </div>
 
                 <div class="text-sm text-gray-400">
                   <span class="font-medium text-gray-300">Start:</span> 
-                  {{ formatDate(sortedDartsTournaments[index].start_time) }}
+                  {{ formatDate(activeDartsTournaments[index].start_time) }}
                   <span class="mx-2">•</span>
                   <span class="font-medium text-gray-300">End:</span> 
-                  {{ formatDate(sortedDartsTournaments[index].end_time) }}
+                  {{ formatDate(activeDartsTournaments[index].end_time) }}
                 </div>
               </div>
             </td>
           </tr>
+
+          <!-- Inactive Tournaments Toggle Row -->
+          <tr 
+            v-if="inactiveTableTennisTournaments.length > 0 || inactiveDartsTournaments.length > 0"
+            class="border-t-2 border-gray-600"
+          >
+            <td colspan="2" class="px-6 py-3">
+              <button 
+                @click="showInactiveTournaments = !showInactiveTournaments"
+                class="w-full flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+              >
+                <svg 
+                  :class="['w-4 h-4 transition-transform', showInactiveTournaments ? 'rotate-180' : '']"
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                <span>
+                  {{ showInactiveTournaments ? 'Hide' : 'Show' }} Inactive Tournaments 
+                  ({{ inactiveTableTennisTournaments.length + inactiveDartsTournaments.length }})
+                </span>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Inactive Tournaments -->
+          <template v-if="showInactiveTournaments">
+            <tr 
+              v-for="(_, index) in Math.max(inactiveTableTennisTournaments.length, inactiveDartsTournaments.length)"
+              :key="`inactive-${index}`"
+              class="hover:bg-gray-750 transition-colors bg-gray-850"
+            >
+              <!-- Table Tennis Column -->
+              <td class="px-6 py-4 align-top w-1/2">
+                <div 
+                  v-if="inactiveTableTennisTournaments[index]" 
+                  class="space-y-1.5 cursor-pointer hover:bg-gray-700 p-3 rounded transition-colors opacity-75"
+                  @click="selectTournament('table_tennis', inactiveTableTennisTournaments[index])"
+                >
+                  <div class="flex items-start justify-between gap-2">
+                    <h3 class="font-semibold text-base flex-1 text-white">
+                      {{ inactiveTableTennisTournaments[index].name }}
+                    </h3>
+                    <span 
+                      class="px-2 py-0.5 text-xs font-medium rounded flex-shrink-0 bg-gray-700 text-gray-300"
+                    >
+                      Finished
+                    </span>
+                  </div>
+                  
+                  <div class="text-sm">
+                    <span 
+                      :class="[
+                        'px-2 py-0.5 rounded text-xs font-medium',
+                        inactiveTableTennisTournaments[index].is_playoffs 
+                          ? 'bg-orange-900 text-orange-300' 
+                          : 'bg-blue-900 text-blue-300'
+                      ]"
+                    >
+                      {{ inactiveTableTennisTournaments[index].is_playoffs ? 'Playoffs' : 'Regular Season' }}
+                    </span>
+                    <span 
+                      v-if="!inactiveTableTennisTournaments[index].is_playoffs && getTableTennisPlayoffTournament(inactiveTableTennisTournaments[index])"
+                      class="ml-2 text-xs text-gray-400"
+                    >
+                      → Playoffs: {{ getTableTennisPlayoffTournament(inactiveTableTennisTournaments[index])!.name }}
+                    </span>
+                  </div>
+
+                  <div class="text-sm text-gray-400">
+                    <span class="font-medium text-gray-300">Start:</span> 
+                    {{ formatDate(inactiveTableTennisTournaments[index].start_time) }}
+                    <span class="mx-2">•</span>
+                    <span class="font-medium text-gray-300">End: </span>
+                    <span v-if="tableTennisEndDates[inactiveTableTennisTournaments[index].id]">
+                      {{ formatDate(tableTennisEndDates[inactiveTableTennisTournaments[index].id]) }}
+                    </span>
+                    <span v-else>-</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Darts Column -->
+              <td class="px-6 py-4 align-top w-1/2">
+                <div 
+                  v-if="inactiveDartsTournaments[index]" 
+                  class="space-y-1.5 cursor-pointer hover:bg-gray-700 p-3 rounded transition-colors opacity-75"
+                  @click="selectTournament('darts', inactiveDartsTournaments[index])"
+                >
+                  <div class="flex items-start justify-between gap-2">
+                    <h3 class="font-semibold text-base flex-1 text-white">
+                      {{ inactiveDartsTournaments[index].name }}
+                    </h3>
+                    <span 
+                      class="px-2 py-0.5 text-xs font-medium rounded flex-shrink-0 bg-gray-700 text-gray-300"
+                    >
+                      Finished
+                    </span>
+                  </div>
+                  
+                  <div class="text-sm">
+                    <span 
+                      :class="[
+                        'px-2 py-0.5 rounded text-xs font-medium',
+                        inactiveDartsTournaments[index].is_playoffs 
+                          ? 'bg-orange-900 text-orange-300' 
+                          : 'bg-blue-900 text-blue-300'
+                      ]"
+                    >
+                      {{ inactiveDartsTournaments[index].is_playoffs ? 'Playoffs' : 'Regular Season' }}
+                    </span>
+                    <span 
+                      v-if="inactiveDartsTournaments[index].playoffs_tournament_id"
+                      class="ml-2 text-xs text-gray-400"
+                    >
+                      → Playoffs: {{ getPlayoffTournamentName(inactiveDartsTournaments[index].playoffs_tournament_id) }}
+                    </span>
+                  </div>
+
+                  <div class="text-sm text-gray-400">
+                    <span class="font-medium text-gray-300">Start:</span> 
+                    {{ formatDate(inactiveDartsTournaments[index].start_time) }}
+                    <span class="mx-2">•</span>
+                    <span class="font-medium text-gray-300">End:</span> 
+                    {{ formatDate(inactiveDartsTournaments[index].end_time) }}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -282,12 +423,14 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
     <!-- Mobile Card View -->
     <div class="lg:hidden space-y-6">
       <!-- Table Tennis Section -->
-      <div v-if="sortedTableTennisTournaments.length > 0">
+      <div v-if="activeTableTennisTournaments.length > 0 || inactiveTableTennisTournaments.length > 0">
         <h2 class="text-xl font-bold text-white mb-3">Table Tennis</h2>
-        <div class="space-y-3">
+        
+        <!-- Active Tournaments -->
+        <div v-if="activeTableTennisTournaments.length > 0" class="space-y-3 mb-4">
           <div 
-            v-for="tournament in sortedTableTennisTournaments"
-            :key="`tt-${tournament.id}`"
+            v-for="tournament in activeTableTennisTournaments"
+            :key="`tt-active-${tournament.id}`"
             class="bg-gray-800 rounded-lg p-4 shadow-lg cursor-pointer hover:bg-gray-700 transition-colors"
             @click="selectTournament('table_tennis', tournament)"
           >
@@ -296,14 +439,9 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
                 {{ tournament.name }}
               </h3>
               <span 
-                :class="[
-                  'px-2 py-0.5 text-xs font-medium rounded flex-shrink-0',
-                  tournament.is_finished 
-                    ? 'bg-gray-700 text-gray-300' 
-                    : 'bg-green-900 text-green-300'
-                ]"
+                class="px-2 py-0.5 text-xs font-medium rounded flex-shrink-0 bg-green-900 text-green-300"
               >
-                {{ tournament.is_finished ? 'Finished' : 'Active' }}
+                Active
               </span>
             </div>
             
@@ -341,15 +479,91 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
             </div>
           </div>
         </div>
+
+        <!-- Inactive Tournaments Toggle -->
+        <div v-if="inactiveTableTennisTournaments.length > 0">
+          <button 
+            @click="showInactiveTournaments = !showInactiveTournaments"
+            class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-800 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors mb-3"
+          >
+            <svg 
+              :class="['w-4 h-4 transition-transform', showInactiveTournaments ? 'rotate-180' : '']"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            <span>
+              {{ showInactiveTournaments ? 'Hide' : 'Show' }} Inactive Tournaments ({{ inactiveTableTennisTournaments.length }})
+            </span>
+          </button>
+
+          <!-- Inactive Tournaments List -->
+          <div v-if="showInactiveTournaments" class="space-y-3">
+            <div 
+              v-for="tournament in inactiveTableTennisTournaments"
+              :key="`tt-inactive-${tournament.id}`"
+              class="bg-gray-850 rounded-lg p-4 shadow-lg cursor-pointer hover:bg-gray-700 transition-colors opacity-75"
+              @click="selectTournament('table_tennis', tournament)"
+            >
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <h3 class="font-semibold text-base flex-1 text-white">
+                  {{ tournament.name }}
+                </h3>
+                <span 
+                  class="px-2 py-0.5 text-xs font-medium rounded flex-shrink-0 bg-gray-700 text-gray-300"
+                >
+                  Finished
+                </span>
+              </div>
+              
+              <div class="mb-2">
+                <span 
+                  :class="[
+                    'px-2 py-0.5 rounded text-xs font-medium',
+                    tournament.is_playoffs 
+                      ? 'bg-orange-900 text-orange-300' 
+                      : 'bg-blue-900 text-blue-300'
+                  ]"
+                >
+                  {{ tournament.is_playoffs ? 'Playoffs' : 'Regular Season' }}
+                </span>
+                <span 
+                  v-if="!tournament.is_playoffs && getTableTennisPlayoffTournament(tournament)"
+                  class="ml-2 text-xs text-gray-400"
+                >
+                  → {{ getTableTennisPlayoffTournament(tournament)!.name }}
+                </span>
+              </div>
+
+              <div class="text-sm text-gray-400">
+                <div>
+                  <span class="font-medium text-gray-300">Start:</span> 
+                  {{ formatDate(tournament.start_time) }}
+                </div>
+                <div>
+                  <span class="font-medium text-gray-300">End: </span>
+                  <span v-if="tableTennisEndDates[tournament.id]">
+                    {{ formatDate(tableTennisEndDates[tournament.id]) }}
+                  </span>
+                  <span v-else>-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Darts Section -->
-      <div v-if="sortedDartsTournaments.length > 0">
+      <div v-if="activeDartsTournaments.length > 0 || inactiveDartsTournaments.length > 0">
         <h2 class="text-xl font-bold text-white mb-3">Darts</h2>
-        <div class="space-y-3">
+        
+        <!-- Active Tournaments -->
+        <div v-if="activeDartsTournaments.length > 0" class="space-y-3 mb-4">
           <div 
-            v-for="tournament in sortedDartsTournaments"
-            :key="`darts-${tournament.id}`"
+            v-for="tournament in activeDartsTournaments"
+            :key="`darts-active-${tournament.id}`"
             class="bg-gray-800 rounded-lg p-4 shadow-lg cursor-pointer hover:bg-gray-700 transition-colors"
             @click="selectTournament('darts', tournament)"
           >
@@ -358,14 +572,9 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
                 {{ tournament.name }}
               </h3>
               <span 
-                :class="[
-                  'px-2 py-0.5 text-xs font-medium rounded flex-shrink-0',
-                  tournament.is_finished 
-                    ? 'bg-gray-700 text-gray-300' 
-                    : 'bg-green-900 text-green-300'
-                ]"
+                class="px-2 py-0.5 text-xs font-medium rounded flex-shrink-0 bg-green-900 text-green-300"
               >
-                {{ tournament.is_finished ? 'Finished' : 'Active' }}
+                Active
               </span>
             </div>
             
@@ -396,6 +605,77 @@ async function loadTableTennisEndDate(tournament: TableTennisTournament) {
               <div>
                 <span class="font-medium text-gray-300">End:</span> 
                 {{ formatDate(tournament.end_time) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inactive Tournaments Toggle -->
+        <div v-if="inactiveDartsTournaments.length > 0">
+          <button 
+            @click="showInactiveTournaments = !showInactiveTournaments"
+            class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-800 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors mb-3"
+          >
+            <svg 
+              :class="['w-4 h-4 transition-transform', showInactiveTournaments ? 'rotate-180' : '']"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            <span>
+              {{ showInactiveTournaments ? 'Hide' : 'Show' }} Inactive Tournaments ({{ inactiveDartsTournaments.length }})
+            </span>
+          </button>
+
+          <!-- Inactive Tournaments List -->
+          <div v-if="showInactiveTournaments" class="space-y-3">
+            <div 
+              v-for="tournament in inactiveDartsTournaments"
+              :key="`darts-inactive-${tournament.id}`"
+              class="bg-gray-850 rounded-lg p-4 shadow-lg cursor-pointer hover:bg-gray-700 transition-colors opacity-75"
+              @click="selectTournament('darts', tournament)"
+            >
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <h3 class="font-semibold text-base flex-1 text-white">
+                  {{ tournament.name }}
+                </h3>
+                <span 
+                  class="px-2 py-0.5 text-xs font-medium rounded flex-shrink-0 bg-gray-700 text-gray-300"
+                >
+                  Finished
+                </span>
+              </div>
+              
+              <div class="mb-2">
+                <span 
+                  :class="[
+                    'px-2 py-0.5 rounded text-xs font-medium',
+                    tournament.is_playoffs 
+                      ? 'bg-orange-900 text-orange-300' 
+                      : 'bg-blue-900 text-blue-300'
+                  ]"
+                >
+                  {{ tournament.is_playoffs ? 'Playoffs' : 'Regular Season' }}
+                </span>
+                <span 
+                  v-if="tournament.playoffs_tournament_id"
+                  class="ml-2 text-xs text-gray-400"
+                >
+                  → {{ getPlayoffTournamentName(tournament.playoffs_tournament_id) }}
+                </span>
+              </div>
+
+              <div class="text-sm text-gray-400">
+                <div>
+                  <span class="font-medium text-gray-300">Start:</span> 
+                  {{ formatDate(tournament.start_time) }}
+                </div>
+                <div>
+                  <span class="font-medium text-gray-300">End:</span> 
+                  {{ formatDate(tournament.end_time) }}
+                </div>
               </div>
             </div>
           </div>

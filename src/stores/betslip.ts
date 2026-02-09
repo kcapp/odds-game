@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '@/api'
 import { useUserStore } from './user'
-import { getBetslips, addToBetslip } from '@/api/betting'
+import { getBetslips, addToBetslip, deleteBetslip } from '@/api/betting'
 
 export interface BetSelection {
   sport: 'darts' | 'table_tennis'
@@ -21,6 +21,7 @@ export interface PendingBetslip {
   potential_win: number
   combined_odds: number
   status: string
+  bet_type: string
   placed_at: string
   bets: any[]
 }
@@ -112,7 +113,8 @@ export const useBetslipStore = defineStore('betslip', () => {
 
     const response = await api.post('/betslips', {
       bets,
-      stake: stake.value
+      stake: stake.value,
+      bet_type: 'betslip'  // Always mark as betslip when using betslip store
     })
 
     // Update balance in user store
@@ -150,6 +152,22 @@ export const useBetslipStore = defineStore('betslip', () => {
     return response
   }
 
+  async function removeBetslip(betslipId: number) {
+    const userStore = useUserStore()
+    
+    const response = await deleteBetslip({
+      betslip_id: betslipId
+    })
+
+    // Update balance in user store
+    await userStore.loadWallet()
+
+    // Reload pending betslips
+    await loadPendingBetslips()
+
+    return response
+  }
+
   return {
     selections,
     stake,
@@ -164,6 +182,7 @@ export const useBetslipStore = defineStore('betslip', () => {
     isInBetslip,
     placeBet,
     loadPendingBetslips,
-    addToExistingBetslip
+    addToExistingBetslip,
+    removeBetslip
   }
 })

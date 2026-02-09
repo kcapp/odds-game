@@ -22,7 +22,7 @@ const handleSubmit = async () => {
   <div class="min-h-screen flex items-center justify-center bg-gray-900 px-4">
     <div class="max-w-md w-full space-y-6">
       <div class="text-center">
-        <h1 class="text-2xl font-bold text-white mb-2">SBP</h1>
+        <h1 class="text-2xl font-bold text-white mb-2">Office Sports Odds Game</h1>
         <p class="text-gray-400 text-sm">Sign in to your account</p>
       </div>
 

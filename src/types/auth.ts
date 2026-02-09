@@ -5,6 +5,7 @@ export interface User {
   login: string
   requires_change: boolean
   is_cheater: number
+  is_admin: boolean
 }
 
 export interface LoginCredentials {

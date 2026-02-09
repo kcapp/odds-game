@@ -15,6 +15,7 @@ export interface BetRequest {
 export interface PlaceBetRequest {
   stake: number
   bets: BetRequest[]
+  bet_type?: string
 }
 
 export interface AddToBetslipRequest {
@@ -59,5 +60,38 @@ export async function getWallet(): Promise<Wallet> {
 
 export async function getTransactions() {
   const response = await api.get('/transactions')
+  return response.data
+}
+
+export interface DeleteBetslipRequest {
+  betslip_id: number
+}
+
+export interface DeleteBetslipResponse {
+  message: string
+  refunded: number
+  new_balance: number
+}
+
+export async function deleteBetslip(request: DeleteBetslipRequest): Promise<DeleteBetslipResponse> {
+  const response = await api.post('/betslips/delete', request)
+  return response.data
+}
+
+export interface UpdateBetslipStakeRequest {
+  betslip_id: number
+  new_stake: number
+}
+
+export interface UpdateBetslipStakeResponse {
+  message: string
+  old_stake: number
+  new_stake: number
+  new_potential_win: number
+  new_balance: number
+}
+
+export async function updateBetslipStake(request: UpdateBetslipStakeRequest): Promise<UpdateBetslipStakeResponse> {
+  const response = await api.post('/betslips/update-stake', request)
   return response.data
 }

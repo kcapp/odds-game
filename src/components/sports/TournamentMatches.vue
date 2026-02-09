@@ -22,9 +22,8 @@ const players = ref<Record<number, any>>({})
 const loading = ref(true)
 const betslipStore = useBetslipStore()
 const userStore = useUserStore()
-const testMode = import.meta.env.VITE_BETTING_TEST_MODE === 'true'
-const expandedMatch = ref<number | null>(null)
-const selectedPlayer = ref<number | null>(null)
+const showSingleBetModal = ref(false)
+const selectedBet = ref<{ match: any, playerIndex: number, odds: number } | null>(null)
 const betStake = ref<number>(100)
 const placingBet = ref(false)
 const betslipExpanded = ref(true)
@@ -34,6 +33,24 @@ const betslipSuccess = ref(false)
 const showBetslipSelector = ref(false)
 const selectedBetForBetslip = ref<BetSelection | null>(null)
 const addingToBetslip = ref(false)
+const notification = ref<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+
+const availableBetslips = computed(() => {
+  if (!selectedBetForBetslip.value) return []
+  
+  return betslipStore.pendingBetslips.filter(betslip => {
+    // Filter out betslips that already have this match
+    const hasMatch = betslip.bets.some(bet => 
+      bet.match_id === selectedBetForBetslip.value?.matchId && 
+      bet.sport === selectedBetForBetslip.value?.sport
+    )
+    
+    // Filter out if betslip is full (5 bets max)
+    if (betslip.bets.length >= 5) return false
+    
+    return !hasMatch
+  })
+})
 
 onMounted(async () => {
   if (props.sport === 'darts') {
@@ -163,39 +180,38 @@ const sortedMatches = computed(() => {
       dateA = a.last_throw_time
       dateB = b.last_throw_time
     }
-    return new Date(dateB).getTime() - new Date(dateA).getTime()
+    return new Date(dateA).getTime() - new Date(dateB).getTime()
   })
 })
 
 function canBet(match: any): boolean {
   const status = getMatchStatus(match)
-  // In test mode, allow betting on any match with odds
-  if (testMode) {
-    return getOdds(match, 0) !== null
-  }
-  // In normal mode, only scheduled matches
+  // Only allow betting on scheduled matches (not started, not finished)
+  // Even in test mode, don't allow betting on finished games
   return status === 'Scheduled' && getOdds(match, 0) !== null
 }
 
 function openBetPanel(match: any, playerIndex: number) {
-  const matchId = props.sport === 'table_tennis' ? match.match_id : match.id
-  expandedMatch.value = expandedMatch.value === matchId ? null : matchId
-  selectedPlayer.value = playerIndex
+  const odds = getOdds(match, playerIndex)
+  if (!odds) return
+  
+  selectedBet.value = { match, playerIndex, odds }
+  showSingleBetModal.value = true
   betStake.value = 100
 }
 
-async function confirmSingleBet(match: any) {
-  if (selectedPlayer.value === null) return
+async function confirmSingleBet() {
+  if (!selectedBet.value) return
   
-  const playerIndex = selectedPlayer.value
-  const odds = getOdds(match, playerIndex)
-  if (!odds) return
+  const { match, playerIndex, odds } = selectedBet.value
 
   if (betStake.value <= 0) {
+    showNotification('Please enter a valid stake amount', 'error')
     return
   }
 
   if (betStake.value > userStore.wallet.balance) {
+    showNotification('Insufficient balance', 'error')
     return
   }
 
@@ -226,6 +242,7 @@ async function confirmSingleBet(match: any) {
   try {
     await placeBet({
       stake: betStake.value,
+      bet_type: 'single',  // Mark as single bet
       bets: [{
         sport: props.sport,
         match_id: matchId,
@@ -241,19 +258,16 @@ async function confirmSingleBet(match: any) {
     // Refresh wallet
     await userStore.loadWallet()
     
-    // Close panel
-    expandedMatch.value = null
-    selectedPlayer.value = null
+    // Close modal
+    showSingleBetModal.value = false
+    selectedBet.value = null
+    showNotification('Bet placed successfully!', 'success')
   } catch (error: any) {
     console.error('Failed to place bet:', error)
+    showNotification(error.response?.data?.error || error.message || 'Failed to place bet', 'error')
   } finally {
     placingBet.value = false
   }
-}
-
-function closeBetPanel() {
-  expandedMatch.value = null
-  selectedPlayer.value = null
 }
 
 async function placeBetslip() {
@@ -327,9 +341,17 @@ function addToBetslip(match: any, playerIndex: number) {
     // Add to current betslip
     const added = betslipStore.addSelection(selection)
     if (!added) {
-      alert('Cannot add bet: Either match is already in betslip or betslip is full (max 5 bets)')
+      showNotification('Cannot add bet: Either match is already in betslip or betslip is full (max 5 bets)', 'error')
     }
   }
+}
+
+function showNotification(message: string, type: 'success' | 'error' | 'info') {
+  console.log('Showing notification:', message, type)
+  notification.value = { message, type }
+  setTimeout(() => {
+    notification.value = null
+  }, 4000)
 }
 
 async function addToSelectedBetslip(betslipId: number | null) {
@@ -341,17 +363,21 @@ async function addToSelectedBetslip(betslipId: number | null) {
       // Add to current (new) betslip
       const added = betslipStore.addSelection(selectedBetForBetslip.value)
       if (!added) {
-        alert('Cannot add bet: Either match is already in betslip or betslip is full (max 5 bets)')
+        showNotification('Cannot add bet: Either match is already in betslip or betslip is full (max 5 bets)', 'error')
+      } else {
+        // Close modal and scroll to top
+        showBetslipSelector.value = false
+        selectedBetForBetslip.value = null
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     } else {
       // Add to existing betslip
       await betslipStore.addToExistingBetslip(betslipId, selectedBetForBetslip.value)
+      showBetslipSelector.value = false
+      selectedBetForBetslip.value = null
     }
-    
-    showBetslipSelector.value = false
-    selectedBetForBetslip.value = null
   } catch (error: any) {
-    alert(error.response?.data?.error || error.message || 'Failed to add bet to betslip')
+    showNotification(error.response?.data?.error || error.message || 'Failed to add bet to betslip', 'error')
   } finally {
     addingToBetslip.value = false
   }
@@ -360,6 +386,19 @@ async function addToSelectedBetslip(betslipId: number | null) {
 function cancelBetslipSelection() {
   showBetslipSelector.value = false
   selectedBetForBetslip.value = null
+}
+
+async function handleDeleteBetslip(betslipId: number) {
+  if (!confirm('Are you sure you want to delete this betslip? Your stake will be refunded.')) {
+    return
+  }
+
+  try {
+    await betslipStore.removeBetslip(betslipId)
+    showNotification('Betslip deleted successfully', 'success')
+  } catch (error: any) {
+    showNotification(error.response?.data?.error || error.message || 'Failed to delete betslip', 'error')
+  }
 }
 
 interface BetSelection {
@@ -377,6 +416,52 @@ interface BetSelection {
 
 <template>
   <div class="tournament-matches">
+    <!-- Notification -->
+    <transition
+      enter-active-class="transition ease-out duration-300"
+      enter-from-class="transform translate-y-2 opacity-0"
+      enter-to-class="transform translate-y-0 opacity-100"
+      leave-active-class="transition ease-in duration-200"
+      leave-from-class="transform translate-y-0 opacity-100"
+      leave-to-class="transform translate-y-2 opacity-0"
+    >
+      <div
+        v-if="notification"
+        :class="[
+          'fixed top-4 right-4 max-w-md px-6 py-4 rounded-lg shadow-lg border',
+          notification.type === 'success' ? 'bg-green-900 border-green-700 text-green-100' :
+          notification.type === 'error' ? 'bg-red-900 border-red-700 text-red-100' :
+          'bg-blue-900 border-blue-700 text-blue-100'
+        ]"
+        style="z-index: 9999;"
+      >
+        <div class="flex items-start gap-3">
+          <div class="flex-shrink-0 mt-0.5">
+            <svg v-if="notification.type === 'success'" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <svg v-else-if="notification.type === 'error'" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            <svg v-else class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <p class="font-medium">{{ notification.message }}</p>
+          </div>
+          <button
+            @click="notification = null"
+            class="flex-shrink-0 text-current opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </transition>
+
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-6">
       <button 
         @click="emit('back')"
@@ -419,28 +504,40 @@ interface BetSelection {
             </button>
 
             <!-- Existing Betslips -->
-            <div v-if="betslipStore.pendingBetslips.length > 0" class="pt-2">
+            <div v-if="availableBetslips.length > 0" class="pt-2">
               <div class="text-sm text-gray-400 mb-2">Or add to existing betslip:</div>
-              <button
-                v-for="betslip in betslipStore.pendingBetslips"
+              <div
+                v-for="betslip in availableBetslips"
                 :key="betslip.id"
-                @click="addToSelectedBetslip(betslip.id)"
-                :disabled="addingToBetslip || betslip.bets.length >= 5"
-                class="w-full p-3 bg-gray-900 hover:bg-gray-750 disabled:bg-gray-800 disabled:opacity-50 border border-gray-700 rounded transition-colors text-left mb-2"
+                class="mb-2 border border-gray-700 rounded bg-gray-900"
               >
-                <div class="flex justify-between items-start">
-                  <div>
-                    <div class="font-medium text-white">Betslip #{{ betslip.id }}</div>
-                    <div class="text-xs text-gray-400 mt-1">
-                      {{ betslip.bets.length }}/5 bets • Stake: {{ betslip.total_stake }} kC
+                <button
+                  @click="addToSelectedBetslip(betslip.id)"
+                  :disabled="addingToBetslip || betslip.bets.length >= 5"
+                  class="w-full p-3 hover:bg-gray-750 disabled:opacity-50 transition-colors text-left"
+                >
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <div class="font-medium text-white uppercase">BETSLIP #{{ betslip.id }}</div>
+                      <div class="text-xs text-gray-400 mt-1">
+                        {{ betslip.bets.length }}/5 bets • Stake: {{ betslip.total_stake }} kC
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-sm text-green-400">{{ betslip.combined_odds.toFixed(2) }}x</div>
+                      <div class="text-xs text-gray-400">{{ betslip.potential_win.toFixed(2) }} kC</div>
                     </div>
                   </div>
-                  <div class="text-right">
-                    <div class="text-sm text-green-400">{{ betslip.combined_odds.toFixed(2) }}x</div>
-                    <div class="text-xs text-gray-400">{{ betslip.potential_win.toFixed(2) }} kC</div>
-                  </div>
+                </button>
+                <div class="px-3 pb-2">
+                  <button
+                    @click="handleDeleteBetslip(betslip.id)"
+                    class="text-xs text-red-400 hover:text-red-300 transition-colors"
+                  >
+                    Delete Betslip
+                  </button>
                 </div>
-              </button>
+              </div>
             </div>
           </div>
 
@@ -604,7 +701,6 @@ interface BetSelection {
           >
           <tr 
             class="hover:bg-gray-750 transition-colors border-b border-gray-700"
-            :class="{ 'bg-gray-750': expandedMatch === (sport === 'table_tennis' ? match.match_id : match.id) }"
           >
             <!-- Date -->
             <td class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-400">
@@ -758,92 +854,95 @@ interface BetSelection {
             </td>
           </tr>
 
-          <!-- Expanded Betting Panel -->
-          <tr 
-            v-if="expandedMatch === (sport === 'table_tennis' ? match.match_id : match.id)"
-            class="bg-gray-750"
-          >
-            <td colspan="5" class="px-4 sm:px-6 py-4 border-b border-gray-700">
-              <div class="bg-gray-800 rounded-lg p-4 space-y-4">
-                <div class="flex items-center justify-between">
-                  <h3 class="text-lg font-semibold text-white">Place Single Bet</h3>
-                  <button 
-                    @click="closeBetPanel"
-                    class="text-gray-400 hover:text-gray-200"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <div class="space-y-3">
-                  <!-- Selected Player -->
-                  <div class="bg-gray-700 rounded p-3">
-                    <div class="text-sm text-gray-400 mb-1">Betting on:</div>
-                    <div class="text-white font-semibold">
-                      {{ selectedPlayer === 0 ? 
-                        (sport === 'table_tennis' ? match.home_player_name : getPlayerName(match.players[0], match)) :
-                        (sport === 'table_tennis' ? match.away_player_name : getPlayerName(match.players[1], match))
-                      }}
-                    </div>
-                    <div class="text-sm text-green-300 mt-1">
-                      Odds: {{ getOdds(match, selectedPlayer!)?.toFixed(2) }}
-                    </div>
-                  </div>
-
-                  <!-- Stake Input -->
-                  <div>
-                    <label class="block text-sm text-gray-400 mb-2">Stake Amount (kCoins)</label>
-                    <input
-                      v-model.number="betStake"
-                      type="number"
-                      min="1"
-                      :max="userStore.wallet.balance"
-                      step="10"
-                      class="w-full bg-gray-700 text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter stake"
-                    />
-                    <div class="text-xs text-gray-400 mt-1">
-                      Available balance: {{ userStore.wallet.balance.toFixed(2) }} kCoins
-                    </div>
-                    <div 
-                      v-if="betStake > userStore.wallet.balance"
-                      class="text-xs text-red-400 mt-1"
-                    >
-                      Insufficient balance
-                    </div>
-                  </div>
-
-                  <!-- Potential Win -->
-                  <div class="bg-gray-700 rounded p-3">
-                    <div class="text-sm text-gray-400">Potential Win:</div>
-                    <div class="text-xl font-bold text-green-400">
-                      {{ (betStake * (getOdds(match, selectedPlayer!) || 1)).toFixed(2) }} kCoins
-                    </div>
-                  </div>
-
-                  <!-- Action Buttons -->
-                  <div class="flex gap-3">
-                    <button
-                      @click="confirmSingleBet(match)"
-                      :disabled="placingBet || betStake <= 0 || betStake > userStore.wallet.balance"
-                      class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded transition-colors"
-                    >
-                      {{ placingBet ? 'Placing Bet...' : 'Confirm Bet' }}
-                    </button>
-                    <button
-                      @click="closeBetPanel"
-                      class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
           </template>
         </tbody>
       </table>
+    </div>
+
+    <!-- Single Bet Modal -->
+    <div 
+      v-if="showSingleBetModal && selectedBet"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      style="z-index: 9999;"
+      @click.self="showSingleBetModal = false; selectedBet = null"
+    >
+      <div class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full border border-gray-700">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-white">Place Single Bet</h3>
+            <button 
+              @click="showSingleBetModal = false; selectedBet = null"
+              class="text-gray-400 hover:text-gray-200 text-2xl"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Selected Player -->
+            <div class="bg-gray-700 rounded p-3">
+              <div class="text-sm text-gray-400 mb-1">Betting on:</div>
+              <div class="text-white font-semibold">
+                {{ selectedBet.playerIndex === 0 ? 
+                  (sport === 'table_tennis' ? selectedBet.match.home_player_name : getPlayerName(selectedBet.match.players[0], selectedBet.match)) :
+                  (sport === 'table_tennis' ? selectedBet.match.away_player_name : getPlayerName(selectedBet.match.players[1], selectedBet.match))
+                }}
+              </div>
+              <div class="text-sm text-green-300 mt-1">
+                Odds: {{ selectedBet.odds.toFixed(2) }}
+              </div>
+            </div>
+
+            <!-- Stake Input -->
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">Stake Amount (kCoins)</label>
+              <input
+                v-model.number="betStake"
+                type="number"
+                min="1"
+                :max="userStore.wallet.balance"
+                step="10"
+                class="w-full bg-gray-700 text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter stake"
+              />
+              <div class="text-xs text-gray-400 mt-1">
+                Available balance: {{ userStore.wallet.balance.toFixed(2) }} kCoins
+              </div>
+              <div 
+                v-if="betStake > userStore.wallet.balance"
+                class="text-xs text-red-400 mt-1"
+              >
+                Insufficient balance
+              </div>
+            </div>
+
+            <!-- Potential Win -->
+            <div class="bg-gray-700 rounded p-3">
+              <div class="text-sm text-gray-400">Potential Win:</div>
+              <div class="text-xl font-bold text-green-400">
+                {{ (betStake * selectedBet.odds).toFixed(2) }} kCoins
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+              <button
+                @click="confirmSingleBet()"
+                :disabled="placingBet || betStake <= 0 || betStake > userStore.wallet.balance"
+                class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded transition-colors"
+              >
+                {{ placingBet ? 'Placing Bet...' : 'Confirm Bet' }}
+              </button>
+              <button
+                @click="showSingleBetModal = false; selectedBet = null"
+                class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
